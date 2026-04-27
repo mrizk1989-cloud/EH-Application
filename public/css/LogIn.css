@@ -1,0 +1,114 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Background */
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #1f242a, #2c3238);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Card */
+.box {
+    width: 380px;
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.tabs button {
+    flex: 1;
+    padding: 10px;
+    background: #2c3238;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.tabs button:hover {
+    background: #f5b21b;
+    color: #1f242a;
+}
+
+/* Forms */
+form h2 {
+    color: #f5b21b;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    outline: none;
+}
+
+input:focus {
+    border-color: #f5b21b;
+}
+
+/* Role box */
+.role-box {
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.role-box label {
+    font-size: 13px;
+    color: #cfd6dc;
+}
+
+.roles {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #f5b21b;
+    border: none;
+    color: #1f242a;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #d99a14;
+}
