@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     user_type: {
         type: String,
         enum: ['admin', 'user'],
-        default: 'user',   // ✅ auto assign "user"
+        default: 'user',
         required: true
     },
 
@@ -18,9 +18,10 @@ const userSchema = new mongoose.Schema({
     user_email: {
         type: String,
         required: true,
-        unique: true,
+        unique: true,   // ✅ KEEP ONLY THIS
         lowercase: true,
-        trim: true
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, 'Invalid email format']
     },
 
     user_password: {

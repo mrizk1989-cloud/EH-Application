@@ -1,50 +1,111 @@
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+document.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("loginBtn").onclick = () => {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-};
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
 
-document.getElementById("registerBtn").onclick = () => {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-};
+    // ================= SWITCH TABS =================
+    document.getElementById("loginBtn").onclick = () => {
+        loginForm.style.display = "block";
+        registerForm.style.display = "none";
+    };
 
-// LOGIN
-loginForm.onsubmit = async (e) => {
-    e.preventDefault();
+    document.getElementById("registerBtn").onclick = () => {
+        loginForm.style.display = "none";
+        registerForm.style.display = "block";
+    };
 
-    const data = Object.fromEntries(new FormData(loginForm));
+    // ================= EYE TOGGLE =================
+    document.addEventListener("click", (e) => {
 
-    const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        if (!e.target.classList.contains("toggle-eye")) return;
+
+        const id = e.target.dataset.target;
+        const input = document.getElementById(id);
+
+        if (!input) return;
+
+        input.type = input.type === "password" ? "text" : "password";
+        e.target.textContent = input.type === "password" ? "👁" : "🙈";
     });
 
-    const result = await res.json();
+    // ================= REGISTER =================
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const msg = document.getElementById("msg");
-    msg.innerText = result.message;
-    msg.style.color = result.success ? "green" : "red";
-};
+        console.log("REGISTER SUBMIT TRIGGERED");
 
-// REGISTER
-registerForm.onsubmit = async (e) => {
-    e.preventDefault();
+        const fullName = registerForm.querySelector("input[name='fullName']").value;
+        const email = registerForm.querySelector("input[name='email']").value;
+        const password = registerForm.querySelector("input[name='password']").value;
 
-    const data = Object.fromEntries(new FormData(registerForm));
+        const msg = document.getElementById("msg2");
 
-    const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        if (!fullName || !email || !password) {
+            msg.innerText = "All fields are required";
+            msg.style.color = "red";
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ fullName, email, password })
+            });
+
+            const data = await res.json();
+
+            console.log(data); // ✅ DEBUG
+
+            msg.innerText = data.message;
+            msg.style.color = data.success ? "green" : "red";
+
+        } catch (err) {
+            msg.innerText = "Server error";
+            msg.style.color = "red";
+        }
     });
 
-    const result = await res.json();
+    // ================= LOGIN (FIX ADDED) =================
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const msg = document.getElementById("msg2");
-    msg.innerText = result.message;
-    msg.style.color = result.success ? "green" : "red";
-};
+        console.log("LOGIN SUBMIT TRIGGERED");
+
+        const email = loginForm.querySelector("input[name='email']").value;
+        const password = loginForm.querySelector("input[name='password']").value;
+
+        const msg = document.getElementById("msg");
+
+        if (!email || !password) {
+            msg.innerText = "Email and password required";
+            msg.style.color = "red";
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            console.log(data); // ✅ DEBUG (IMPORTANT)
+
+            msg.innerText = data.message;
+            msg.style.color = data.success ? "green" : "red";
+
+        } catch (err) {
+            console.error(err);
+            msg.innerText = "Server error";
+            msg.style.color = "red";
+        }
+    });
+
+});
