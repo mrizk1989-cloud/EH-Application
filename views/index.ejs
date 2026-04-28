@@ -16,40 +16,33 @@
         <div class="box">
             
             <!-- Tabs -->
-             
             <div class="tabs">
                 <button type="button" onclick="showLogin()">Login</button>
                 <button type="button" onclick="showRegister()">Create Account</button>
             </div>
 
             <!-- ================= LOGIN ================= -->
-
-            <form id="loginForm" action="/login" method="post">
+            <form id="loginForm" action="/login" method="POST">
 
                 <h2>Login</h2>
-
-                <!-- Role -->
-                <div class="role-box">
-                    <label>Login As:</label>
-                    <div class="roles">
-                        <label>
-                            <input type="radio" name="role" value="admin" checked> Admin
-                        </label>
-                        <label>
-                            <input type="radio" name="role" value="user"> User
-                        </label>
-                    </div>
-                </div>
 
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
 
                 <button type="submit">Login</button>
 
+                 <% if (success && success.length > 0) { %>
+                    <p style="color: green;"><%= success[0] %></p>
+                <% } %>
+
+                <% if (error && error.length > 0) { %>
+                    <p style="color: red;"><%= error[0] %></p>
+                <% } %>
+
             </form>
 
             <!-- ================= REGISTER ================= -->
-            <form id="registerForm" action="/register" method="post" style="display:none;">
+            <form id="registerForm" action="/register" method="POST" style="display:none;">
 
                 <h2>Create Account</h2>
 
@@ -57,12 +50,12 @@
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
 
-                <!-- Role selection -->
+                <!-- Role selection (ONLY HERE) -->
                 <div class="role-box">
                     <label>Account Type:</label>
                     <div class="roles">
                         <label>
-                            <input type="radio" name="role" value="admin"> Admin
+                            <input type="radio" name="role" value="admin" required> Admin
                         </label>
                         <label>
                             <input type="radio" name="role" value="user" checked> User

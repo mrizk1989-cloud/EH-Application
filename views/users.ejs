@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users List</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Users List</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.user_name %></td>
+                    <td><%= user.user_email %></td>
+                    <td><%= user.user_type %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+</body>
+</html>
