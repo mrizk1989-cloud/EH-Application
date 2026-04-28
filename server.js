@@ -76,6 +76,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
+const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -91,7 +92,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // ================= STATIC =================
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ================= VIEW ENGINE =================
 app.set('view engine', 'ejs');
