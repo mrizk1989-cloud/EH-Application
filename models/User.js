@@ -4,7 +4,8 @@ const userSchema = new mongoose.Schema({
 
     user_type: {
         type: String,
-        enum: ['admin', 'user'],   // only these values allowed
+        enum: ['admin', 'user'],
+        default: 'user',   // ✅ auto assign "user"
         required: true
     },
 
@@ -17,8 +18,9 @@ const userSchema = new mongoose.Schema({
     user_email: {
         type: String,
         required: true,
-        unique: true,              // no duplicate emails
-        lowercase: true
+        unique: true,
+        lowercase: true,
+        trim: true
     },
 
     user_password: {
@@ -26,6 +28,6 @@ const userSchema = new mongoose.Schema({
         required: true
     }
 
-}, { timestamps: true }); // adds createdAt & updatedAt
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
