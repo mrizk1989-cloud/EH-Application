@@ -4,15 +4,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
 
     // ================= SWITCH TABS =================
-    document.getElementById("loginBtn").onclick = () => {
-        loginForm.style.display = "block";
-        registerForm.style.display = "none";
-    };
+    const loginBtn = document.getElementById("loginBtn");
+    const registerBtn = document.getElementById("registerBtn");
 
-    document.getElementById("registerBtn").onclick = () => {
-        loginForm.style.display = "none";
-        registerForm.style.display = "block";
-    };
+    if (loginBtn && registerBtn && loginForm && registerForm) {
+
+        loginBtn.onclick = () => {
+            loginForm.style.display = "block";
+            registerForm.style.display = "none";
+        };
+
+        registerBtn.onclick = () => {
+            loginForm.style.display = "none";
+            registerForm.style.display = "block";
+        };
+    }
 
     // ================= EYE TOGGLE =================
     document.addEventListener("click", (e) => {
@@ -29,83 +35,68 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ================= REGISTER =================
-    registerForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    if (registerForm) {
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-        console.log("REGISTER SUBMIT TRIGGERED");
+            const fullName = registerForm.querySelector("input[name='fullName']").value;
+            const email = registerForm.querySelector("input[name='email']").value;
+            const password = registerForm.querySelector("input[name='password']").value;
 
-        const fullName = registerForm.querySelector("input[name='fullName']").value;
-        const email = registerForm.querySelector("input[name='email']").value;
-        const password = registerForm.querySelector("input[name='password']").value;
+            const msg = document.getElementById("msg2");
 
-        const msg = document.getElementById("msg2");
+            try {
+                const res = await fetch("/api/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fullName, email, password })
+                });
 
-        if (!fullName || !email || !password) {
-            msg.innerText = "All fields are required";
-            msg.style.color = "red";
-            return;
-        }
+                const data = await res.json();
+                console.log(data);
 
-        try {
-            const res = await fetch("/api/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ fullName, email, password })
-            });
+                msg.innerText = data.message;
+                msg.style.color = data.success ? "green" : "red";
 
-            const data = await res.json();
+            } catch (err) {
+                msg.innerText = "Server error";
+                msg.style.color = "red";
+            }
+        });
+    }
 
-            console.log(data); // ✅ DEBUG
+    // ================= LOGIN =================
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-            msg.innerText = data.message;
-            msg.style.color = data.success ? "green" : "red";
+            const email = loginForm.querySelector("input[name='email']").value;
+            const password = loginForm.querySelector("input[name='password']").value;
 
-        } catch (err) {
-            msg.innerText = "Server error";
-            msg.style.color = "red";
-        }
-    });
+            const msg = document.getElementById("msg");
 
-    // ================= LOGIN (FIX ADDED) =================
-    loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+            try {
+                const res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
 
-        console.log("LOGIN SUBMIT TRIGGERED");
+                const data = await res.json();
+                console.log(data);
 
-        const email = loginForm.querySelector("input[name='email']").value;
-        const password = loginForm.querySelector("input[name='password']").value;
+                if (data.success) {
+                    window.location.href = "/user";
+                } else {
+                    msg.innerText = data.message;
+                    msg.style.color = "red";
+                }
 
-        const msg = document.getElementById("msg");
-
-        if (!email || !password) {
-            msg.innerText = "Email and password required";
-            msg.style.color = "red";
-            return;
-        }
-
-        try {
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await res.json();
-
-            console.log(data); // ✅ DEBUG (IMPORTANT)
-
-            msg.innerText = data.message;
-            msg.style.color = data.success ? "green" : "red";
-
-        } catch (err) {
-            console.error(err);
-            msg.innerText = "Server error";
-            msg.style.color = "red";
-        }
-    });
+            } catch (err) {
+                msg.innerText = "Server error";
+                msg.style.color = "red";
+            }
+        });
+    }
 
 });

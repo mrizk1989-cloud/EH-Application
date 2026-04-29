@@ -38,6 +38,7 @@ mongoose.connect(process.env.DATABASE_URL)
 app.use('/', pageRoutes);
 app.use('/api', authRoutes);
 
+
 // ================= START =================
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server running...");
