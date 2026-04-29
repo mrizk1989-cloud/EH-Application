@@ -39,3 +39,14 @@ button {
 button:hover {
     background: #d99a14;
 }
+
+.actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.actions button {
+    padding: 10px 15px;
+    cursor: pointer;
+}

@@ -16,7 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <td><input type="text" name="customerId[]" required></td>
 
-                <td><input type="text" name="amount[]" class="amount-input" required></td>
+                <td>
+                    <input type="text" name="amount[]" 
+                        class="amount-input" 
+                        inputmode="decimal" 
+                        pattern="^\\d+(\\.\\d{1,2})?$"
+                        required
+                    >
+                </td>
 
                 <td>
                     <select name="currency[]">
@@ -40,16 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>
                     <select name="month[]">
                         ${Array.from({ length: 12 }, (_, i) =>
-                            `<option value="${i + 1}">${i + 1}</option>`
-                        ).join('')}
+                `<option value="${i + 1}">${i + 1}</option>`
+            ).join('')}
                     </select>
                 </td>
 
                 <td>
                     <select name="year[]">
                         ${Array.from({ length: 11 }, (_, i) =>
-                            `<option value="${2020 + i}">${2020 + i}</option>`
-                        ).join('')}
+                `<option value="${2020 + i}">${2020 + i}</option>`
+            ).join('')}
                     </select>
                 </td>
             `;
@@ -77,10 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let value = e.target.value;
 
-        // allow only numbers and dot
         value = value.replace(/[^0-9.]/g, '');
 
-        // keep only one dot
         const parts = value.split('.');
         if (parts.length > 2) {
             value = parts[0] + '.' + parts.slice(1).join('');
@@ -89,32 +94,54 @@ document.addEventListener("DOMContentLoaded", () => {
         e.target.value = value;
     });
 
-    // ================= SUBMIT (for now only log) =================
+    // ================= SUBMIT (SECURE VERSION) =================
     if (requestForm) {
-        requestForm.addEventListener("submit", (e) => {
+        requestForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             const rows = document.querySelectorAll("#tableBody tr");
 
-            let data = [];
+            let items = [];
 
             rows.forEach(row => {
                 const inputs = row.querySelectorAll("input, select");
 
-                data.push({
+                items.push({
                     customerId: inputs[1].value,
-                    amount: inputs[2].value,
+                    amount: parseFloat(inputs[2].value),
                     currency: inputs[3].value,
                     expenseType: inputs[4].value,
                     purpose: inputs[5].value,
-                    doctor: inputs[6].value,
-                    month: inputs[7].value,
-                    year: inputs[8].value
+                    doctorName: inputs[6].value,
+                    requestPeriodMonth: parseInt(inputs[7].value),
+                    requestPeriodYear: parseInt(inputs[8].value)
                 });
             });
 
-            console.log("SUBMITTED DATA:", data);
-            alert("Request submitted (check console)");
+            try {
+                const res = await fetch("/api/requests", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-csrf-token": localStorage.getItem("csrf_token")
+                    },
+                    body: JSON.stringify({ items })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert("Request submitted successfully");
+                    console.log("Saved Request:", data);
+                } else {
+                    alert(data.message || "Failed to submit request");
+                }
+
+            } catch (err) {
+                console.error("SUBMIT ERROR:", err);
+                alert("Server error while submitting request");
+            }
         });
     }
 

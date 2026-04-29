@@ -38,6 +38,16 @@ mongoose.connect(process.env.DATABASE_URL)
 app.use('/', pageRoutes);
 app.use('/api', authRoutes);
 
+// ================= ERROR HANDLER (MUST BE LAST) =================
+app.use((err, req, res, next) => {
+    console.error("🔥 ERROR:", err);
+
+    res.status(500).json({
+        success: false,
+        message: "Server error"
+    });
+});
+
 
 // ================= START =================
 app.listen(process.env.PORT || 3000, () => {

@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     user_email: {
         type: String,
         required: true,
-        unique: true,   // ✅ KEEP ONLY THIS
+        unique: true,
         lowercase: true,
         trim: true,
         match: [/^\S+@\S+\.\S+$/, 'Invalid email format']
@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema({
     user_password: {
         type: String,
         required: true
+    },
+
+    // ✅ SCALABLE ROLE SYSTEM (IMPORTANT CHANGE)
+    roles: {
+        type: [String],
+        enum: ['sales_manager','budget_control', 'direct_manager', 'bi', 'vp_finance'],
+        default: []
     }
 
 }, { timestamps: true });

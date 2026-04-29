@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimiter');
 const User = require('../models/User');
@@ -52,20 +53,40 @@ router.post('/register', registerLimiter, async (req, res) => {
             throw err;
         }
 
+        // 🔐 JWT
         const token = jwt.sign(
-            { id: user._id, role: user.user_type },
+            {
+                id: user._id,
+                userType: user.user_type,
+                roles: user.roles
+            },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES }
         );
 
+        // 🔐 CSRF token (NEW)
+        const csrfToken = crypto.randomBytes(32).toString('hex');
+
+        // 🍪 JWT cookie
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 1000 * 60 * 60
         });
 
-        return res.json({ success: true, message: "Account created successfully" });
+        // 🍪 CSRF cookie (NOT httpOnly so frontend can read it)
+        res.cookie("csrf_token", csrfToken, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax"
+        });
+
+        return res.json({
+            success: true,
+            message: "Account created successfully",
+            csrfToken
+        });
 
     } catch (err) {
         console.error("REGISTER ERROR:", err);
@@ -99,24 +120,59 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
+        // 🔐 JWT
         const token = jwt.sign(
-            { id: user._id, role: user.user_type },
+            {
+                id: user._id,
+                userType: user.user_type,
+                roles: user.roles
+            },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES }
         );
 
+        // 🔐 CSRF token (NEW)
+        const csrfToken = crypto.randomBytes(32).toString('hex');
+
+        // 🍪 JWT cookie
         res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 1000 * 60 * 60
         });
 
-        return res.json({ success: true, message: "Login successful" });
+        // 🍪 CSRF cookie
+        res.cookie("csrf_token", csrfToken, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax"
+        });
+
+        return res.json({
+            success: true,
+            message: "Login successful",
+            csrfToken
+        });
 
     } catch (err) {
         console.error("LOGIN ERROR:", err);
         return res.json({ success: false, message: "Server error" });
     }
 });
+
+
+// ================= LOGOUT =================
+router.post('/logout', (req, res) => {
+
+    res.clearCookie("token");
+    res.clearCookie("csrf_token"); // NEW
+
+    return res.json({
+        success: true,
+        message: "Logged out successfully"
+    });
+});
+
+
 module.exports = router;
