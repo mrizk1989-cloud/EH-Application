@@ -1,14 +1,12 @@
 function requireAdmin(req, res, next) {
 
-    if (!req.session || !req.session.user) {
-        return res.redirect('/');
-    }
+    if (!req.user) return res.redirect('/');
 
-    const user = req.session.user;
+    const roles = req.user.roles || [];
 
     const isAdmin =
-        (user.roles && user.roles.includes('admin')) ||
-        user.userType === 'admin';
+        roles.includes('admin') ||
+        req.user.userType === 'admin';
 
     if (!isAdmin) {
         return res.redirect('/user');

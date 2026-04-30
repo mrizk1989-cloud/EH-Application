@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimiter');
 const User = require('../models/User');
 
-
 // ================= REGISTER =================
 router.post('/register', registerLimiter, async (req, res) => {
     try {
@@ -17,54 +16,21 @@ router.post('/register', registerLimiter, async (req, res) => {
 
         const emailNormalized = email.toLowerCase().trim();
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailNormalized)) {
-            return res.json({ success: false, message: "Invalid email format" });
-        }
-
-        const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-        if (!strongPassword.test(password)) {
-            return res.json({
-                success: false,
-                message: "Weak password (min 8 chars, upper, lower, number)"
-            });
-        }
-
-        let user;
-
-        try {
-            user = await User.create({
-                user_type: 'user',
-                user_name: fullName,
-                user_email: emailNormalized,
-                user_password: await bcrypt.hash(password, 10),
-                roles: []
-            });
-
-        } catch (err) {
-            if (err.code === 11000) {
-                return res.json({ success: false, message: "Email already exists" });
-            }
-            throw err;
-        }
-
-        // ================= SESSION LOGIN =================
-        req.session.user = {
-            id: user._id,
-            name: user.user_name,
-            email: user.user_email,
-            userType: user.user_type,
-            roles: user.roles || []
-        };
+        const user = await User.create({
+            user_type: 'user',
+            user_name: fullName,
+            user_email: emailNormalized,
+            user_password: await bcrypt.hash(password, 10),
+            roles: []
+        });
 
         return res.json({
             success: true,
-            message: "Account created successfully",
-            userType: user.user_type
+            message: "Account created"
         });
 
     } catch (err) {
-        console.error("REGISTER ERROR:", err);
+        console.error(err);
         return res.json({ success: false, message: "Server error" });
     }
 });
@@ -75,13 +41,9 @@ router.post('/login', loginLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.json({ success: false, message: "Missing fields" });
-        }
-
-        const emailNormalized = email.toLowerCase().trim();
-
-        const user = await User.findOne({ user_email: emailNormalized });
+        const user = await User.findOne({
+            user_email: email.toLowerCase().trim()
+        });
 
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" });
@@ -93,24 +55,21 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        // ================= SESSION LOGIN =================
+        // ================= SESSION AUTH (IMPORTANT FIX) =================
         req.session.user = {
             id: user._id,
-            name: user.user_name,
-            email: user.user_email,
             userType: user.user_type,
             roles: user.roles || []
         };
 
         return res.json({
             success: true,
-            message: "Login successful",
             roles: user.roles || [],
             userType: user.user_type
         });
 
     } catch (err) {
-        console.error("LOGIN ERROR:", err);
+        console.error(err);
         return res.json({ success: false, message: "Server error" });
     }
 });
@@ -121,14 +80,13 @@ router.post('/logout', (req, res) => {
 
     req.session.destroy(err => {
         if (err) {
-            console.error("LOGOUT ERROR:", err);
-            return res.json({
+            return res.status(500).json({
                 success: false,
-                message: "Logout failed"
+                message: "Logout error"
             });
         }
 
-        res.clearCookie("connect.sid"); // session cookie
+        res.clearCookie('connect.sid');
 
         return res.json({
             success: true,

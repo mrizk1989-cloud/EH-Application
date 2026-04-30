@@ -10,6 +10,7 @@ const session = require('express-session');
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
+const refreshRoutes = require('./routes/refresh');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 
 // ================= SESSION (NEW AUTH SYSTEM) =================
 app.use(session({
@@ -51,6 +53,7 @@ mongoose.connect(process.env.DATABASE_URL)
 app.use('/', pageRoutes);
 app.use('/api', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api/refresh', refreshRoutes);
 
 // ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {

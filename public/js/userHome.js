@@ -8,23 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const res = await fetch("/api/logout", {
                     method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "x-csrf-token": localStorage.getItem("csrf_token")
-                    }
+                    credentials: "include"
                 });
 
                 const data = await res.json();
 
                 if (data.success) {
-                    localStorage.removeItem("csrf_token");
                     window.location.href = "/";
                 } else {
-                    alert(data.message);
+                    alert("Logout failed");
                 }
 
             } catch (err) {
-                alert("Logout failed");
+                console.error(err);
+                alert("Logout error");
             }
         });
     }

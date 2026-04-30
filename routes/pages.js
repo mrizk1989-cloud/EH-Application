@@ -11,29 +11,17 @@ router.get('/', (req, res) => {
 
 // ================= USER =================
 router.get('/user', verifyToken, (req, res) => {
-    const csrfToken = req.cookies.csrf_token || null;
-
-    res.render('userHome', {
-        csrfToken
-    });
+    res.render('userHome');
 });
 
 // ================= REQUEST FORM =================
 router.get('/request-form', verifyToken, (req, res) => {
-    const csrfToken = req.cookies.csrf_token || null;
-
-    res.render('requestForm', {
-        csrfToken
-    });
+    res.render('requestForm');
 });
 
 // ================= ADMIN =================
 router.get('/admin', verifyToken, requireAdmin, (req, res) => {
-    const csrfToken = req.cookies.csrf_token || null;
-
-    res.render('admin', {
-        csrfToken
-    });
+    res.render('admin');
 });
 
 module.exports = router;
