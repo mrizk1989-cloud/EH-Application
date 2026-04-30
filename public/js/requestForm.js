@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const tableBody = document.getElementById("tableBody");
+
     const addRowBtn = document.getElementById("addRowBtn");
     const deleteRowsBtn = document.getElementById("deleteRowsBtn");
 
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-
-    const requestForm = document.getElementById("requestForm");
 
     // ================= BACK =================
     if (backBtn) {
@@ -105,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ================= AMOUNT VALIDATION =================
+    // ================= AMOUNT FIX =================
     document.addEventListener("input", (e) => {
         if (e.target.classList.contains("amount-input")) {
             e.target.value = e.target.value.replace(/[^0-9.]/g, "");

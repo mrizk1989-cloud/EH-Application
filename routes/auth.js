@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimiter');
 const User = require('../models/User');
-const { csrfProtection } = require('../middleware/csrf');
+
 
 // ================= REGISTER =================
 router.post('/register', registerLimiter, async (req, res) => {
@@ -50,38 +48,19 @@ router.post('/register', registerLimiter, async (req, res) => {
             throw err;
         }
 
-        // JWT
-        const token = jwt.sign(
-            {
-                id: user._id,
-                userType: user.user_type,
-                roles: user.roles || []
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES }
-        );
-
-        // CSRF
-        const csrfToken = crypto.randomBytes(32).toString('hex');
-
-        // Cookies
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 1000 * 60 * 60
-        });
-
-        res.cookie("csrf_token", csrfToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax"
-        });
+        // ================= SESSION LOGIN =================
+        req.session.user = {
+            id: user._id,
+            name: user.user_name,
+            email: user.user_email,
+            userType: user.user_type,
+            roles: user.roles || []
+        };
 
         return res.json({
             success: true,
             message: "Account created successfully",
-            csrfToken
+            userType: user.user_type
         });
 
     } catch (err) {
@@ -114,40 +93,20 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        // JWT
-        const token = jwt.sign(
-            {
-                id: user._id,
-                userType: user.user_type,
-                roles: user.roles || []
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES }
-        );
-
-        // CSRF
-        const csrfToken = crypto.randomBytes(32).toString('hex');
-
-        // Cookies
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 1000 * 60 * 60
-        });
-
-        res.cookie("csrf_token", csrfToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax"
-        });
+        // ================= SESSION LOGIN =================
+        req.session.user = {
+            id: user._id,
+            name: user.user_name,
+            email: user.user_email,
+            userType: user.user_type,
+            roles: user.roles || []
+        };
 
         return res.json({
             success: true,
             message: "Login successful",
             roles: user.roles || [],
-            userType: user.user_type,
-            csrfToken // ✅ FIX
+            userType: user.user_type
         });
 
     } catch (err) {
@@ -158,14 +117,23 @@ router.post('/login', loginLimiter, async (req, res) => {
 
 
 // ================= LOGOUT =================
-router.post('/logout', csrfProtection, (req, res) => {
+router.post('/logout', (req, res) => {
 
-    res.clearCookie("token");
-    res.clearCookie("csrf_token");
+    req.session.destroy(err => {
+        if (err) {
+            console.error("LOGOUT ERROR:", err);
+            return res.json({
+                success: false,
+                message: "Logout failed"
+            });
+        }
 
-    return res.json({
-        success: true,
-        message: "Logged out"
+        res.clearCookie("connect.sid"); // session cookie
+
+        return res.json({
+            success: true,
+            message: "Logged out"
+        });
     });
 });
 

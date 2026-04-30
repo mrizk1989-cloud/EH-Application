@@ -1,5 +1,3 @@
-
-
 require('dotenv').config();
 
 const express = require('express');
@@ -7,6 +5,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const path = require('path');
+const session = require('express-session');
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -21,6 +20,19 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// ================= SESSION (NEW AUTH SYSTEM) =================
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
+    }
+}));
 
 // ================= STATIC =================
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,16 +52,7 @@ app.use('/', pageRoutes);
 app.use('/api', authRoutes);
 app.use('/admin', adminRoutes);
 
-// ================= ERROR HANDLER (MUST BE LAST) =================
-// app.use((err, req, res, next) => {
-//     console.error("🔥 ERROR:", err);
-
-//     res.status(500).json({
-//         success: false,
-//         message: "Server error"
-//     });
-// });
-
+// ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
     console.error("🔥 FULL ERROR:", err);
 
@@ -62,7 +65,6 @@ app.use((err, req, res, next) => {
 
     res.status(500).send("Page error: " + err.message);
 });
-
 
 // ================= START =================
 app.listen(process.env.PORT || 3000, () => {

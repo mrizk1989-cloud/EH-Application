@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById("loginBtn");
     const registerBtn = document.getElementById("registerBtn");
 
-    // ================= SWITCH =================
+    // ================= SWITCH TABS =================
     if (loginBtn && registerBtn && loginForm && registerForm) {
 
         loginBtn.onclick = () => {
@@ -19,6 +19,27 @@ document.addEventListener("DOMContentLoaded", () => {
             registerForm.style.display = "block";
         };
     }
+
+    // ================= 👁 PASSWORD TOGGLE (FIXED) =================
+    document.addEventListener("click", (e) => {
+
+        const target = e.target;
+
+        if (!target.classList.contains("toggle-eye")) return;
+
+        const inputId = target.dataset.target;
+        const input = document.getElementById(inputId);
+
+        if (!input) return;
+
+        if (input.type === "password") {
+            input.type = "text";
+            target.textContent = "🙈";
+        } else {
+            input.type = "password";
+            target.textContent = "👁";
+        }
+    });
 
     // ================= REGISTER =================
     if (registerForm) {
@@ -39,10 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await res.json();
-
-                if (data.success && data.csrfToken) {
-                    localStorage.setItem("csrf_token", data.csrfToken);
-                }
 
                 msg.innerText = data.message;
                 msg.style.color = data.success ? "green" : "red";
@@ -74,11 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
 
                 if (data.success) {
-
-                    // ✅ STORE CSRF TOKEN
-                    if (data.csrfToken) {
-                        localStorage.setItem("csrf_token", data.csrfToken);
-                    }
 
                     const roles = data.roles || [];
 

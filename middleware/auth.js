@@ -1,26 +1,14 @@
-const jwt = require('jsonwebtoken');
-
 function verifyToken(req, res, next) {
 
-    const token = req.cookies.token;
-
-    if (!token) return res.redirect('/');
-
-    try {
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        req.user = {
-            id: decoded.id,
-            roles: decoded.roles || [],
-            userType: decoded.userType || null
-        };
-
-        next();
-
-    } catch (err) {
+    // SESSION CHECK (replaces JWT completely)
+    if (!req.session || !req.session.user) {
         return res.redirect('/');
     }
+
+    // attach user to req (standardized)
+    req.user = req.session.user;
+
+    next();
 }
 
 module.exports = { verifyToken };

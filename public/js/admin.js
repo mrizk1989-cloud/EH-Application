@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const buttons = document.querySelectorAll(".nav-links button[data-section]");
     const logoutBtn = document.getElementById("logoutBtn");
-
     const usersTableBody = document.getElementById("usersTableBody");
 
     let usersLoaded = false;
@@ -18,20 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 .forEach(sec => sec.classList.remove("active"));
 
             // show selected section
-            document.getElementById(section + "Section")
-                .classList.add("active");
+            const target = document.getElementById(section + "Section");
+            if (target) target.classList.add("active");
 
-            // hide welcome once navigation starts
-            document.getElementById("welcomeSection")
-                .classList.remove("active");
-
-            // ================= LOAD USERS ONLY ON FIRST CLICK =================
+            // ================= LOAD USERS ON FIRST CLICK =================
             if (section === "users" && !usersLoaded) {
                 await loadUsers();
                 usersLoaded = true;
             }
         });
     });
+
 
     // ================= LOAD USERS =================
     async function loadUsers() {
@@ -42,6 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const users = await res.json();
+
+            if (!Array.isArray(users)) {
+                console.error("Invalid users response:", users);
+                return;
+            }
 
             usersTableBody.innerHTML = "";
 
@@ -68,16 +69,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     // ================= LOGOUT =================
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async () => {
 
-            await fetch("/api/logout", {
-                method: "POST",
-                credentials: "include"
-            });
+            try {
+                await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
 
-            window.location.href = "/";
+                window.location.href = "/";
+
+            } catch (err) {
+                console.error("LOGOUT ERROR:", err);
+            }
         });
     }
 
