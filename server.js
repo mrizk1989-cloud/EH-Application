@@ -7,13 +7,15 @@ const helmet = require('helmet');
 const path = require('path');
 const session = require('express-session');
 
+const { createClient } = require('redis');
+const { RedisStore } = require('connect-redis'); // ✅ v9 correct
+
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
 const refreshRoutes = require('./routes/refresh');
 const requestRoutes = require('./routes/requests');
 
-// ✅ FIXED IMPORT
 const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -26,13 +28,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// ================= GLOBAL RATE LIMIT =================
-// ❌ WRONG: app.use(rateLimit);
-// ✅ CORRECT:
-app.use(apiLimiter);
+// ================= REDIS CLIENT =================
+const redisClient = createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+        tls: true,                // ✅ REQUIRED for Upstash
+        rejectUnauthorized: false // ✅ avoids SSL issues locally
+    }
+});
 
-// ================= SESSION =================
+redisClient.on('connect', () => {
+    console.log('Redis Connected');
+});
+
+redisClient.on('error', (err) => {
+    console.error('Redis Error:', err.message);
+});
+
+(async () => {
+    await redisClient.connect();
+})();
+
+// ================= SESSION (REDIS STORE v9) =================
 app.use(session({
+    store: new RedisStore({
+        client: redisClient,
+        prefix: "sess:"
+    }),
     secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
     saveUninitialized: false,
@@ -43,6 +65,9 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
+// ================= GLOBAL RATE LIMIT =================
+app.use(apiLimiter);
 
 // ================= STATIC =================
 app.use(express.static(path.join(__dirname, 'public')));
