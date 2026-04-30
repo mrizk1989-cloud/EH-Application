@@ -1,0 +1,201 @@
+/* ================= RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* ================= THEME COLORS ================= */
+:root {
+    --bg: #0f141a;
+    --panel: #151c24;
+    --gold: #d4af37;
+    --gold-dark: #b8922e;
+    --text: #e6e6e6;
+    --border: rgba(255,255,255,0.08);
+}
+
+/* ================= BODY ================= */
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ================= NAVBAR (STICKY) ================= */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: var(--panel);
+    padding: 14px 20px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+/* TITLE */
+.navbar h2 {
+    color: var(--gold);
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+/* NAV BUTTONS */
+.nav-links button {
+    margin-left: 8px;
+    padding: 7px 14px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    cursor: pointer;
+    border-radius: 6px;
+
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.nav-links button:hover {
+    background: var(--gold);
+    color: #111;
+}
+
+/* ================= MAIN ================= */
+main {
+    padding: 20px;
+}
+
+/* ================= SECTIONS ================= */
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+/* ================= TABLE ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+
+    background: var(--panel);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* HEADER ROW */
+thead {
+    background: rgba(212, 175, 55, 0.15);
+}
+
+th {
+    text-align: left;
+    padding: 10px 12px;
+
+    color: var(--gold);
+    font-weight: 600;
+    font-size: 13px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+/* TABLE ROWS (COMPACT) */
+td {
+    padding: 8px 12px;
+    font-size: 13px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+/* ROW HOVER */
+tr:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+/* ================= ACTION BUTTONS ================= */
+.edit-btn,
+.delete-btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    margin-right: 5px;
+
+    background: transparent;
+    color: var(--gold);
+
+    transition: 0.2s;
+}
+
+/* EDIT */
+.edit-btn:hover {
+    background: var(--gold);
+    color: #111;
+}
+
+/* DELETE (slightly stronger gold tone) */
+.delete-btn {
+    border-color: var(--gold-dark);
+    color: var(--gold-dark);
+}
+
+.delete-btn:hover {
+    background: var(--gold-dark);
+    color: #111;
+}
+
+/* ================= SECTION TITLE ================= */
+h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: var(--gold);
+    font-size: 16px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    td, th {
+        font-size: 11px;
+        padding: 6px;
+    }
+
+    .nav-links button {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+}
+
+/* ================= WELCOME ================= */
+.welcome-box {
+    text-align: center;
+    margin-top: 120px;
+}
+
+.welcome-box h1 {
+    font-size: 30px;
+    color: var(--gold);
+}
+
+.welcome-box p {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ================= SECTION CONTROL ================= */
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}

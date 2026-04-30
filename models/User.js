@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     // ✅ SCALABLE ROLE SYSTEM (IMPORTANT CHANGE)
     roles: {
         type: [String],
-        enum: ['sales_manager','budget_control', 'direct_manager', 'bi', 'vp_finance'],
+        enum: ['admin', 'sales_manager', 'budget_control', 'direct_manager', 'bi', 'vp_finance'],
         default: []
     }
 

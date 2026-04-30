@@ -10,6 +10,7 @@ const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -37,15 +38,29 @@ mongoose.connect(process.env.DATABASE_URL)
 // ================= ROUTES =================
 app.use('/', pageRoutes);
 app.use('/api', authRoutes);
+app.use('/admin', adminRoutes);
 
 // ================= ERROR HANDLER (MUST BE LAST) =================
-app.use((err, req, res, next) => {
-    console.error("🔥 ERROR:", err);
+// app.use((err, req, res, next) => {
+//     console.error("🔥 ERROR:", err);
 
-    res.status(500).json({
-        success: false,
-        message: "Server error"
-    });
+//     res.status(500).json({
+//         success: false,
+//         message: "Server error"
+//     });
+// });
+
+app.use((err, req, res, next) => {
+    console.error("🔥 FULL ERROR:", err);
+
+    if (req.originalUrl.startsWith('/api')) {
+        return res.status(500).json({
+            success: false,
+            message: err.message || "Server error"
+        });
+    }
+
+    res.status(500).send("Page error: " + err.message);
 });
 
 

@@ -17,17 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await res.json();
 
                 if (data.success) {
-                    // clear local CSRF token too (cleanup)
                     localStorage.removeItem("csrf_token");
-
                     window.location.href = "/";
                 } else {
-                    alert(data.message || "Logout failed");
+                    alert(data.message);
                 }
 
             } catch (err) {
-                console.error("LOGOUT ERROR:", err);
-                alert("Failed to logout");
+                alert("Logout failed");
             }
         });
     }

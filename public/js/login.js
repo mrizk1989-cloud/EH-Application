@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
-    // ================= SWITCH TABS =================
     const loginBtn = document.getElementById("loginBtn");
     const registerBtn = document.getElementById("registerBtn");
 
+    // ================= SWITCH =================
     if (loginBtn && registerBtn && loginForm && registerForm) {
 
         loginBtn.onclick = () => {
@@ -19,20 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
             registerForm.style.display = "block";
         };
     }
-
-    // ================= EYE TOGGLE =================
-    document.addEventListener("click", (e) => {
-
-        if (!e.target.classList.contains("toggle-eye")) return;
-
-        const id = e.target.dataset.target;
-        const input = document.getElementById(id);
-
-        if (!input) return;
-
-        input.type = input.type === "password" ? "text" : "password";
-        e.target.textContent = input.type === "password" ? "👁" : "🙈";
-    });
 
     // ================= REGISTER =================
     if (registerForm) {
@@ -53,7 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await res.json();
-                console.log(data);
+
+                if (data.success && data.csrfToken) {
+                    localStorage.setItem("csrf_token", data.csrfToken);
+                }
 
                 msg.innerText = data.message;
                 msg.style.color = data.success ? "green" : "red";
@@ -83,10 +72,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await res.json();
-                console.log(data);
 
                 if (data.success) {
-                    window.location.href = "/user";
+
+                    // ✅ STORE CSRF TOKEN
+                    if (data.csrfToken) {
+                        localStorage.setItem("csrf_token", data.csrfToken);
+                    }
+
+                    const roles = data.roles || [];
+
+                    if (roles.includes("admin")) {
+                        window.location.href = "/admin";
+                    } else {
+                        window.location.href = "/user";
+                    }
+
                 } else {
                     msg.innerText = data.message;
                     msg.style.color = "red";
