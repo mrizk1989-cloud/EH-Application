@@ -9,6 +9,16 @@
 
 <body>
 
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+    <h2>Request Form</h2>
+
+    <div class="nav-links">
+        <button id="backBtn">Back</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</nav>
+
 <div class="container">
 
     <h2>User Request Form</h2>
@@ -24,7 +34,7 @@
                 <tr>
                     <th>Select</th>
                     <th>Customer ID</th>
-                    <th>Amount </th>
+                    <th>Amount</th>
                     <th>Currency</th>
                     <th>Expense Type</th>
                     <th>Purpose</th>
@@ -41,8 +51,16 @@
 
                     <td><input type="text" name="customerId[]" required></td>
 
-                    <td><input type="text" name="amount[]" class="amount-input"
-                                inputmode="decimal" pattern="^\d+(\.\d{1,2})?$" required></td>
+                    <td>
+                        <input
+                            type="text"
+                            name="amount[]"
+                            class="amount-input"
+                            inputmode="decimal"
+                            pattern="^[0-9]+(\\.[0-9]{1,2})?$"
+                            required
+                        >
+                    </td>
 
                     <td>
                         <select name="currency[]">
@@ -92,7 +110,7 @@
             </label>
         </div>
 
-        <!-- ACTION BUTTONS (NO INLINE ACTIONS) -->
+        <!-- ACTION BUTTONS -->
         <div class="actions">
 
             <button type="button" id="addRowBtn">Add New Line</button>
@@ -107,9 +125,8 @@
 
 </div>
 
-<!-- EXTERNAL JS ONLY -->
+<!-- ================= JS ================= -->
 <script src="/js/requestForm.js"></script>
-
 
 </body>
 </html>
