@@ -7,6 +7,9 @@ const { adminLimiter } = require('../middleware/rateLimiter');
 
 const User = require('../models/User');
 const MasterRequest = require('../models/MasterRequest');
+const ExchangeRate = require('../models/ExchangeRate');
+const Currency = require('../models/Currency');
+const ExpenseType = require('../models/ExpenseType');
 
 // ================= ADMIN PAGE =================
 router.get('/', verifyToken, requireAdmin, (req, res) => {
@@ -14,39 +17,46 @@ router.get('/', verifyToken, requireAdmin, (req, res) => {
 });
 
 // ================= USERS =================
-router.get('/users',
-    verifyToken,
-    requireAdmin,
-    adminLimiter,
-    async (req, res) => {
+router.get('/users', verifyToken, requireAdmin, adminLimiter, async (req, res) => {
+    const users = await User.find().select('-user_password');
+    res.json(users);
+});
 
-        try {
-            const users = await User.find().select('-user_password');
-            return res.json(users);
-
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json([]);
-        }
-    }
-);
+// ✅ DELETE USER (MISSING BEFORE)
+router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+});
 
 // ================= REQUESTS =================
-router.get('/requests',
-    verifyToken,
-    requireAdmin,
-    adminLimiter,
-    async (req, res) => {
+router.get('/requests', verifyToken, requireAdmin, adminLimiter, async (req, res) => {
+    res.json(await MasterRequest.find());
+});
 
-        try {
-            const requests = await MasterRequest.find();
-            return res.json(requests);
+// ================= SETTINGS =================
+router.get('/rates', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await ExchangeRate.find());
+});
 
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json([]);
-        }
-    }
-);
+router.get('/currencies', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await Currency.find());
+});
+
+router.get('/expense-types', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await ExpenseType.find());
+});
+
+// ================= CREATE =================
+router.post('/rates', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await ExchangeRate.create(req.body));
+});
+
+router.post('/currencies', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await Currency.create(req.body));
+});
+
+router.post('/expense-types', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await ExpenseType.create(req.body));
+});
 
 module.exports = router;

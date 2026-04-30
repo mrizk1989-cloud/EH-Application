@@ -1,94 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/admin.css">
 </head>
+
 <body>
 
-<!-- ================= NAVBAR ================= -->
 <nav class="navbar">
+
     <h2>Admin Panel</h2>
 
     <div class="nav-links">
+
         <button data-section="users">Users</button>
         <button data-section="requests">Requests</button>
-        <button data-section="master">Master</button>
+
+        <!-- SETTINGS DROPDOWN -->
+        <div class="dropdown" id="settingsDropdown">
+
+            <button class="dropdown-btn" id="dropdownBtn" type="button">
+                Settings ▼
+            </button>
+
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" data-value="rates">Exchange Rates</div>
+                <div class="dropdown-item" data-value="currencies">Currencies</div>
+                <div class="dropdown-item" data-value="expenseTypes">Expense Types</div>
+            </div>
+
+        </div>
+
         <button id="logoutBtn">Logout</button>
+
     </div>
+
 </nav>
 
-<!-- ================= MAIN ================= -->
 <main>
 
-    <!-- WELCOME -->
-    <section id="welcomeSection" class="section active">
-        <div class="welcome-box">
-            <h1>Welcome Admin 👑</h1>
-            <p>Select a module from the menu to start</p>
-        </div>
-    </section>
+<section id="welcomeSection" class="section active">
+    <div class="welcome-box">
+        <h1>Welcome Admin 👑</h1>
+    </div>
+</section>
 
-    <!-- USERS -->
-    <section id="usersSection" class="section">
-        <h3>Users</h3>
+<section id="usersSection" class="section">
+    <h3>Users</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Roles</th>
+        </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+    </table>
+</section>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>User Type</th>
-                    <th>Roles</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+<section id="requestsSection" class="section">
+    <h3>Requests</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Currency</th>
+        </tr>
+        </thead>
+        <tbody id="requestsTableBody"></tbody>
+    </table>
+</section>
 
-            <tbody id="usersTableBody"></tbody>
-        </table>
-    </section>
-
-    <!-- REQUESTS -->
-    <section id="requestsSection" class="section">
-        <h3>Requests</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>Currency</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody id="requestsTableBody"></tbody>
-        </table>
-    </section>
-
-    <!-- MASTER -->
-    <section id="masterSection" class="section">
-        <h3>Master Requests</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Total Items</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody id="masterTableBody"></tbody>
-        </table>
-    </section>
+<section id="settingsSection" class="section">
+    <h3 id="settingsTitle">Settings</h3>
+    <div id="settingsTableWrapper"></div>
+</section>
 
 </main>
 
-<!-- ================= JS ================= -->
 <script src="/js/admin.js"></script>
 
 </body>
