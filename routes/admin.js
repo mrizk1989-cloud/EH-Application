@@ -3,7 +3,6 @@ const router = express.Router();
 
 const { verifyToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/requireAdmin');
-const { adminLimiter } = require('../middleware/rateLimiter');
 
 const User = require('../models/User');
 const MasterRequest = require('../models/MasterRequest');
@@ -17,19 +16,22 @@ router.get('/', verifyToken, requireAdmin, (req, res) => {
 });
 
 // ================= USERS =================
-router.get('/users', verifyToken, requireAdmin, adminLimiter, async (req, res) => {
-    const users = await User.find().select('-user_password');
-    res.json(users);
+router.get('/users', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await User.find().select('-user_password'));
 });
 
-// ✅ DELETE USER (MISSING BEFORE)
+router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
+    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+});
+
 router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
     await User.findByIdAndDelete(req.params.id);
     res.json({ success: true });
 });
 
 // ================= REQUESTS =================
-router.get('/requests', verifyToken, requireAdmin, adminLimiter, async (req, res) => {
+router.get('/requests', verifyToken, requireAdmin, async (req, res) => {
     res.json(await MasterRequest.find());
 });
 
@@ -38,21 +40,20 @@ router.get('/rates', verifyToken, requireAdmin, async (req, res) => {
     res.json(await ExchangeRate.find());
 });
 
-router.get('/currencies', verifyToken, requireAdmin, async (req, res) => {
-    res.json(await Currency.find());
-});
-
-router.get('/expense-types', verifyToken, requireAdmin, async (req, res) => {
-    res.json(await ExpenseType.find());
-});
-
-// ================= CREATE =================
 router.post('/rates', verifyToken, requireAdmin, async (req, res) => {
     res.json(await ExchangeRate.create(req.body));
 });
 
+router.get('/currencies', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await Currency.find());
+});
+
 router.post('/currencies', verifyToken, requireAdmin, async (req, res) => {
     res.json(await Currency.create(req.body));
+});
+
+router.get('/expense-types', verifyToken, requireAdmin, async (req, res) => {
+    res.json(await ExpenseType.find());
 });
 
 router.post('/expense-types', verifyToken, requireAdmin, async (req, res) => {

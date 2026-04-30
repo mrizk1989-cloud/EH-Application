@@ -10,39 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrapper = document.getElementById("settingsTableWrapper");
     const title = document.getElementById("settingsTitle");
 
-    document.addEventListener("click", async (e) => {
-
-        // EDIT
-        if (e.target.classList.contains("edit-btn")) {
-            const id = e.target.dataset.id;
-            alert("Edit user: " + id);
-        }
-
-        // DELETE
-        if (e.target.classList.contains("delete-btn")) {
-            const id = e.target.dataset.id;
-            const confirmDelete = confirm("Are you sure you want to delete this user?");
-            if (!confirmDelete) return;
-            await fetch(`/admin/users/${id}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            loadUsers();
-        }
-    });
+    let currentSettingsView = null;
 
     // ================= NAV =================
     buttons.forEach(btn => {
         btn.addEventListener("click", async () => {
-
             const section = btn.dataset.section;
 
-            document.querySelectorAll(".section")
-                .forEach(s => s.classList.remove("active"));
-
-            document.getElementById(section + "Section")
-                .classList.add("active");
+            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+            document.getElementById(section + "Section").classList.add("active");
 
             if (section === "users") loadUsers();
             if (section === "requests") loadRequests();
@@ -57,24 +33,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.addEventListener("click", (e) => {
-        if (!dropdown.contains(e.target)) {
-            dropdown.classList.remove("open");
-        }
+        if (!dropdown.contains(e.target)) dropdown.classList.remove("open");
     });
 
-    // ================= SETTINGS MENU =================
     dropdownMenu.addEventListener("click", async (e) => {
 
         const item = e.target.closest(".dropdown-item");
         if (!item) return;
 
         const value = item.dataset.value;
+        currentSettingsView = value;
 
-        document.querySelectorAll(".section")
-            .forEach(s => s.classList.remove("active"));
-
-        document.getElementById("settingsSection")
-            .classList.add("active");
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.getElementById("settingsSection").classList.add("active");
 
         dropdown.classList.remove("open");
 
@@ -94,7 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ================= USERS =================
+    // =====================================================
+    // USERS (WITH EDIT / SAVE / CANCEL)
+    // =====================================================
+
     async function loadUsers() {
         const res = await fetch("/admin/users", { credentials: "include" });
         const data = await res.json();
@@ -104,41 +78,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
         data.forEach(u => {
             body.innerHTML += `
-                <tr>
-                    <td>${u.user_name}</td>
-                    <td>${u.user_email}</td>
-                    <td>${u.user_type}</td>
-                    <td>${(u.roles || []).join(", ")}</td>
-                    <td>
-                        <button class="edit-btn" data-id="${u._id}">Edit</button>
-                        <button class="delete-btn" data-id="${u._id}">Delete</button>
+                <tr data-id="${u._id}">
+                    <td class="name">${u.user_name}</td>
+                    <td class="email">${u.user_email}</td>
+                    <td class="type">${u.user_type}</td>
+                    <td class="roles">${(u.roles || []).join(", ")}</td>
+                    <td class="actions">
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
                     </td>
                 </tr>
             `;
         });
     }
 
-    // ================= REQUESTS =================
-    async function loadRequests() {
-        const res = await fetch("/admin/requests", { credentials: "include" });
-        const data = await res.json();
+    // ONE CLEAN EVENT DELEGATION (FIXES MULTIPLE CLICK BUGS)
+    document.addEventListener("click", async (e) => {
 
-        const body = document.getElementById("requestsTableBody");
-        body.innerHTML = "";
+        const row = e.target.closest("tr");
+        if (!row) return;
 
-        data.forEach(r => {
-            body.innerHTML += `
-                <tr>
-                    <td>${r._id}</td>
-                    <td>${r.customerId}</td>
-                    <td>${r.amount}</td>
-                    <td>${r.currency}</td>
-                </tr>
+        // ================= EDIT =================
+        if (e.target.classList.contains("edit-btn")) {
+
+            if (row.classList.contains("editing")) return;
+
+            row.classList.add("editing");
+
+            row.dataset.original = JSON.stringify({
+                name: row.querySelector(".name").innerText,
+                email: row.querySelector(".email").innerText,
+                type: row.querySelector(".type").innerText,
+                roles: row.querySelector(".roles").innerText
+            });
+
+            row.querySelector(".name").innerHTML = `<input value="${row.querySelector(".name").innerText}">`;
+            row.querySelector(".email").innerHTML = `<input value="${row.querySelector(".email").innerText}">`;
+            row.querySelector(".type").innerHTML = `<input value="${row.querySelector(".type").innerText}">`;
+            row.querySelector(".roles").innerHTML = `<input value="${row.querySelector(".roles").innerText}">`;
+
+            row.querySelector(".actions").innerHTML = `
+                <button class="save-btn">Save</button>
+                <button class="cancel-btn">Cancel</button>
             `;
-        });
-    }
+        }
 
-    // ================= RATES =================
+        // ================= CANCEL =================
+        if (e.target.classList.contains("cancel-btn")) {
+
+            const original = JSON.parse(row.dataset.original);
+
+            row.querySelector(".name").innerText = original.name;
+            row.querySelector(".email").innerText = original.email;
+            row.querySelector(".type").innerText = original.type;
+            row.querySelector(".roles").innerText = original.roles;
+
+            loadUsers(); // reset clean state
+        }
+
+        // ================= SAVE =================
+        if (e.target.classList.contains("save-btn")) {
+
+            if (!confirm("Save changes?")) return;
+
+            const id = row.dataset.id;
+
+            const payload = {
+                user_name: row.querySelector(".name input").value,
+                user_email: row.querySelector(".email input").value,
+                user_type: row.querySelector(".type input").value,
+                roles: row.querySelector(".roles input").value.split(",").map(r => r.trim())
+            };
+
+            await fetch(`/admin/users/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(payload)
+            });
+
+            loadUsers();
+        }
+
+        // ================= DELETE =================
+        if (e.target.classList.contains("delete-btn")) {
+
+            if (!confirm("Delete this user?")) return;
+
+            const id = row.dataset.id;
+
+            await fetch(`/admin/users/${id}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            loadUsers();
+        }
+    });
+
+    // =====================================================
+    // SETTINGS - RATES
+    // =====================================================
+
     async function loadRates() {
         const res = await fetch("/admin/rates", { credentials: "include" });
         const data = await res.json();
@@ -181,7 +222,10 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.innerHTML = html + "</tbody></table>";
     }
 
-    // ================= CURRENCIES =================
+    // =====================================================
+    // SETTINGS - CURRENCIES
+    // =====================================================
+
     async function loadCurrencies() {
         const res = await fetch("/admin/currencies", { credentials: "include" });
         const data = await res.json();
@@ -224,7 +268,10 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.innerHTML = html + "</tbody></table>";
     }
 
-    // ================= EXPENSE TYPES =================
+    // =====================================================
+    // SETTINGS - EXPENSE TYPES
+    // =====================================================
+
     async function loadExpenseTypes() {
         const res = await fetch("/admin/expense-types", { credentials: "include" });
         const data = await res.json();
@@ -261,7 +308,10 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.innerHTML = html + "</tbody></table>";
     }
 
-    // ================= CREATE =================
+    // =====================================================
+    // CREATE FUNCTIONS
+    // =====================================================
+
     window.createRate = async function () {
         await fetch("/admin/rates", {
             method: "POST",
@@ -303,19 +353,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         loadExpenseTypes();
-    };
-
-    // ================= USER ACTIONS =================
-    window.deleteUser = async function (id) {
-        await fetch(`/admin/users/${id}`, {
-            method: "DELETE",
-            credentials: "include"
-        });
-        loadUsers();
-    };
-
-    window.editUser = function (id) {
-        alert("Edit user: " + id);
     };
 
     // ================= LOGOUT =================
