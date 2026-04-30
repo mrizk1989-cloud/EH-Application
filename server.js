@@ -8,7 +8,7 @@ const path = require('path');
 const session = require('express-session');
 
 const { createClient } = require('redis');
-const { RedisStore } = require('connect-redis'); // ✅ v9 correct
+const { RedisStore } = require('connect-redis');
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -20,6 +20,9 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
+// ✅ MUST BE BEFORE SESSION
+app.set('trust proxy', 1);
+
 // ================= SECURITY =================
 app.use(helmet());
 
@@ -28,28 +31,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// ================= REDIS CLIENT =================
+// ================= REDIS =================
 const redisClient = createClient({
-    url: process.env.REDIS_URL,
-    socket: {
-        tls: true,                // ✅ REQUIRED for Upstash
-        rejectUnauthorized: false // ✅ avoids SSL issues locally
-    }
+    url: process.env.REDIS_URL
 });
 
-redisClient.on('connect', () => {
-    console.log('Redis Connected');
-});
-
-redisClient.on('error', (err) => {
-    console.error('Redis Error:', err.message);
-});
+redisClient.on('connect', () => console.log('Redis Connected'));
+redisClient.on('error', (err) => console.error('Redis Error:', err.message));
 
 (async () => {
     await redisClient.connect();
 })();
 
-// ================= SESSION (REDIS STORE v9) =================
+// ================= SESSION =================
 app.use(session({
     store: new RedisStore({
         client: redisClient,
@@ -58,24 +52,26 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
     saveUninitialized: false,
+    rolling: true, // ✅ IMPORTANT
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production', // ✅ FIX
         sameSite: 'lax',
         maxAge: 1000 * 60 * 60 * 24
     }
 }));
 
-// ================= GLOBAL RATE LIMIT =================
+// ================= LIMIT =================
 app.use(apiLimiter);
 
 // ================= STATIC =================
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d'
+}));
 
-// ================= VIEW ENGINE =================
+// ================= VIEW =================
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
-app.set('trust proxy', 1);
 
 // ================= DB =================
 mongoose.connect(process.env.DATABASE_URL)
@@ -89,7 +85,7 @@ app.use('/admin', adminRoutes);
 app.use('/api/refresh', refreshRoutes);
 app.use('/api/request', requestRoutes);
 
-// ================= ERROR HANDLER =================
+// ================= ERROR =================
 app.use((err, req, res, next) => {
     console.error("🔥 FULL ERROR:", err);
 

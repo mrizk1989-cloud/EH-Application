@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch("/api/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
+                    credentials: "include", // ✅
                     body: JSON.stringify({ fullName, email, password })
                 });
 
@@ -85,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const res = await fetch("/api/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
+                    credentials: "include", // ✅ IMPORTANT
                     body: JSON.stringify({ email, password })
                 });
 

@@ -66,10 +66,18 @@ router.post('/login', loginLimiter, async (req, res) => {
             roles: user.roles || []
         };
 
-        return res.json({
-            success: true,
-            roles: user.roles || [],
-            userType: user.user_type
+        // ✅ FORCE SAVE (VERY IMPORTANT)
+        req.session.save((err) => {
+            if (err) {
+                console.error("SESSION SAVE ERROR:", err);
+                return res.json({ success: false, message: "Session error" });
+            }
+
+            return res.json({
+                success: true,
+                roles: user.roles || [],
+                userType: user.user_type
+            });
         });
 
     } catch (err) {
