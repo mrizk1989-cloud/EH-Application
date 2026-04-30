@@ -11,7 +11,10 @@ const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
 const refreshRoutes = require('./routes/refresh');
+const requestRoutes = require('./routes/requests');
 
+// ✅ FIXED IMPORT
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -23,8 +26,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// ================= GLOBAL RATE LIMIT =================
+// ❌ WRONG: app.use(rateLimit);
+// ✅ CORRECT:
+app.use(apiLimiter);
 
-// ================= SESSION (NEW AUTH SYSTEM) =================
+// ================= SESSION =================
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
@@ -33,7 +40,7 @@ app.use(session({
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 // 1 day
+        maxAge: 1000 * 60 * 60 * 24
     }
 }));
 
@@ -55,6 +62,7 @@ app.use('/', pageRoutes);
 app.use('/api', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/refresh', refreshRoutes);
+app.use('/api/request', requestRoutes);
 
 // ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {

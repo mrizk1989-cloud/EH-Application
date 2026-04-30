@@ -11,12 +11,15 @@ router.post('/register', registerLimiter, async (req, res) => {
         const { fullName, email, password } = req.body;
 
         if (!fullName || !email || !password) {
-            return res.json({ success: false, message: "All fields are required" });
+            return res.json({
+                success: false,
+                message: "All fields are required"
+            });
         }
 
         const emailNormalized = email.toLowerCase().trim();
 
-        const user = await User.create({
+        await User.create({
             user_type: 'user',
             user_name: fullName,
             user_email: emailNormalized,
@@ -31,10 +34,12 @@ router.post('/register', registerLimiter, async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        return res.json({ success: false, message: "Server error" });
+        return res.json({
+            success: false,
+            message: "Server error"
+        });
     }
 });
-
 
 // ================= LOGIN =================
 router.post('/login', loginLimiter, async (req, res) => {
@@ -55,7 +60,6 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        // ================= SESSION AUTH (IMPORTANT FIX) =================
         req.session.user = {
             id: user._id,
             userType: user.user_type,
@@ -70,10 +74,12 @@ router.post('/login', loginLimiter, async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        return res.json({ success: false, message: "Server error" });
+        return res.json({
+            success: false,
+            message: "Server error"
+        });
     }
 });
-
 
 // ================= LOGOUT =================
 router.post('/logout', (req, res) => {
