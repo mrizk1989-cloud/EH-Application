@@ -5,6 +5,13 @@ const bcrypt = require('bcrypt');
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimiter');
 const User = require('../models/User');
 
+// ================= PASSWORD POLICY =================
+function isStrongPassword(password) {
+    // At least:
+    // 8 chars, 1 uppercase, 1 lowercase, 1 number
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
+}
+
 // ================= REGISTER =================
 router.post('/register', registerLimiter, async (req, res) => {
     try {
@@ -17,7 +24,24 @@ router.post('/register', registerLimiter, async (req, res) => {
             });
         }
 
+        // ✅ PASSWORD VALIDATION
+        if (!isStrongPassword(password)) {
+            return res.json({
+                success: false,
+                message: "Password must be at least 8 characters and include uppercase, lowercase, and a number"
+            });
+        }
+
         const emailNormalized = email.toLowerCase().trim();
+
+        // ✅ CHECK IF USER EXISTS (important)
+        const existingUser = await User.findOne({ user_email: emailNormalized });
+        if (existingUser) {
+            return res.json({
+                success: false,
+                message: "Email already registered"
+            });
+        }
 
         await User.create({
             user_type: 'user',
@@ -60,23 +84,31 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
-        req.session.user = {
-            id: user._id,
-            userType: user.user_type,
-            roles: user.roles || []
-        };
-
-        // ✅ FORCE SAVE (VERY IMPORTANT)
-        req.session.save((err) => {
+        // ✅ CRITICAL: REGENERATE SESSION (prevents session fixation)
+        req.session.regenerate((err) => {
             if (err) {
-                console.error("SESSION SAVE ERROR:", err);
+                console.error("SESSION REGENERATE ERROR:", err);
                 return res.json({ success: false, message: "Session error" });
             }
 
-            return res.json({
-                success: true,
-                roles: user.roles || [],
-                userType: user.user_type
+            req.session.user = {
+                id: user._id,
+                userType: user.user_type,
+                roles: user.roles || []
+            };
+
+            // ✅ SAVE AFTER REGENERATE
+            req.session.save((err) => {
+                if (err) {
+                    console.error("SESSION SAVE ERROR:", err);
+                    return res.json({ success: false, message: "Session error" });
+                }
+
+                return res.json({
+                    success: true,
+                    roles: user.roles || [],
+                    userType: user.user_type
+                });
             });
         });
 
