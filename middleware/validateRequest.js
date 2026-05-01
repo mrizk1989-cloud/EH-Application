@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator');
 
-// ================= REQUEST VALIDATION =================
 const validateRequest = [
 
     body('items')
@@ -17,7 +16,7 @@ const validateRequest = [
         .notEmpty()
         .withMessage('Amount required')
         .isFloat({ min: 0 })
-        .withMessage('Amount must be a valid number'),
+        .withMessage('Amount must be valid'),
 
     body('items.*.currency')
         .isIn(['USD', 'SAR', 'EUR'])

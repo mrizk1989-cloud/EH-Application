@@ -2,39 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Home</title>
+    <title>User Dashboard</title>
 
     <link rel="stylesheet" href="/css/userHome.css">
 </head>
 <body>
 
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+    <div class="nav-left">
+        Welcome, <span id="userName">User</span>
+    </div>
+
+    <div class="nav-right">
+        <button id="newRequestBtn">+ New Request</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
+</div>
+
+<!-- ================= MAIN ================= -->
 <div class="container">
 
-    <div class="card">
+    <h2>Your Requests</h2>
 
-        <h1>Welcome 👋</h1>
-
-        <p>You are successfully logged in.</p>
-
-        <!-- ACTION BUTTONS -->
-        <div class="actions">
-
-            <!-- Go to Request Form -->
-            <a href="/request-form">
-                <button type="button">Go to Request Form</button>
-            </a>
-
-            <!-- Logout -->
-            <button type="button" id="logoutBtn">Logout</button>
-
-        </div>
-
+    <div id="requestsWrapper">
+        <!-- Requests will load here -->
     </div>
 
 </div>
 
-<!-- JS -->
 <script src="/js/userHome.js"></script>
-
 </body>
 </html>

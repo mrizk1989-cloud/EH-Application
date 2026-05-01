@@ -8,45 +8,93 @@
 
 /* ================= BODY ================= */
 body {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: #1f242a;
     color: white;
 }
 
-/* ================= CARD ================= */
-.card {
-    text-align: center;
-    padding: 40px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
+/* ================= NAVBAR ================= */
+.navbar {
+    display: flex;
+    justify-content: space-between; /* LEFT vs RIGHT */
+    align-items: center;
+    padding: 15px 30px;
+    background: #15191e;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* ================= BUTTON ================= */
-button {
-    margin-top: 20px;
-    padding: 12px 20px;
+.navbar {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* LEFT SIDE (Welcome + Name) */
+.nav-left {
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Highlight username */
+#userName {
+    margin-left: 6px;
+    color: #f5b21b;
+}
+
+/* RIGHT SIDE (Buttons) */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* better than margin-left on buttons */
+}
+
+/* Buttons */
+.nav-right button {
+    padding: 8px 15px;
     background: #f5b21b;
     border: none;
     cursor: pointer;
-    font-weight: bold;
     border-radius: 6px;
+    font-weight: bold;
+    white-space: nowrap; /* prevents breaking */
 }
 
-button:hover {
+.nav-right button:hover {
     background: #d99a14;
 }
-
-.actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
+/* ================= MAIN ================= */
+.container {
+    padding: 30px;
 }
 
-.actions button {
-    padding: 10px 15px;
-    cursor: pointer;
+/* ================= TABLE ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.05);
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+
+th {
+    background: rgba(255,255,255,0.1);
+}
+
+html, body {
+    height: 100%;
+    display: block; /* 🚨 IMPORTANT: removes centering behavior */
+}
+
+.container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto; /* center content ONLY, not everything */
+    display: block;
 }

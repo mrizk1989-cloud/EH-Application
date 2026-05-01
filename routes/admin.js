@@ -23,8 +23,25 @@ router.get('/users', verifyToken, requireAdmin, async (req, res) => {
 });
 
 router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
-    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    try {
+        const { user_name, user_email, user_type, roles } = req.body;
+
+        const updated = await User.findByIdAndUpdate(
+            req.params.id,
+            {
+                user_name,
+                user_email,
+                user_type,
+                roles
+            },
+            { new: true }
+        );
+
+        res.json(updated);
+
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
 });
 
 router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
@@ -34,14 +51,64 @@ router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
 
 
 // ================= REQUESTS =================
+
+
+router.put('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
+    try {
+
+        const updateData = {
+            requestNo: req.body.requestNo,
+            userName: req.body.userName,
+            totalAmountSAR: req.body.totalAmountSAR,
+            status: req.body.status,
+        };
+
+        const updated = await MasterRequest.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true }
+        ).select("-user_password");
+
+        if (!updated) {
+            return res.status(404).json({ success: false });
+        }
+
+        res.json(updated);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
 router.get('/requests', verifyToken, requireAdmin, async (req, res) => {
-    const requests = await MasterRequest.find();
+
+    const requests = await MasterRequest
+        .find()
+        .sort({ createdAt: -1 });
+
     res.json(requests);
 });
 
 router.get('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
     const request = await MasterRequest.findById(req.params.id);
     res.json(request);
+});
+
+router.delete('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
+    try {
+        const deleted = await MasterRequest.findByIdAndDelete(req.params.id);
+
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "Not found" });
+        }
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
 });
 
 

@@ -94,7 +94,8 @@ router.post('/login', loginLimiter, async (req, res) => {
             req.session.user = {
                 id: user._id,
                 userType: user.user_type,
-                roles: user.roles || []
+                roles: user.roles || [],
+                userName: user.user_name // ✅ ADD THIS
             };
 
             // ✅ SAVE AFTER REGENERATE
@@ -138,6 +139,21 @@ router.post('/logout', (req, res) => {
             success: true,
             message: "Logged out"
         });
+    });
+});
+
+router.get('/me', (req, res) => {
+    if (!req.session.user) {
+        return res.json({ success: false });
+    }
+
+    res.json({
+        success: true,
+        user: {
+            id: req.session.user.id,
+            userName: req.session.user.userName,
+            roles: req.session.user.roles
+        }
     });
 });
 

@@ -16,6 +16,7 @@ const {
     convertItemsToSAR
 } = require('../services/exchangeService');
 
+
 // ================= CREATE REQUEST =================
 router.post(
     '/submit',
@@ -25,7 +26,7 @@ router.post(
     async (req, res) => {
 
         try {
-            const sessionUser = req.session?.user;
+            const sessionUser = req.user; // ✅ FIXED (consistent usage)
 
             if (!sessionUser?.id) {
                 return res.status(401).json({
@@ -34,44 +35,43 @@ router.post(
                 });
             }
 
-            const {
-                customerId,
-                amount,
-                currency,
-                expenseType,
-                purpose,
-                doctor,
-                month,
-                year
-            } = req.body;
+            const { items } = req.body;
 
-            // ================= MASTER REQUEST NUMBER =================
+            if (!items || !Array.isArray(items) || items.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No request items provided"
+                });
+            }
+
+            // ================= REQUEST NUMBER =================
             const requestNo = await getNextMasterRequestNumber();
 
-            // ================= BUILD ITEMS =================
-            const rawItems = Array.isArray(customerId)
-                ? customerId.map((_, i) => ({
-                    customerId: customerId[i],
-                    amount: amount[i],
-                    currency: currency[i],
-                    expenseType: expenseType[i],
-                    purpose: purpose[i],
-                    doctor: doctor[i],
-                    requestPeriodMonth: month[i],
-                    requestPeriodYear: year[i]
-                }))
-                : [];
+            // ================= NORMALIZE INPUT =================
+            const rawItems = items.map(i => ({
+                customerId: i.customerId,
+                amount: i.amount,
+                currency: i.currency,
+                expenseType: i.expenseType,
+                purpose: i.purpose,
+
+                // ✅ FIX: consistent naming
+                doctorName: i.doctorName,
+
+                requestPeriodMonth: i.requestPeriodMonth,
+                requestPeriodYear: i.requestPeriodYear
+            }));
 
             // ================= CONVERT TO SAR =================
             const convertedItems = await convertItemsToSAR(rawItems);
 
-            // ================= ADD SUB REQUEST NUMBERS =================
+            // ================= SUB REQUEST NUMBERS =================
             const finalItems = generateSubRequestNumbers(
                 requestNo,
                 convertedItems
             );
 
-            // ================= CREATE MASTER =================
+            // ================= SAVE MASTER REQUEST =================
             const request = new MasterRequest({
                 requestNo,
                 userId: sessionUser.id,
@@ -94,7 +94,6 @@ router.post(
             });
 
         } catch (err) {
-
             console.error("REQUEST ERROR:", err);
 
             return res.status(500).json({
@@ -104,5 +103,26 @@ router.post(
         }
     }
 );
+
+
+// ================= GET MY REQUESTS =================
+router.get('/my', verifyToken, async (req, res) => {
+    try {
+
+        const userId = req.user.id; // ✅ FIXED
+
+        const requests = await MasterRequest.find({ userId })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            requests
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
 
 module.exports = router;
