@@ -138,9 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
-{/* <td>${r.items?.length || 0}</td> */}
-{/* <button class="view-request">View</button> */}
     // =====================================================
     // SETTINGS LOADERS
     // =====================================================
@@ -610,8 +607,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* <td>${r.items?.length || 0}</td> */
-
 document.addEventListener("DOMContentLoaded", () => {
 
     const logoutBtn = document.getElementById("logoutBtn");
@@ -711,10 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    //  <td>${r.items?.length || 0}</td>
-    // <button class="edit-request">Edit</button>
-    //  <td><button class="edit-request">Edit</button></td>
-
+   
     // =====================================================
     // SETTINGS LOADERS (UNCHANGED)
     // =====================================================
