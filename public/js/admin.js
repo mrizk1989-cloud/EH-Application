@@ -1,3 +1,4 @@
+let requestsCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -100,8 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            
-
+            requestsCache = data; // ✅ STORE DATA
+            // console.log(requestsCache)
             const body = document.getElementById("requestsTableBody");
 
             if (!body) {
@@ -344,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (e.target.classList.contains("save-request")) {
-            
+
             if (!confirm("Save request changes?")) return;
             await fetch(`/admin/requests/${row.dataset.id}`, {
                 method: "PUT",
@@ -381,6 +382,61 @@ document.addEventListener("DOMContentLoaded", () => {
             loadRequests();
         }
 
+        // ================= TOGGLE SUB TABLE =================
+        if (e.target.classList.contains("view-request")) {
+
+            const parentRow = e.target.closest("tr");
+            const requestId = parentRow.dataset.id;
+            // 🔁 If already open → close it
+            if (parentRow.nextElementSibling?.classList.contains("sub-table-row")) {
+                parentRow.nextElementSibling.remove();
+                return;
+            }
+
+            // ❌ Close any other open tables
+            document.querySelectorAll(".sub-table-row").forEach(el => el.remove());
+
+            const request = requestsCache.find(r => r._id === requestId);
+             console.log(request)
+
+            if (!request) return;
+
+            // 🔥 Build sub table
+            const subRow = document.createElement("tr");
+            subRow.classList.add("sub-table-row");
+
+            subRow.innerHTML = `
+                    <td colspan="5">
+                        <table class="sub-table">
+                            <thead>
+                                <tr>
+                                    <th>Sub No</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Currency</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${request.items.map(item => `
+                                    <tr>
+                                        <td>${item.subRequestNo}</td>
+                                        <td>${item.customerId || "-"}</td>
+                                        <td>${item.amount}</td>
+                                        <td>${item.currency}</td>
+                                        <td>
+                                            <button class="edit-item">Edit</button>
+                                            <button class="delete-item">Delete</button>
+                                        </td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </td>
+                `;
+
+            parentRow.insertAdjacentElement("afterend", subRow);
+        }
 
 
         // =====================================================
@@ -567,7 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            
+
 
             const body = document.getElementById("requestsTableBody");
 
@@ -669,8 +725,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
+            requestsCache = data
+            // console.log(requestsCache)
             
-
             const body = document.getElementById("requestsTableBody");
 
             if (!body) {
@@ -706,7 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-   
+
     // =====================================================
     // SETTINGS LOADERS (UNCHANGED)
     // =====================================================
