@@ -6,14 +6,15 @@ const masterRequestSchema = new mongoose.Schema({
     requestNo: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        index: true
     },
 
-    // ================= USER =================
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
+        required: true,
+        index: true
     },
 
     userName: {
@@ -21,7 +22,6 @@ const masterRequestSchema = new mongoose.Schema({
         trim: true
     },
 
-    // ================= MASTER DATA =================
     exchangeRate: Number,
 
     totalAmountSAR: {
@@ -32,16 +32,16 @@ const masterRequestSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['pending', 'in_progress', 'approved', 'rejected'],
-        default: 'pending'
+        default: 'pending',
+        index: true
     },
 
     currentRole: {
         type: String,
         enum: ['budget_control', 'direct_manager', 'bi', 'vp_finance', null],
-        default: 'budget_control'
+        default: 'budget_control',
+        index: true
     },
-
-    // ================= WHO WORKED ON IT =================
 
     budgetController: {
         userId: {
@@ -67,9 +67,25 @@ const masterRequestSchema = new mongoose.Schema({
         name: String
     },
 
-    // ================= LINE ITEMS =================
     items: [requestItemSchema]
 
 }, { timestamps: true });
+
+/* ================= PERFORMANCE INDEXES ================= */
+
+// 🔥 fast lookup by user
+masterRequestSchema.index({ userId: 1, createdAt: -1 });
+
+// 🔥 admin dashboard filtering
+masterRequestSchema.index({ status: 1, createdAt: -1 });
+
+// 🔥 workflow tracking
+masterRequestSchema.index({ currentRole: 1, status: 1 });
+
+// 🔥 request search
+masterRequestSchema.index({ requestNo: 1 });
+
+// 🔥 date range queries (reports)
+masterRequestSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('MasterRequest', masterRequestSchema);

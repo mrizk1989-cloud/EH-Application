@@ -22,10 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const res = await fetch("/api/logout", {
                     method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
+                    credentials: "include"
                 });
 
                 const data = await res.json();
@@ -33,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.success) {
                     window.location.href = "/";
                 } else {
-                    alert(data.message || "Logout failed");
+                    alert("Logout failed");
                 }
 
             } catch (err) {
@@ -55,15 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td><input type="text" name="customerId[]" required></td>
 
                 <td>
-                    <input
-                        type="number"
-                        name="amount[]"
-                        class="amount-input"
-                        step="0.01"
-                        min="0"
-                        inputmode="decimal"
-                        required
-                    >
+                    <input type="number" name="amount[]" step="0.01" min="0" required>
                 </td>
 
                 <td>
@@ -110,13 +99,72 @@ document.addEventListener("DOMContentLoaded", () => {
     if (deleteRowsBtn && tableBody) {
         deleteRowsBtn.addEventListener("click", () => {
 
-            const checkboxes = document.querySelectorAll(".row-check");
-
-            checkboxes.forEach(cb => {
+            document.querySelectorAll(".row-check").forEach(cb => {
                 if (cb.checked) {
                     cb.closest("tr").remove();
                 }
             });
+        });
+    }
+
+    // ================= BUILD PAYLOAD =================
+    function buildPayload() {
+
+        const rows = document.querySelectorAll("#tableBody tr");
+
+        const items = [];
+
+        rows.forEach(row => {
+
+            const customerId = row.querySelector("[name='customerId[]']")?.value;
+            const amount = row.querySelector("[name='amount[]']")?.value;
+
+            if (!customerId || !amount) return;
+
+            items.push({
+                customerId,
+                amount: Number(amount),
+                currency: row.querySelector("[name='currency[]']")?.value,
+                expenseType: row.querySelector("[name='expenseType[]']")?.value,
+                purpose: row.querySelector("[name='purpose[]']")?.value,
+                doctorName: row.querySelector("[name='doctor[]']")?.value,
+                requestPeriodMonth: Number(row.querySelector("[name='month[]']")?.value),
+                requestPeriodYear: Number(row.querySelector("[name='year[]']")?.value)
+            });
+        });
+
+        return { items };
+    }
+
+    // ================= SUBMIT =================
+    if (requestForm) {
+        requestForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const payload = buildPayload();
+
+            try {
+                const res = await fetch("/api/request/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                alert(data.message);
+
+                if (data.success) {
+                    window.location.reload();
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Request submission failed");
+            }
         });
     }
 
