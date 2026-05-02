@@ -29,24 +29,33 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
 
         const { user_name, user_email, user_type, roles, password } = req.body;
 
-        const updateData = {
-            user_name: user_name?.trim(),
-            user_email: user_email?.trim().toLowerCase(),
-            user_type,
-            roles: Array.isArray(roles) ? roles : []
-        };
+        const updateData = {};
 
-        // 🔐 PASSWORD HANDLING
-        if (password) {
+        if (user_name) updateData.user_name = user_name.trim();
 
-            if (password.length < 6) {
+        if (user_email) {
+            updateData.user_email = user_email.trim().toLowerCase();
+        }
+
+        if (user_type) updateData.user_type = user_type;
+
+        if (roles) {
+            updateData.roles = Array.isArray(roles)
+                ? roles.filter(r => r && r.trim())
+                : [];
+        }
+
+        // 🔐 PASSWORD
+        if (password && password.trim().length > 0) {
+
+            if (password.trim().length < 6) {
                 return res.status(400).json({
                     success: false,
                     message: "Password must be at least 6 characters"
                 });
             }
 
-            const hashed = await bcrypt.hash(password, 10);
+            const hashed = await bcrypt.hash(password.trim(), 10);
             updateData.user_password = hashed;
         }
 
