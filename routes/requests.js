@@ -152,4 +152,67 @@ router.get('/requests/:id/items', verifyToken, async (req, res) => {
     }
 });
 
+router.get('/my-detailed', verifyToken, async (req, res) => {
+    try {
+
+        const userId = req.session?.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ success: false });
+        }
+
+        const requests = await MasterRequest.find({
+            userId
+        }).sort({ createdAt: -1 });
+
+        const result = [];
+
+        for (const r of requests) {
+            const items = await RequestItem.find({ requestId: r._id });
+
+            result.push({
+                ...r.toObject(),
+                items
+            });
+        }
+
+        res.json({
+            success: true,
+            data: result
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.get('/my/:id/items', verifyToken, async (req, res) => {
+    try {
+
+        const userId = req.session?.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({ success: false });
+        }
+
+        const request = await MasterRequest.findOne({
+            _id: req.params.id,
+            userId
+        });
+
+        if (!request) {
+            return res.status(403).json({ success: false });
+        }
+
+        const items = await RequestItem.find({
+            requestId: req.params.id
+        });
+
+        res.json(items);
+
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+});
 module.exports = router;

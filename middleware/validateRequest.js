@@ -25,12 +25,17 @@ const validateRequest = [
         .withMessage('Currency required')
         .custom(async (value) => {
 
-            const exists = await ExchangeRate.exists({
-                fromCurrency: value
+            // ✅ Allow SAR directly
+            if (value === "SAR") return true;
+
+            // ✅ Check if exchange rate exists to SAR
+            const exists = await ExchangeRate.findOne({
+                fromCurrency: value,
+                toCurrency: "SAR"
             });
 
             if (!exists) {
-                throw new Error('Currency not supported as source currency');
+                throw new Error(`Unsupported currency: ${value}`);
             }
 
             return true;
