@@ -72,10 +72,11 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
+        console.error("USER UPDATE ERROR:", err);
+
         res.status(500).json({
             success: false,
-            message: "Server error"
+            message: err.message
         });
     }
 });
