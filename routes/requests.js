@@ -6,6 +6,7 @@ const { requestLimiter } = require('../middleware/rateLimiter');
 const { validateRequest } = require('../middleware/validateRequest');
 
 const MasterRequest = require('../models/MasterRequest');
+const RequestItem = require('../models/RequestItem'); // 🔥 NEW (IMPORTANT)
 
 const {
     getNextMasterRequestNumber,
@@ -16,7 +17,6 @@ const {
     convertItemsToSAR
 } = require('../services/exchangeService');
 
-
 // ================= CREATE REQUEST =================
 router.post(
     '/submit',
@@ -26,7 +26,7 @@ router.post(
     async (req, res) => {
 
         try {
-            const sessionUser = req.user; // ✅ FIXED (consistent usage)
+            const sessionUser = req.session?.user;
 
             if (!sessionUser?.id) {
                 return res.status(401).json({
@@ -44,20 +44,16 @@ router.post(
                 });
             }
 
-            // ================= REQUEST NUMBER =================
+            // ✅ ADD THIS (YOU MISSED IT)
             const requestNo = await getNextMasterRequestNumber();
 
-            // ================= NORMALIZE INPUT =================
             const rawItems = items.map(i => ({
                 customerId: i.customerId,
                 amount: i.amount,
                 currency: i.currency,
                 expenseType: i.expenseType,
                 purpose: i.purpose,
-
-                // ✅ FIX: consistent naming
                 doctorName: i.doctorName,
-
                 requestPeriodMonth: i.requestPeriodMonth,
                 requestPeriodYear: i.requestPeriodYear
             }));
@@ -65,27 +61,40 @@ router.post(
             // ================= CONVERT TO SAR =================
             const convertedItems = await convertItemsToSAR(rawItems);
 
-            // ================= SUB REQUEST NUMBERS =================
+            // ================= ADD SUB REQUEST NUMBERS =================
             const finalItems = generateSubRequestNumbers(
                 requestNo,
                 convertedItems
             );
 
-            // ================= SAVE MASTER REQUEST =================
-            const request = new MasterRequest({
+            // ================= CREATE MASTER =================
+            // ================= CREATE MASTER =================
+            const master = await MasterRequest.create({ // 🔥 CHANGED (was new + save)
                 requestNo,
                 userId: sessionUser.id,
                 userName: sessionUser.userName || "Unknown",
-                items: finalItems,
-                totalAmountSAR: finalItems.reduce(
-                    (sum, i) => sum + (i.amountSAR || 0),
-                    0
-                ),
+                totalAmountSAR: 0,
                 status: "pending",
                 currentRole: "budget_control"
             });
 
-            await request.save();
+            // ================= CREATE ITEMS (NEW LOGIC) =================
+            const itemsToInsert = finalItems.map(i => ({
+                ...i,
+                requestId: master._id // 🔥 LINK MASTER → ITEM
+            }));
+
+            await RequestItem.insertMany(itemsToInsert); // 🔥 NEW
+
+            // ================= CALCULATE TOTAL =================
+            const total = itemsToInsert.reduce(
+                (sum, i) => sum + (i.amountSAR || 0),
+                0
+            );
+
+            // ================= UPDATE MASTER TOTAL =================
+            master.totalAmountSAR = total; // 🔥 CHANGED (was inside schema before)
+            await master.save();
 
             return res.json({
                 success: true,
@@ -94,6 +103,7 @@ router.post(
             });
 
         } catch (err) {
+
             console.error("REQUEST ERROR:", err);
 
             return res.status(500).json({
@@ -104,12 +114,10 @@ router.post(
     }
 );
 
-
 // ================= GET MY REQUESTS =================
 router.get('/my', verifyToken, async (req, res) => {
     try {
-
-        const userId = req.user.id; // ✅ FIXED
+        const userId = req.session.user.id;
 
         const requests = await MasterRequest.find({ userId })
             .sort({ createdAt: -1 });
@@ -117,6 +125,25 @@ router.get('/my', verifyToken, async (req, res) => {
         res.json({
             success: true,
             requests
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+// ================= GET REQUEST ITEMS (NEW) =================
+router.get('/requests/:id/items', verifyToken, async (req, res) => {
+    try {
+
+        const items = await RequestItem.find({ // 🔥 NEW
+            requestId: req.params.id
+        });
+
+        res.json({
+            success: true,
+            items
         });
 
     } catch (err) {

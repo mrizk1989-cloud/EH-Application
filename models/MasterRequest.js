@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const requestItemSchema = require('./RequestItem');
 
 const masterRequestSchema = new mongoose.Schema({
 
@@ -17,10 +16,7 @@ const masterRequestSchema = new mongoose.Schema({
         index: true
     },
 
-    userName: {
-        type: String,
-        trim: true
-    },
+    userName: String,
 
     exchangeRate: Number,
 
@@ -39,53 +35,9 @@ const masterRequestSchema = new mongoose.Schema({
     currentRole: {
         type: String,
         enum: ['budget_control', 'direct_manager', 'bi', 'vp_finance', null],
-        default: 'budget_control',
-        index: true
-    },
-
-    budgetController: {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        name: String
-    },
-
-    directManager: {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        name: String
-    },
-
-    biVpFinance: {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        name: String
-    },
-
-    items: [requestItemSchema]
+        default: 'budget_control'
+    }
 
 }, { timestamps: true });
-
-/* ================= PERFORMANCE INDEXES ================= */
-
-// 🔥 fast lookup by user
-masterRequestSchema.index({ userId: 1, createdAt: -1 });
-
-// 🔥 admin dashboard filtering
-masterRequestSchema.index({ status: 1, createdAt: -1 });
-
-// 🔥 workflow tracking
-masterRequestSchema.index({ currentRole: 1, status: 1 });
-
-// 🔥 request search
-masterRequestSchema.index({ requestNo: 1 });
-
-// 🔥 date range queries (reports)
-masterRequestSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('MasterRequest', masterRequestSchema);

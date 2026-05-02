@@ -2,27 +2,17 @@ const mongoose = require('mongoose');
 
 const RequestItemSchema = new mongoose.Schema({
 
-    
-
-    subRequestNo: {
-        type: String,
-        required: true
+    requestId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'MasterRequest',
+        required: true,
+        index: true
     },
 
-    customerId: {
-        type: String,
-        trim: true
-    },
-
-    customerName: {
-        type: String,
-        trim: true
-    },
-
-    salesTerritory: {
-        type: String,
-        trim: true
-    },
+    subRequestNo: String,
+    customerId: String,
+    customerName: String,
+    salesTerritory: String,
 
     amount: {
         type: Number,
@@ -35,20 +25,9 @@ const RequestItemSchema = new mongoose.Schema({
         default: 'SAR'
     },
 
-    expenseType: {
-        type: String,
-        trim: true
-    },
-
-    purpose: {
-        type: String,
-        trim: true
-    },
-
-    doctorName: {
-        type: String,
-        trim: true
-    },
+    expenseType: String,
+    purpose: String,
+    doctorName: String,
 
     requestPeriodMonth: Number,
     requestPeriodYear: Number,
@@ -56,39 +35,15 @@ const RequestItemSchema = new mongoose.Schema({
     exchangeRate: Number,
     amountSAR: Number,
 
-    // ================= BUDGET CONTROL =================
-    idCheck: {
-        type: Boolean,
-        default: false
-    },
+    idCheck: { type: Boolean, default: false },
+    budgetCheck: { type: Boolean, default: false },
 
-    budgetCheck: {
-        type: Boolean,
-        default: false
-    },
+    directManagerApproval: { type: Boolean, default: null },
+    directManagerNotes: { type: String, default: "" },
 
-    // ================= DIRECT MANAGER =================
-    directManagerApproval: {
-        type: Boolean,
-        default: null
-    },
-
-    directManagerNotes: {
-        type: String,
-        default: ""
-    },
-
-    // ================= BI / VP FINANCE =================
-    biVpFinanceApproval: {
-        type: Boolean,
-        default: null
-    },
-
-    biVpFinanceNotes: {
-        type: String,
-        default: ""
-    }
+    biVpFinanceApproval: { type: Boolean, default: null },
+    biVpFinanceNotes: { type: String, default: "" }
 
 }, { timestamps: true });
 
-module.exports = RequestItemSchema;
+module.exports = mongoose.model('RequestItem', RequestItemSchema);

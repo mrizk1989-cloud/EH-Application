@@ -83,52 +83,48 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="email">${u.user_email}</td>
                     <td class="type">${u.user_type}</td>
                     <td class="roles">${(u.roles || []).join(", ")}</td>
-                    <td>
-                        <button class="edit-user">Edit</button>
+                    <td class="roles"></td>
+                       <td> 
+                       <button class="edit-user">Edit</button></td>
                         <button class="delete-user">Delete</button>
-                    </td>
+                       </td>
+                    
                 </tr>
             `;
         });
     };
 
     async function loadRequests() {
-
         try {
             const res = await fetch("/admin/requests", {
                 credentials: "include"
             });
 
-            const data = await res.json();
+            const json = await res.json();
+            const data = json.data; // ✅ FIX
 
-            requestsCache = data; // ✅ STORE DATA
-            // console.log(requestsCache)
-            const body = document.getElementById("requestsTableBody");
-
-            if (!body) {
-                console.error("requestsTableBody not found in HTML");
+            if (!Array.isArray(data)) {
+                console.error("Invalid requests response:", json);
                 return;
             }
 
+            const body = document.getElementById("requestsTableBody");
             body.innerHTML = "";
 
             data.forEach(r => {
-
                 const tr = document.createElement("tr");
                 tr.dataset.id = r._id;
 
                 tr.innerHTML = `
-                <tr data-id="${r._id}">
-                <td class="requestNo">${r.requestNo || ""}</td>
-                <td class="userName">${r.userName || ""}</td>
-                <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                <td class="status">${r.status || "pending"}</td>
-                <td><button class="view-request">View</button></td>
-                <td>
-                    
-                    <button class="edit-request">Edit</button>
-                    <button class="delete-request">Delete</button>
-                </td>
+                    <td class="requestNo">${r.requestNo || ""}</td>
+                    <td class="userName">${r.userName || ""}</td>
+                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
+                    <td class="status">${r.status || "pending"}</td>
+                    <td><button class="view-request">View</button></td>
+                    <td>
+                        <button class="edit-request">Edit</button>
+                        <button class="delete-request">Delete</button>
+                    </td>
             `;
 
                 body.appendChild(tr);
@@ -278,15 +274,16 @@ document.addEventListener("DOMContentLoaded", () => {
             row.dataset.original = row.innerHTML;
 
             row.innerHTML = `
-            <td><input value="${row.querySelector(".name").innerText}"></td>
-            <td><input value="${row.querySelector(".email").innerText}"></td>
-            <td><input value="${row.querySelector(".type").innerText}"></td>
-            <td><input value="${row.querySelector(".roles").innerText}"></td>
-            <td>
-                <button class="save-user">Save</button>
-                <button class="cancel-user">Cancel</button>
-            </td>
-        `;
+                            <td><input value="${row.querySelector(".name").innerText}"></td>
+                            <td><input value="${row.querySelector(".email").innerText}"></td>
+                            <td><input value="${row.querySelector(".type").innerText}"></td>
+                            <td><input value="${row.querySelector(".roles").innerText}"></td>
+                            <td><input type="password" placeholder="New password (optional)"></td>
+                            <td>
+                                <button class="save-user">Save</button>
+                                <button class="cancel-user">Cancel</button>
+                            </td>
+                        `;
         }
 
         if (e.target.classList.contains("cancel-user")) {
@@ -297,6 +294,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!confirm("Save user changes?")) return;
 
+            const passwordInput = row.querySelector('input[type="password"]');
+            const password = passwordInput ? passwordInput.value.trim() : "";
+
             await fetch(`/admin/users/${row.dataset.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -305,7 +305,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     user_name: row.children[0].children[0].value,
                     user_email: row.children[1].children[0].value,
                     user_type: row.children[2].children[0].value,
-                    roles: row.children[3].children[0].value.split(",")
+                    roles: row.children[3].children[0].value.split(",").map(r => r.trim()),
+                    ...(password && { password }), // ✅ ONLY send if filled
+
                 })
             });
 
@@ -387,53 +389,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const parentRow = e.target.closest("tr");
             const requestId = parentRow.dataset.id;
-            // 🔁 If already open → close it
+
+            // 🔁 toggle close
             if (parentRow.nextElementSibling?.classList.contains("sub-table-row")) {
                 parentRow.nextElementSibling.remove();
                 return;
             }
 
-            // ❌ Close any other open tables
+            // ❌ close others
             document.querySelectorAll(".sub-table-row").forEach(el => el.remove());
 
-            const request = requestsCache.find(r => r._id === requestId);
-             console.log(request)
+            // 🔥 CHANGED: fetch fresh data instead of cache
+            const res = await fetch(`/admin/requests/${requestId}/items`, {
+                credentials: "include"
+            });
 
-            if (!request) return;
+            const data = await res.json();
 
-            // 🔥 Build sub table
+            const items = data;
+
+            if (!items.length) return;
+
             const subRow = document.createElement("tr");
             subRow.classList.add("sub-table-row");
 
             subRow.innerHTML = `
-                    <td colspan="5">
-                        <table class="sub-table">
-                            <thead>
-                                <tr>
-                                    <th>Sub No</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>Currency</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${request.items.map(item => `
-                                    <tr>
-                                        <td>${item.subRequestNo}</td>
-                                        <td>${item.customerId || "-"}</td>
-                                        <td>${item.amount}</td>
-                                        <td>${item.currency}</td>
-                                        <td>
-                                            <button class="edit-item">Edit</button>
-                                            <button class="delete-item">Delete</button>
-                                        </td>
-                                    </tr>
-                                `).join("")}
-                            </tbody>
-                        </table>
-                    </td>
-                `;
+        <td colspan="6">
+            <table class="sub-table">
+                <thead>
+                    <tr>
+                        <th>Sub No</th>
+                        <th>Customer ID</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Expense type</th>
+                        <th>Porpose</th>
+                        <th>Doctor Name</th>
+                        <th>Request Month</th>
+                        <th>Request Year</th>
+                        <th>Exchange Rate</th>
+                        <th>Amount SAR</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items.map(item => `
+                        <tr data-id="${item._id}">
+                            <td>${item.subRequestNo}</td>
+                            <td>${item.customerId || "-"}</td>
+                            <td>${item.amountSAR ?? item.amount}</td>
+                            <td>${item.currency}</td>
+                            <td>${item.expenseType}</td>
+                            <td>${item.purpose}</td>
+                            <td>${item.doctorName}</td>
+                            <td>${item.requestPeriodMonth}</td>
+                            <td>${item.requestPeriodYear}</td>
+                            <td>${item.exchangeRate}</td>
+                            <td>${item.amountSAR}</td>
+                            <td>
+                                <button class="edit-item">Edit</button>
+                                <button class="delete-item">Delete</button>
+                            </td>
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
+        </td>
+    `;
 
             parentRow.insertAdjacentElement("afterend", subRow);
         }
@@ -615,41 +637,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     async function loadRequests() {
-
         try {
             const res = await fetch("/admin/requests", {
                 credentials: "include"
             });
 
-            const data = await res.json();
+            const json = await res.json();
+            const data = json.data; // ✅ FIX
 
-
-
-            const body = document.getElementById("requestsTableBody");
-
-            if (!body) {
-                console.error("requestsTableBody not found in HTML");
+            if (!Array.isArray(data)) {
+                console.error("Invalid requests response:", json);
                 return;
             }
 
+            const body = document.getElementById("requestsTableBody");
             body.innerHTML = "";
 
             data.forEach(r => {
-
                 const tr = document.createElement("tr");
                 tr.dataset.id = r._id;
 
                 tr.innerHTML = `
-                <td class="requestNo">${r.requestNo || ""}</td>
-                <td class="userName">${r.userName || ""}</td>
-                <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                <td class="status">${r.status || "pending"}</td>
-                <td><button class="view-request">View</button></td>
-                <td>
-                    
-                    <button class="edit-request">Edit</button>
-                    <button class="delete-request">Delete</button>
-                </td>
+                    <td class="requestNo">${r.requestNo || ""}</td>
+                    <td class="userName">${r.userName || ""}</td>
+                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
+                    <td class="status">${r.status || "pending"}</td>
+                    <td><button class="view-request">View</button></td>
+                    <td>
+                        <button class="edit-request">Edit</button>
+                        <button class="delete-request">Delete</button>
+                    </td>
             `;
 
                 body.appendChild(tr);
@@ -704,6 +721,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="email">${u.user_email}</td>
                     <td class="type">${u.user_type}</td>
                     <td class="roles">${(u.roles || []).join(", ")}</td>
+                    <td class="roles"></td>
                     <td>
                         <button class="edit-user">Edit</button>
                         <button class="delete-user">Delete</button>
@@ -717,42 +735,36 @@ document.addEventListener("DOMContentLoaded", () => {
     // ADMIN REQUESTS (FIXED + SCOPED PROPERLY)
     // =====================================================
     async function loadRequests() {
-
         try {
             const res = await fetch("/admin/requests", {
                 credentials: "include"
             });
 
-            const data = await res.json();
+            const json = await res.json();
+            const data = json.data; // ✅ FIX
 
-            requestsCache = data
-            // console.log(requestsCache)
-            
-            const body = document.getElementById("requestsTableBody");
-
-            if (!body) {
-                console.error("requestsTableBody not found in HTML");
+            if (!Array.isArray(data)) {
+                console.error("Invalid requests response:", json);
                 return;
             }
 
+            const body = document.getElementById("requestsTableBody");
             body.innerHTML = "";
 
             data.forEach(r => {
-
                 const tr = document.createElement("tr");
                 tr.dataset.id = r._id;
 
                 tr.innerHTML = `
-                <td class="requestNo">${r.requestNo || ""}</td>
-                <td class="userName">${r.userName || ""}</td>
-                <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                <td class="status">${r.status || "pending"}</td>
-                <td><button class="view-request">View</button></td>
-                <td>
-                    
-                    <button class="edit-request">Edit</button>
-                    <button class="delete-request">Delete</button>
-                </td>
+                    <td class="requestNo">${r.requestNo || ""}</td>
+                    <td class="userName">${r.userName || ""}</td>
+                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
+                    <td class="status">${r.status || "pending"}</td>
+                    <td><button class="view-request">View</button></td>
+                    <td>
+                        <button class="edit-request">Edit</button>
+                        <button class="delete-request">Delete</button>
+                    </td>
             `;
 
                 body.appendChild(tr);
