@@ -1,4 +1,6 @@
 const { body, validationResult } = require('express-validator');
+const ExchangeRate = require('../models/ExchangeRate');
+const ExpenseType = require('../models/ExpenseType');
 
 const validateRequest = [
 
@@ -19,12 +21,37 @@ const validateRequest = [
         .withMessage('Amount must be valid'),
 
     body('items.*.currency')
-        .isIn(['USD', 'SAR', 'EUR'])
-        .withMessage('Invalid currency'),
+        .notEmpty()
+        .withMessage('Currency required')
+        .custom(async (value) => {
+
+            const exists = await ExchangeRate.exists({
+                fromCurrency: value
+            });
+
+            if (!exists) {
+                throw new Error('Currency not supported as source currency');
+            }
+
+            return true;
+        }),
 
     body('items.*.expenseType')
-        .isIn(['medical', 'travel', 'other'])
-        .withMessage('Invalid expense type'),
+        .notEmpty()
+        .withMessage('Expense type required')
+        .custom(async (value) => {
+
+            const exists = await ExpenseType.exists({
+                name: value,
+                isActive: true
+            });
+
+            if (!exists) {
+                throw new Error('Expense type not allowed');
+            }
+
+            return true;
+        }),
 
     body('items.*.purpose')
         .optional()

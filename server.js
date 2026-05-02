@@ -15,6 +15,8 @@ const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
 const refreshRoutes = require('./routes/refresh');
 const requestRoutes = require('./routes/requests');
+const currencyRoutes = require('./routes/currencies');
+const expenseTypeRoutes = require('./routes/expenseTypes');
 
 const { apiLimiter } = require('./middleware/rateLimiter');
 
@@ -85,6 +87,8 @@ app.use('/api', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/refresh', refreshRoutes);
 app.use('/api/request', requestRoutes);
+app.use('/api/currencies', currencyRoutes);
+app.use('/api/expense-types', expenseTypeRoutes);
 
 // ================= ERROR =================
 app.use((err, req, res, next) => {

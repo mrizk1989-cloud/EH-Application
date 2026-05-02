@@ -21,8 +21,9 @@ const RequestItemSchema = new mongoose.Schema({
 
     currency: {
         type: String,
-        enum: ['USD', 'SAR', 'EUR'],
-        default: 'SAR'
+        required: true,
+        uppercase: true,
+        trim: true
     },
 
     expenseType: String,

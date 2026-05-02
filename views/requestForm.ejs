@@ -1,143 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>E&H Request Form</title>
 
     <link rel="stylesheet" href="/css/UserForm.css">
-
-    <!-- REMOVE NUMBER SPINNERS (IMPORTANT UX FIX) -->
-    <style>
-        /* Chrome, Safari, Edge, Opera */
-        input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        /* Firefox */
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
 </head>
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
-<nav class="navbar">
-    <h2>Request Form</h2>
+    <nav class="navbar">
+        <h2>Request Form</h2>
 
-    <div class="nav-links">
-        <button id="backBtn">Back</button>
-        <button id="logoutBtn">Logout</button>
+        <div class="nav-links">
+            <button id="backBtn">Back</button>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <h2>User Request Form</h2>
+
+        <form id="requestForm">
+
+            <table id="requestTable">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Customer ID</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Expense Type</th>
+                        <th>Purpose</th>
+                        <th>Doctor</th>
+                        <th>Month</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <div class="actions">
+                <button type="button" id="addRowBtn">Add New Line</button>
+                <button type="button" id="deleteRowsBtn">Delete Selected</button>
+                <button type="submit">Submit Request</button>
+            </div>
+
+        </form>
     </div>
-</nav>
 
-<div class="container">
-
-    <h2>User Request Form</h2>
-
-    <form id="requestForm" enctype="multipart/form-data">
-
-        <table id="requestTable">
-
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Customer ID</th>
-                    <th>Amount</th>
-                    <th>Currency</th>
-                    <th>Expense Type</th>
-                    <th>Purpose</th>
-                    <th>Doctor</th>
-                    <th>Month</th>
-                    <th>Year</th>
-                </tr>
-            </thead>
-
-            <tbody id="tableBody">
-
-                <tr>
-                    <td><input type="checkbox" class="row-check"></td>
-
-                    <td><input type="text" name="customerId[]" required></td>
-
-                    <!-- ================= FIXED AMOUNT FIELD ================= -->
-                    <td>
-                        <input
-                            type="number"
-                            name="amount[]"
-                            class="amount-input"
-                            step="0.01"
-                            min="0"
-                            inputmode="decimal"
-                            required
-                        >
-                    </td>
-
-                    <td>
-                        <select name="currency[]">
-                            <option value="USD">USD</option>
-                            <option value="SAR">SAR</option>
-                            <option value="EUR">EUR</option>
-                        </select>
-                    </td>
-
-                    <td>
-                        <select name="expenseType[]">
-                            <option value="medical">Medical</option>
-                            <option value="travel">Travel</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </td>
-
-                    <td><input type="text" name="purpose[]"></td>
-                    <td><input type="text" name="doctor[]"></td>
-
-                    <td>
-                        <select name="month[]">
-                            <% for(let i=1;i<=12;i++){ %>
-                                <option value="<%= i %>"><%= i %></option>
-                            <% } %>
-                        </select>
-                    </td>
-
-                    <td>
-                        <select name="year[]">
-                            <% for(let y=2020;y<=2030;y++){ %>
-                                <option value="<%= y %>"><%= y %></option>
-                            <% } %>
-                        </select>
-                    </td>
-
-                </tr>
-
-            </tbody>
-        </table>
-
-        <!-- FILE UPLOAD -->
-        <div class="file-box">
-            <label>
-                Attach Files:
-                <input type="file" name="files" multiple>
-            </label>
-        </div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="actions">
-
-            <button type="button" id="addRowBtn">Add New Line</button>
-            <button type="button" id="deleteRowsBtn">Delete Selected</button>
-            <button type="submit">Submit Request</button>
-
-        </div>
-
-    </form>
-
-</div>
-
-<script src="/js/requestForm.js"></script>
+    <script src="/js/requestForm.js"></script>
 
 </body>
+
 </html>
