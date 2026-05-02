@@ -183,40 +183,47 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadRates() {
 
         const res = await fetch("/admin/rates", { credentials: "include" });
-        const data = await res.json();
+        const json = await res.json();
+
+        const data = json.data; // ✅ FIX HERE
+
+        if (!Array.isArray(data)) {
+            console.error("Invalid rates response:", json);
+            return;
+        }
 
         let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Rate</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
+    <table>
+    <thead>
+    <tr>
+        <th>From</th>
+        <th>To</th>
+        <th>Rate</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
 
-        <tr>
-            <td><input id="rateFrom"></td>
-            <td><input id="rateTo"></td>
-            <td><input id="rateValue"></td>
-            <td><button data-action="create-rate">Create</button></td>
-        </tr>
-        `;
+    <tr>
+        <td><input id="rateFrom"></td>
+        <td><input id="rateTo"></td>
+        <td><input id="rateValue"></td>
+        <td><button data-action="create-rate">Create</button></td>
+    </tr>
+    `;
 
         data.forEach(r => {
             html += `
-                <tr data-id="${r._id}">
-                    <td class="from">${r.fromCurrency}</td>
-                    <td class="to">${r.toCurrency}</td>
-                    <td class="rate">${r.rate}</td>
-                    <td>
-                        <button class="edit-rate">Edit</button>
-                        <button class="delete-rate">Delete</button>
-                    </td>
-                </tr>
-            `;
+            <tr data-id="${r._id}">
+                <td class="from">${r.fromCurrency}</td>
+                <td class="to">${r.toCurrency}</td>
+                <td class="rate">${r.rate}</td>
+                <td>
+                    <button class="edit-rate">Edit</button>
+                    <button class="delete-rate">Delete</button>
+                </td>
+            </tr>
+        `;
         });
 
         wrapper.innerHTML = html + "</tbody></table>";
@@ -224,8 +231,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadExpenseTypes() {
 
-        const res = await fetch("/admin/expense-types", { credentials: "include" });
-        const data = await res.json();
+    try {
+        const res = await fetch("/admin/expense-types", {
+            credentials: "include"
+        });
+
+        const json = await res.json();
+
+        // ✅ handle backend structure
+        const data = json.data;
+
+        // 🔒 safety check (prevents your crash)
+        if (!Array.isArray(data)) {
+            console.error("Invalid expense types response:", json);
+            return;
+        }
 
         let html = `
         <table>
@@ -237,16 +257,20 @@ document.addEventListener("DOMContentLoaded", () => {
         </thead>
         <tbody>
 
+        <!-- CREATE ROW -->
         <tr>
-            <td><input id="expName"></td>
-            <td><button data-action="create-expense">Create</button></td>
+            <td><input id="expName" placeholder="Expense type name"></td>
+            <td>
+                <button data-action="create-expense">Create</button>
+            </td>
         </tr>
         `;
 
+        // ✅ render rows safely
         data.forEach(t => {
             html += `
                 <tr data-id="${t._id}">
-                    <td class="name">${t.name}</td>
+                    <td class="name">${t.name || ""}</td>
                     <td>
                         <button class="edit-expense">Edit</button>
                         <button class="delete-expense">Delete</button>
@@ -255,8 +279,19 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         });
 
-        wrapper.innerHTML = html + "</tbody></table>";
+        html += `</tbody></table>`;
+
+        // ✅ render to DOM
+        document.getElementById("settingsTableWrapper").innerHTML = html;
+
+    } catch (err) {
+        console.error("loadExpenseTypes error:", err);
+
+        document.getElementById("settingsTableWrapper").innerHTML = `
+            <p style="color:red;">Failed to load expense types</p>
+        `;
     }
+}
 
     // =====================================================
     // GLOBAL ACTION HANDLER
