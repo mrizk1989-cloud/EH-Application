@@ -1,36 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>User Dashboard</title>
 
     <link rel="stylesheet" href="/css/userHome.css">
 </head>
+
 <body>
 
-<!-- ================= NAVBAR ================= -->
-<div class="navbar">
-    <div class="nav-left">
-        Welcome, <span id="userName">User</span>
+    <!-- ================= NAVBAR ================= -->
+    <div class="navbar">
+        <div class="nav-left">
+            Welcome, <span id="userName">User</span>
+        </div>
+
+        <div class="nav-right">
+            <button id="newRequestBtn">+ New Request</button>
+            <button id="changePasswordBtn">Change Password</button>
+            <button id="logoutBtn">Logout</button>
+        </div>
     </div>
 
-    <div class="nav-right">
-        <button id="newRequestBtn">+ New Request</button>
-        <button id="logoutBtn">Logout</button>
+    <!-- ================= MAIN ================= -->
+    <div class="container">
+
+        <h2>Your Requests</h2>
+
+        <div id="requestsWrapper">
+            <!-- Requests will load here -->
+        </div>
+
+        <div id="passwordModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Change Password</h3>
+
+                <input type="password" id="currentPassword" placeholder="Current Password">
+                <input type="password" id="newPassword" placeholder="New Password">
+
+                <button id="savePasswordBtn">Save</button>
+                <button id="closeModalBtn">Cancel</button>
+            </div>
+        </div>
+
     </div>
-</div>
 
-<!-- ================= MAIN ================= -->
-<div class="container">
 
-    <h2>Your Requests</h2>
 
-    <div id="requestsWrapper">
-        <!-- Requests will load here -->
-    </div>
-
-</div>
-
-<script src="/js/userHome.js"></script>
+    <script src="/js/userHome.js"></script>
 </body>
+
 </html>

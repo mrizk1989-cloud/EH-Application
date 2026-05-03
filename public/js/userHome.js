@@ -5,6 +5,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const userNameEl = document.getElementById("userName");
     const wrapper = document.getElementById("requestsWrapper");
 
+    const changePasswordBtn = document.getElementById("changePasswordBtn");
+    const modal = document.getElementById("passwordModal");
+    const savePasswordBtn = document.getElementById("savePasswordBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+     // ================= OPEN MODAL =================
+    changePasswordBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+    });
+
+    // ================= CLOSE MODAL =================
+    closeModalBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+    });
+
+    // ================= SAVE PASSWORD =================
+    savePasswordBtn.addEventListener("click", async () => {
+
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+
+        const res = await fetch("/api/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        const data = await res.json();
+
+        alert(data.message);
+
+        if (data.success) {
+            modal.classList.add("hidden");
+        }
+    });
+
     // ================= LOAD USER INFO =================
     async function loadUser() {
         try {
@@ -13,6 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.success) {
                 userNameEl.innerText = data.user.userName;
+
+                // 🔥 FORCE PASSWORD CHANGE
+                if (data.user.mustChangePassword) {
+                    modal.classList.remove("hidden");
+                    alert("You must change your password before continuing");
+                }
             }
         } catch (err) {
             console.error(err);
@@ -164,3 +207,4 @@ document.addEventListener("DOMContentLoaded", () => {
     loadRequests();
 
 });
+

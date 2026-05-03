@@ -142,19 +142,87 @@ router.post('/logout', (req, res) => {
     });
 });
 
-router.get('/me', (req, res) => {
-    if (!req.session.user) {
-        return res.json({ success: false });
-    }
-
-    res.json({
-        success: true,
-        user: {
-            id: req.session.user.id,
-            userName: req.session.user.userName,
-            roles: req.session.user.roles
+router.get('/me', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.json({ success: false });
         }
-    });
+
+        const user = await User.findById(req.session.user.id);
+
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                userName: user.user_name,
+                roles: user.roles,
+                mustChangePassword: user.mustChangePassword
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false });
+    }
+});
+
+// ================= CHANGE PASSWORD =================
+router.post('/change-password', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.json({
+                success: false,
+                message: "All fields required"
+            });
+        }
+
+        // ✅ validate new password
+        if (!isStrongPassword(newPassword)) {
+            return res.json({
+                success: false,
+                message: "Weak password"
+            });
+        }
+
+        const user = await User.findById(req.session.user.id);
+
+        const match = await bcrypt.compare(currentPassword, user.user_password);
+
+        if (!match) {
+            return res.json({
+                success: false,
+                message: "Current password incorrect"
+            });
+        }
+
+        user.user_password = await bcrypt.hash(newPassword, 10);
+
+        // ✅ remove forced reset flag
+        user.mustChangePassword = false;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "Password updated"
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
 });
 
 module.exports = router;

@@ -58,6 +58,9 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
 
             const hashed = await bcrypt.hash(password.trim(), 10);
             updateData.user_password = hashed;
+
+            // ✅ FORCE USER TO CHANGE PASSWORD
+            updateData.mustChangePassword = true;
         }
 
         const updated = await User.findByIdAndUpdate(

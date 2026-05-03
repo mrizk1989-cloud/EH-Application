@@ -34,7 +34,12 @@ const userSchema = new mongoose.Schema({
         type: [String],
         enum: ['admin', 'sales_manager', 'budget_control', 'direct_manager', 'bi', 'vp_finance'],
         default: []
-    }
+    },
+
+    mustChangePassword: {
+    type: Boolean,
+    default: false
+}
 
 }, { timestamps: true });
 
