@@ -1,4 +1,6 @@
 let requestsCache = [];
+let currenciesCache = [];
+let expenseTypesCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -120,13 +122,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
-                    <td><button class="view-request">View</button></td>
                     <td>
-                        <button class="edit-request">Edit</button>
-                        <button class="delete-request">Delete</button>
+                        <button class="view-request">View</button>
+                        <button class="delete-request">Cancel Request</button>
                     </td>
             `;
-
+                {/* <button class="edit-request">Edit</button> */ }
                 body.appendChild(tr);
             });
 
@@ -231,23 +232,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadExpenseTypes() {
 
-    try {
-        const res = await fetch("/admin/expense-types", {
-            credentials: "include"
-        });
+        try {
+            const res = await fetch("/admin/expense-types", {
+                credentials: "include"
+            });
 
-        const json = await res.json();
+            const json = await res.json();
 
-        // ✅ handle backend structure
-        const data = json.data;
+            // ✅ handle backend structure
+            const data = json.data;
 
-        // 🔒 safety check (prevents your crash)
-        if (!Array.isArray(data)) {
-            console.error("Invalid expense types response:", json);
-            return;
-        }
+            // 🔒 safety check (prevents your crash)
+            if (!Array.isArray(data)) {
+                console.error("Invalid expense types response:", json);
+                return;
+            }
 
-        let html = `
+            let html = `
         <table>
         <thead>
         <tr>
@@ -266,9 +267,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </tr>
         `;
 
-        // ✅ render rows safely
-        data.forEach(t => {
-            html += `
+            // ✅ render rows safely
+            data.forEach(t => {
+                html += `
                 <tr data-id="${t._id}">
                     <td class="name">${t.name || ""}</td>
                     <td>
@@ -277,21 +278,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     </td>
                 </tr>
             `;
-        });
+            });
 
-        html += `</tbody></table>`;
+            html += `</tbody></table>`;
 
-        // ✅ render to DOM
-        document.getElementById("settingsTableWrapper").innerHTML = html;
+            // ✅ render to DOM
+            document.getElementById("settingsTableWrapper").innerHTML = html;
 
-    } catch (err) {
-        console.error("loadExpenseTypes error:", err);
+        } catch (err) {
+            console.error("loadExpenseTypes error:", err);
 
-        document.getElementById("settingsTableWrapper").innerHTML = `
+            document.getElementById("settingsTableWrapper").innerHTML = `
             <p style="color:red;">Failed to load expense types</p>
         `;
+        }
     }
-}
 
     // =====================================================
     // GLOBAL ACTION HANDLER
@@ -361,21 +362,21 @@ document.addEventListener("DOMContentLoaded", () => {
             loadUsers();
         }
 
-        if (e.target.classList.contains("edit-request")) {
+        // if (e.target.classList.contains("edit-request")) {
 
-            row.dataset.original = row.innerHTML;
+        //     row.dataset.original = row.innerHTML;
 
-            row.innerHTML = `
-            <td><input value="${row.querySelector(".requestNo").innerText}"></td>
-            <td><input value="${row.querySelector(".userName").innerText}"></td>
-            <td><input value="${row.querySelector(".totalAmountSAR").innerText}"></td>
-            <td><input value="${row.querySelector(".status").innerText}"></td>
-            <td>
-                <button class="save-request">Save</button>
-                <button class="cancel-request">Cancel</button>
-            </td>
-        `;
-        }
+        //     row.innerHTML = `
+        //     <td><input type="hidden" value="${row.querySelector(".requestNo").innerText}"></td>
+        //     <td><input type="hidden" value="${row.querySelector(".userName").innerText}"></td>
+        //     <td><input type="hidden" value="${row.querySelector(".totalAmountSAR").innerText}"></td>
+        //     <td><input value="${row.querySelector(".status").innerText}"></td>
+        //     <td>
+        //         <button class="save-request">Save</button>
+        //         <button class="cancel-request">Cancel</button>
+        //     </td>
+        // `;
+        // }
 
         if (e.target.classList.contains("cancel-request")) {
             row.innerHTML = row.dataset.original;
@@ -406,8 +407,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!confirm("Delete request?")) return;
 
-            const res = await fetch(`/admin/requests/${id}`, {
-                method: "DELETE",
+            // const res = await fetch(`/admin/requests/${id}`, {
+            //     method: "DELETE",
+            //     credentials: "include"
+            // });
+
+            const res = await fetch(`/admin/requests/${id}/cancel`, {
+                method: "PUT",
                 credentials: "include"
             });
 
@@ -420,59 +426,195 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // ================= TOGGLE SUB TABLE =================
+        // ================= VIEW REQUEST ITEMS =================
         if (e.target.classList.contains("view-request")) {
 
             const parentRow = e.target.closest("tr");
             const requestId = parentRow.dataset.id;
 
-            // 🔁 toggle close
             if (parentRow.nextElementSibling?.classList.contains("sub-table-row")) {
                 parentRow.nextElementSibling.remove();
                 return;
             }
 
-            // ❌ close others
             document.querySelectorAll(".sub-table-row").forEach(el => el.remove());
 
-            // 🔥 CHANGED: fetch fresh data instead of cache
-            const res = await fetch(`/admin/requests/${requestId}/items`, {
-                credentials: "include"
+            // 🔥 FORCE LOAD CACHE BEFORE USING DROPDOWN
+            await Promise.all([
+                loadCurrencies(),
+                loadExpenseTypes()
+            ]);
+
+            await loadCurrencies();
+            await loadExpenseTypes();
+
+            await renderRequestItems(parentRow);
+        }
+
+
+        // ================= EDIT ITEM =================
+        if (e.target.classList.contains("edit-item")) {
+
+            const row = e.target.closest("tr");
+
+            row.dataset.original = row.innerHTML;
+
+            const currencyOptions = (currenciesCache || []).map(c =>
+                `<option value="${c.code?.trim()}">${c.code?.trim()}</option>`
+            ).join("");
+
+
+            const expenseOptions = expenseTypesCache.map(t =>
+                `<option value="${t.name}">${t.name}</option>`
+            ).join("");
+
+            row.innerHTML = `
+        <td>${row.children[0].innerText}</td>
+
+        <td><input value="${row.children[1].innerText}"></td>
+
+        <td><input type="number" value="${row.children[2].innerText}"></td>
+
+        <!-- CURRENCY DROPDOWN -->
+        <td>
+            <select class="currency-select">
+                ${currencyOptions}
+            </select>
+        </td>
+
+        <!-- EXPENSE TYPE DROPDOWN -->
+        <td>
+            <select class="expense-select">
+                ${expenseOptions}
+            </select>
+        </td>
+
+        <td><input value="${row.children[5].innerText}"></td>
+
+        <td><input value="${row.children[6].innerText}"></td>
+
+        <td><input type="number" value="${row.children[7].innerText}"></td>
+
+        <td><input type="number" value="${row.children[8].innerText}"></td>
+
+        <td>${row.children[9].innerText}</td>
+        <td>${row.children[10].innerText}</td>
+
+        <td>
+            <select class="status-select">
+                <option value="pending">pending</option>
+                <option value="approved">approved</option>
+                <option value="rejected">rejected</option>
+                <option value="canceled">canceled</option>
+            </select>
+        </td>
+
+        <td>
+            <button class="save-item">Save</button>
+            <button class="cancel-item">Cancel</button>
+        </td>
+    `;
+
+            // set current values properly
+            const currencySelect = row.querySelector(".currency-select");
+            const expenseSelect = row.querySelector(".expense-select");
+            const statusSelect = row.querySelector(".status-select");
+
+            // set selected values safely
+            currencySelect.value = row.dataset.currency?.trim() || row.children[3].innerText.trim();
+            expenseSelect.value = row.dataset.expense?.trim() || row.children[4].innerText.trim();
+            statusSelect.value = row.dataset.status?.trim() || "pending";
+        }
+
+
+        // ================= CANCEL ITEM EDIT =================
+        if (e.target.classList.contains("cancel-item")) {
+
+            const row = e.target.closest("tr");
+            row.innerHTML = row.dataset.original;
+        }
+
+
+        // ================= SAVE ITEM =================
+        if (e.target.classList.contains("save-item")) {
+
+            if (!confirm("Save item changes?")) return;
+
+            const row = e.target.closest("tr");
+            const id = row.dataset.id;
+
+            const inputs = row.querySelectorAll("input");
+            const selects = row.querySelectorAll("select");
+
+            const payload = {
+                customerId: inputs[0].value,
+                amount: Number(inputs[1].value),
+
+                currency: selects[0].value,
+                expenseType: selects[1].value,
+
+                purpose: inputs[2].value,
+                doctorName: inputs[3].value,
+
+                requestPeriodMonth: Number(inputs[4].value),
+                requestPeriodYear: Number(inputs[5].value),
+
+                status: selects[2].value
+            };
+
+            const res = await fetch(`/admin/requests/items/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
 
-            const items = data;
+            if (!data.success) {
+                alert("Update failed");
+                return;
+            }
 
-            if (!items.length) return;
+            // 🔥 refresh ONLY this request
+            const parentRow = row.closest(".sub-table-row").previousElementSibling;
+            await renderRequestItems(parentRow);
+
+            loadRequests();
+        }
+
+        async function renderRequestItems(parentRow) {
+
+            const requestId = parentRow.dataset.id;
+
+            const res = await fetch(`/admin/requests/${requestId}/items`, {
+                credentials: "include"
+            });
+
+            const items = await res.json();
+
+            // ❌ remove old table first (IMPORTANT FIX)
+            const old = parentRow.nextElementSibling;
+            if (old?.classList.contains("sub-table-row")) {
+                old.remove();
+            }
 
             const subRow = document.createElement("tr");
             subRow.classList.add("sub-table-row");
 
             subRow.innerHTML = `
-        <td colspan="6">
+        <td colspan="12">
             <table class="sub-table">
-                <thead>
-                    <tr>
-                        <th>Sub No</th>
-                        <th>Customer ID</th>
-                        <th>Amount</th>
-                        <th>Currency</th>
-                        <th>Expense type</th>
-                        <th>Porpose</th>
-                        <th>Doctor Name</th>
-                        <th>Request Month</th>
-                        <th>Request Year</th>
-                        <th>Exchange Rate</th>
-                        <th>Amount SAR</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
                 <tbody>
                     ${items.map(item => `
-                        <tr data-id="${item._id}">
+                        <tr data-id="${item._id}"
+                            data-currency="${item.currency}"
+                            data-expense="${item.expenseType}"
+                            data-status="${item.status || 'pending'}">
+
                             <td>${item.subRequestNo}</td>
                             <td>${item.customerId || "-"}</td>
-                            <td>${item.amountSAR ?? item.amount}</td>
+                            <td>${item.amount}</td>
                             <td>${item.currency}</td>
                             <td>${item.expenseType}</td>
                             <td>${item.purpose}</td>
@@ -481,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td>${item.requestPeriodYear}</td>
                             <td>${item.exchangeRate}</td>
                             <td>${item.amountSAR}</td>
+
                             <td>
                                 <button class="edit-item">Edit</button>
                                 <button class="delete-item">Delete</button>
@@ -494,7 +637,112 @@ document.addEventListener("DOMContentLoaded", () => {
 
             parentRow.insertAdjacentElement("afterend", subRow);
         }
+        async function loadCurrencies() {
 
+            const res = await fetch("/admin/currencies", {
+                credentials: "include"
+            });
+
+            const json = await res.json();
+
+            console.log("Currencies API response:", json); // 👈 debug
+
+            // ✅ FIX: support both formats (safe fallback)
+            const data = Array.isArray(json)
+                ? json
+                : json.currencies || [];
+
+            if (!Array.isArray(data)) {
+                console.error("Invalid currency response:", json);
+                return;
+            }
+
+            currenciesCache = data;
+
+            let html = `
+    <table>
+    <thead>
+        <tr>
+            <th>Country</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td><input id="curCountry"></td>
+            <td><input id="curCode"></td>
+            <td><input id="curName"></td>
+            <td><button data-action="create-currency">Create</button></td>
+        </tr>
+    `;
+
+            data.forEach(c => {
+                html += `
+            <tr data-id="${c.code}">
+                <td class="country">${c.name || ""}</td>
+                <td class="code">${c.code}</td>
+                <td class="name">${c.name || ""}</td>
+                <td>
+                    <button class="edit-currency">Edit</button>
+                    <button class="delete-currency">Delete</button>
+                </td>
+            </tr>
+        `;
+            });
+
+            wrapper.innerHTML = html + "</tbody></table>";
+        }
+
+        async function loadExpenseTypes() {
+
+            const res = await fetch("/admin/expense-types", {
+                credentials: "include"
+            });
+
+            const json = await res.json();
+
+            if (!json.success) {
+                console.error("Failed to load expense types:", json);
+                return;
+            }
+
+            const data = json.data;
+
+            expenseTypesCache = data; // ✅ used for dropdowns
+
+            let html = `
+    <table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td><input id="expName" placeholder="Expense type"></td>
+            <td><button data-action="create-expense">Create</button></td>
+        </tr>
+    `;
+
+            data.forEach(t => {
+                html += `
+            <tr data-id="${t._id}">
+                <td class="name">${t.name}</td>
+                <td>
+                    <button class="edit-expense">Edit</button>
+                    <button class="delete-expense">Delete</button>
+                </td>
+            </tr>
+        `;
+            });
+
+            wrapper.innerHTML = html + "</tbody></table>";
+        }
 
         // =====================================================
         // SETTINGS (SEPARATE BLOCK — SAFE)
@@ -697,13 +945,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
-                    <td><button class="view-request">View</button></td>
                     <td>
-                        <button class="edit-request">Edit</button>
-                        <button class="delete-request">Delete</button>
+                        <button class="view-request">View</button>
+                        <button class="delete-request">Cancel Request</button>
                     </td>
             `;
-
+                {/* <button class="edit-request">Edit</button> */ }
                 body.appendChild(tr);
             });
 
@@ -713,6 +960,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -795,16 +1043,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
-                    <td><button class="view-request">View</button></td>
                     <td>
-                        <button class="edit-request">Edit</button>
-                        <button class="delete-request">Delete</button>
+                        <button class="view-request">View</button>
+                        <button class="delete-request">Cancel Request</button>
                     </td>
             `;
 
                 body.appendChild(tr);
             });
-
+            // button class="edit-request">Edit</button
         } catch (err) {
             console.error("loadRequests error:", err);
         }

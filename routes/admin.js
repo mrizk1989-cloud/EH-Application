@@ -11,6 +11,7 @@ const Currency = require('../models/Currency');
 const ExchangeRate = require('../models/ExchangeRate');
 const ExpenseType = require('../models/ExpenseType');
 const RequestItem = require('../models/RequestItem');
+const { convertToSAR } = require('../services/exchangeService');
 
 // ================= ADMIN PAGE =================
 router.get('/', verifyToken, requireAdmin, (req, res) => {
@@ -105,7 +106,7 @@ router.put('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
         const updateData = {
             requestNo: req.body.requestNo,
             userName: req.body.userName,
-            totalAmountSAR: Number(req.body.totalAmountSAR || 0),
+            // totalAmountSAR: Number(req.body.totalAmountSAR || 0),
             status: req.body.status
         };
 
@@ -176,26 +177,70 @@ router.get('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
     }
 });
 
-router.delete('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
+// router.delete('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
+//     try {
+
+//         const deleted = await MasterRequest.findByIdAndDelete(req.params.id);
+
+//         if (!deleted) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Not found"
+//             });
+//         }
+
+//         // optional cleanup (IMPORTANT)
+//         await RequestItem.deleteMany({ requestId: req.params.id });
+
+//         res.json({ success: true });
+
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ success: false });
+//     }
+// });
+
+router.put('/requests/:id/cancel', verifyToken, requireAdmin, async (req, res) => {
     try {
 
-        const deleted = await MasterRequest.findByIdAndDelete(req.params.id);
+        const request = await MasterRequest.findById(req.params.id);
 
-        if (!deleted) {
+        if (!request) {
             return res.status(404).json({
                 success: false,
-                message: "Not found"
+                message: "Request not found"
             });
         }
 
-        // optional cleanup (IMPORTANT)
-        await RequestItem.deleteMany({ requestId: req.params.id });
+        if (["approved", "rejected", "canceled"].includes(request.status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Request cannot be canceled"
+            });
+        }
 
-        res.json({ success: true });
+        // ✅ 1. Cancel master
+        request.status = "canceled";
+
+        await request.save();
+
+        // ✅ 2. Cancel ALL items under it
+        await RequestItem.updateMany(
+            { requestId: request._id },
+            { $set: { status: "canceled" } }
+        );
+
+        res.json({
+            success: true,
+            message: "Request canceled successfully"
+        });
 
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false });
+        console.error("CANCEL REQUEST ERROR:", err);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
     }
 });
 
@@ -227,20 +272,56 @@ router.delete('/requests/items/:id', verifyToken, requireAdmin, async (req, res)
 router.put('/requests/items/:id', verifyToken, requireAdmin, async (req, res) => {
     try {
 
-        const updated = await RequestItem.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
+        // const updated = await RequestItem.findByIdAndUpdate(
+        //     req.params.id,
+        //     req.body,
+        //     { new: true }
+        // );
 
-        if (!updated) {
-            return res.status(404).json({
-                success: false,
-                message: "Item not found"
-            });
+        const allowedFields = [
+            "amount",
+            "currency",
+            "expenseType",
+            "purpose",
+            "doctorName",
+            "requestPeriodMonth",
+            "requestPeriodYear",
+            "exchangeRate",
+            "amountSAR",
+            "status"
+        ];
+
+        const updateData = {};
+
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
+            }
+        });
+
+        // ✅ IMPORTANT: if amount OR currency changed → recalc SAR
+        if (
+            updateData.amount !== undefined ||
+            updateData.currency !== undefined
+        ) {
+            const amount = updateData.amount ?? item.amount;
+            const currency = updateData.currency ?? item.currency;
+
+            const converted = await convertToSAR(Number(amount), currency);
+
+            updateData.exchangeRate = converted.rate;
+            updateData.amountSAR = converted.convertedAmount;
         }
 
-        await recalcMasterTotal(updated.requestId);
+        const updated = await RequestItem.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // ✅ Recalculate master (your logic is good)
+
+        await recalcMasterState(updated.requestId);
 
         res.json({
             success: true,
@@ -253,16 +334,31 @@ router.put('/requests/items/:id', verifyToken, requireAdmin, async (req, res) =>
     }
 });
 
-async function recalcMasterTotal(requestId) {
+async function recalcMasterState(requestId) {
 
     const items = await RequestItem.find({ requestId });
 
-    const total = items.reduce((sum, i) => {
+    if (!items.length) return;
+
+    // ✅ 1. Separate active vs canceled
+    const activeItems = items.filter(i => i.status !== "canceled");
+
+    // ✅ 2. Recalculate total ONLY for active items
+    const total = activeItems.reduce((sum, i) => {
         return sum + (i.amountSAR || 0);
     }, 0);
 
+    // ✅ 3. Decide master status
+    let newStatus = "pending";
+
+    if (activeItems.length === 0) {
+        newStatus = "canceled";
+    }
+
+    // ✅ 4. Update master
     await MasterRequest.findByIdAndUpdate(requestId, {
-        totalAmountSAR: total
+        totalAmountSAR: total,
+        status: newStatus
     });
 }
 
@@ -285,8 +381,38 @@ router.get('/requests/:id/items', verifyToken, requireAdmin, async (req, res) =>
 // ================= CURRENCIES =================
 // ================= CURRENCIES (FIXED SAFE VERSION) =================
 router.get('/currencies', verifyToken, requireAdmin, async (req, res) => {
-    const data = await Currency.find().sort({ createdAt: -1 });
-    res.json(data);
+    try {
+
+        const rates = await ExchangeRate.find({ toCurrency: "SAR" });
+
+        const currenciesSet = new Set();
+
+        rates.forEach(r => {
+            if (r.fromCurrency) {
+                currenciesSet.add(r.fromCurrency);
+            }
+        });
+
+        currenciesSet.add("SAR");
+
+        const currencies = Array.from(currenciesSet).map(c => ({
+            code: c,
+            name: c
+        }));
+
+        res.json({
+            success: true,
+            currencies
+        });
+
+    } catch (err) {
+        console.error("ADMIN CURRENCIES ERROR:", err);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to load currencies"
+        });
+    }
 });
 
 router.post('/currencies', verifyToken, requireAdmin, async (req, res) => {

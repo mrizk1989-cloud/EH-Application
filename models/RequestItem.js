@@ -16,7 +16,8 @@ const RequestItemSchema = new mongoose.Schema({
 
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
 
     currency: {
@@ -24,6 +25,13 @@ const RequestItemSchema = new mongoose.Schema({
         required: true,
         uppercase: true,
         trim: true
+    },
+
+    status: {
+        type: String,
+        enum: ['pending', 'in_progress', 'approved', 'rejected', 'canceled'],
+        default: 'pending',
+        index: true
     },
 
     expenseType: String,
@@ -39,10 +47,10 @@ const RequestItemSchema = new mongoose.Schema({
     idCheck: { type: Boolean, default: false },
     budgetCheck: { type: Boolean, default: false },
 
-    directManagerApproval: { type: Boolean, default: null },
+    directManagerApproval: { type: Boolean, default: false },
     directManagerNotes: { type: String, default: "" },
 
-    biVpFinanceApproval: { type: Boolean, default: null },
+    biVpFinanceApproval: { type: Boolean, default: false },
     biVpFinanceNotes: { type: String, default: "" }
 
 }, { timestamps: true });

@@ -27,7 +27,7 @@ const masterRequestSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['pending', 'in_progress', 'approved', 'rejected'],
+        enum: ['pending', 'in_progress', 'approved', 'rejected', 'canceled'],
         default: 'pending',
         index: true
     },
