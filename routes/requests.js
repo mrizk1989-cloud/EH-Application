@@ -1,12 +1,24 @@
 const express = require('express');
 const router = express.Router();
+const multer = require("multer");
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }
+});
+
 
 const { verifyToken } = require('../middleware/auth');
 const { requestLimiter } = require('../middleware/rateLimiter');
 const { validateRequest } = require('../middleware/validateRequest');
 
+const { uploadToCloudinary } = require('../services/cloudinaryService');
+
 const MasterRequest = require('../models/MasterRequest');
 const RequestItem = require('../models/RequestItem'); // 🔥 NEW (IMPORTANT)
+
+const cloudinary = require('../config/cloudinary');
+const streamifier = require('streamifier');
 
 const {
     getNextMasterRequestNumber,
@@ -22,7 +34,7 @@ router.post(
     '/submit',
     verifyToken,
     requestLimiter,
-    validateRequest,
+    upload.array("files"),
     async (req, res) => {
 
         try {
@@ -35,9 +47,18 @@ router.post(
                 });
             }
 
-            const { items } = req.body;
+            let items;
 
-            if (!items || !Array.isArray(items) || items.length === 0) {
+            try {
+                items = JSON.parse(req.body.items);
+            } catch (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid items format"
+                });
+            }
+
+            if (!Array.isArray(items) || items.length === 0) {
                 return res.status(400).json({
                     success: false,
                     message: "No request items provided"
@@ -46,6 +67,24 @@ router.post(
 
             // ✅ ADD THIS (YOU MISSED IT)
             const requestNo = await getNextMasterRequestNumber();
+
+            const files = req.files || [];
+
+            const uploadedFiles = [];
+
+            for (const file of files) {
+
+                const result = await uploadToCloudinary(file.buffer);
+
+                uploadedFiles.push({
+                    url: result.secure_url,
+                    public_id: result.public_id,
+                    type: result.resource_type,
+                    originalName: file.originalname
+                });
+            }
+
+
 
             const rawItems = items.map(i => ({
                 customerId: i.customerId,
@@ -69,19 +108,24 @@ router.post(
 
             // ================= CREATE MASTER =================
             // ================= CREATE MASTER =================
-            const master = await MasterRequest.create({ // 🔥 CHANGED (was new + save)
+            const master = await MasterRequest.create({
                 requestNo,
                 userId: sessionUser.id,
                 userName: sessionUser.userName || "Unknown",
                 totalAmountSAR: 0,
                 status: "pending",
-                currentRole: "budget_control"
+                currentRole: "budget_control",
+                attachments: uploadedFiles
             });
+
+            master.attachments = uploadedFiles;
+            await master.save();
 
             // ================= CREATE ITEMS (NEW LOGIC) =================
             const itemsToInsert = finalItems.map(i => ({
                 ...i,
-                requestId: master._id // 🔥 LINK MASTER → ITEM
+                requestId: master._id, // 🔥 LINK MASTER → ITEM
+
             }));
 
             await RequestItem.insertMany(itemsToInsert); // 🔥 NEW

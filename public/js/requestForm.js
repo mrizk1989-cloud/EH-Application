@@ -121,6 +121,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ).join("")}
                 </select>
             </td>
+            <td>
+                <input type="file" name="file[]">
+            </td>
         `;
 
         tableBody.appendChild(row);
@@ -176,23 +179,44 @@ document.addEventListener("DOMContentLoaded", () => {
     requestForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const payload = buildPayload();
-        console.log("SUBMIT PAYLOAD:", payload);
+        const formData = new FormData();
+
+        const rows = document.querySelectorAll("#tableBody tr");
+
+        const items = [];
+
+        rows.forEach((row, index) => {
+
+            const fileInput = row.querySelector("[name='file[]']");
+            const file = fileInput?.files[0];
+
+            const item = {
+                customerId: row.querySelector("[name='customerId[]']").value,
+                amount: Number(row.querySelector("[name='amount[]']").value),
+                currency: row.querySelector("[name='currency[]']").value,
+                expenseType: row.querySelector("[name='expenseType[]']").value,
+                purpose: row.querySelector("[name='purpose[]']").value,
+                doctorName: row.querySelector("[name='doctor[]']").value,
+                requestPeriodMonth: Number(row.querySelector("[name='month[]']").value),
+                requestPeriodYear: Number(row.querySelector("[name='year[]']").value)
+            };
+
+            items.push(item);
+
+            if (file) {
+                formData.append("files", file);
+            }
+        });
+
+        formData.append("items", JSON.stringify(items));
 
         const res = await fetch("/api/request/submit", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify(payload)
+            body: formData
         });
 
         const data = await res.json();
-
-        console.log("SERVER RESPONSE:", data); // 🔥 ADD THIS
-
-        if (!data.success && data.errors) {
-            console.table(data.errors); // 🔥 SHOW EXACT VALIDATION FAILURES
-        }
 
         alert(data.message);
 

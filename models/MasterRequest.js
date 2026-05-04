@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+const attachmentSchema = new mongoose.Schema({
+    url: String,
+    public_id: String,
+    type: String,
+    originalName: String
+}, { _id: false });
+
 const masterRequestSchema = new mongoose.Schema({
 
     requestNo: {
@@ -36,7 +43,10 @@ const masterRequestSchema = new mongoose.Schema({
         type: String,
         enum: ['budget_control', 'direct_manager', 'bi', 'vp_finance', null],
         default: 'budget_control'
-    }
+    },
+
+    // ✅ FIXED (EXPLICIT)
+    attachments: [attachmentSchema]
 
 }, { timestamps: true });
 

@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const savePasswordBtn = document.getElementById("savePasswordBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
-     // ================= OPEN MODAL =================
+    // ================= OPEN MODAL =================
     changePasswordBtn.addEventListener("click", () => {
         modal.classList.remove("hidden");
     });

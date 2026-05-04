@@ -34,6 +34,13 @@ const RequestItemSchema = new mongoose.Schema({
         index: true
     },
 
+    file: {
+        url: String,
+        public_id: String,
+        name: String,
+        type: String
+    },
+
     expenseType: String,
     purpose: String,
     doctorName: String,
