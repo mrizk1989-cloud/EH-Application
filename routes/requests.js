@@ -4,6 +4,12 @@ const multer = require("multer");
 const { fileTypeFromBuffer } = require('file-type');
 const path = require("path");
 
+const {
+    validateFileUpload,
+    detectSuspiciousFile,
+    logUpload
+} = require('../middleware/fileSecurity');
+
 const allowedExtensions = [
     ".pdf",
     ".jpg",
@@ -87,6 +93,9 @@ router.post(
     verifyToken,
     requestLimiter,
     upload.array("files"),
+    validateFileUpload,
+    detectSuspiciousFile,
+    logUpload,
     async (req, res) => {
 
         try {
