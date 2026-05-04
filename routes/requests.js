@@ -1,10 +1,62 @@
 const express = require('express');
 const router = express.Router();
 const multer = require("multer");
+const { fileTypeFromBuffer } = require('file-type');
+const path = require("path");
+
+const allowedExtensions = [
+    ".pdf",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".eml",
+    ".msg"
+];
+
+const allowedMimeTypes = [
+    "application/pdf",
+
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/webp",
+
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+
+    "message/rfc822", // .eml (sometimes)
+    "application/octet-stream" // fallback for msg/eml/office files
+];
 
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+
+        const ext = path.extname(file.originalname).toLowerCase();
+
+        const isValidMime = allowedMimeTypes.includes(file.mimetype);
+        const isValidExt = allowedExtensions.includes(ext);
+
+        if (isValidMime || isValidExt) {
+            cb(null, true);
+        } else {
+            cb(new Error("Invalid file type. Only PDF, images, Office files, and Outlook emails allowed"));
+        }
+    }
 });
 
 
@@ -69,11 +121,71 @@ router.post(
             const requestNo = await getNextMasterRequestNumber();
 
             const files = req.files || [];
-
             const uploadedFiles = [];
 
             for (const file of files) {
 
+                const ext = path.extname(file.originalname).toLowerCase();
+
+                // 1. EXTENSION CHECK
+                if (!allowedExtensions.includes(ext)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `File type not allowed: ${file.originalname}`
+                    });
+                }
+
+                // 2. REAL FILE TYPE DETECTION (IMPORTANT SECURITY LAYER)
+                const type = await fileTypeFromBuffer(file.buffer);
+
+                if (type) {
+
+                    const detectedMime = type.mime;
+
+                    const allowedDetectedMimes = [
+                        "application/pdf",
+
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp",
+
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+                        "application/vnd.ms-excel",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+                        "application/vnd.ms-powerpoint",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+
+                        "message/rfc822"
+                    ];
+
+                    const blockedMimes = [
+                        "application/x-msdownload",
+                        "application/x-executable",
+                        "application/x-dosexec",
+                        "application/x-msdos-program"
+                    ];
+
+                    // ❌ Block executables
+                    if (blockedMimes.includes(detectedMime)) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "Executable files are not allowed"
+                        });
+                    }
+
+                    // ❌ Reject anything not in allowed list
+                    if (!allowedDetectedMimes.includes(detectedMime)) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `Unsupported file content: ${detectedMime}`
+                        });
+                    }
+                }
+
+                // 3. Upload to Cloudinary
                 const result = await uploadToCloudinary(file.buffer);
 
                 uploadedFiles.push({
