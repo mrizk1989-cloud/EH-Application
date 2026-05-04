@@ -75,24 +75,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/admin/users", { credentials: "include" });
         const data = await res.json();
 
+
         const body = document.getElementById("usersTableBody");
-        body.innerHTML = "";
+        body.innerHTML = ``;
 
         data.forEach(u => {
             body.innerHTML += `
-                <tr data-id="${u._id}">
-                    <td class="name">${u.user_name}</td>
-                    <td class="email">${u.user_email}</td>
-                    <td class="type">${u.user_type}</td>
-                    <td class="roles">${(u.roles || []).join(", ")}</td>
-                    <td class="roles"></td>
-                       <td> 
-                       <button class="edit-user">Edit</button></td>
-                        <button class="delete-user">Delete</button>
-                       </td>
-                    
-                </tr>
-            `;
+                    <tr data-id="${u._id}">
+                        <td class="name">${u.user_name}</td>
+                        <td class="email">${u.user_email}</td>
+                        <td class="type">${u.user_type}</td>
+                        <td class="roles">${(u.roles || []).join(", ")}</td>
+                        <td class="status">${u.status}</td>
+                        <td class="password"></td>
+                        <td>
+                            <button class="edit-user">Edit</button>
+                            <button class="delete-user">Delete</button>
+                        </td>
+                    </tr>
+                    `;
         });
     };
 
@@ -122,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                     <td class="password"></td>
                     <td>
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
@@ -314,6 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td><input value="${row.querySelector(".email").innerText}"></td>
                             <td><input value="${row.querySelector(".type").innerText}"></td>
                             <td><input value="${row.querySelector(".roles").innerText}"></td>
+                            <td><input value="${row.querySelector(".status").innerText}"></td>
                             <td><input type="password" placeholder="New password (optional)"></td>
                             <td>
                                 <button class="save-user">Save</button>
@@ -342,6 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     user_email: row.children[1].children[0].value,
                     user_type: row.children[2].children[0].value,
                     roles: row.children[3].children[0].value.split(",").map(r => r.trim()),
+                    status: row.children[4].children[0].value,
                     ...(password && { password }), // ✅ ONLY send if filled
 
                 })
@@ -362,21 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
             loadUsers();
         }
 
-        // if (e.target.classList.contains("edit-request")) {
-
-        //     row.dataset.original = row.innerHTML;
-
-        //     row.innerHTML = `
-        //     <td><input type="hidden" value="${row.querySelector(".requestNo").innerText}"></td>
-        //     <td><input type="hidden" value="${row.querySelector(".userName").innerText}"></td>
-        //     <td><input type="hidden" value="${row.querySelector(".totalAmountSAR").innerText}"></td>
-        //     <td><input value="${row.querySelector(".status").innerText}"></td>
-        //     <td>
-        //         <button class="save-request">Save</button>
-        //         <button class="cancel-request">Cancel</button>
-        //     </td>
-        // `;
-        // }
 
         if (e.target.classList.contains("cancel-request")) {
             row.innerHTML = row.dataset.original;
@@ -999,18 +988,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         data.forEach(u => {
             body.innerHTML += `
-                <tr data-id="${u._id}">
-                    <td class="name">${u.user_name}</td>
-                    <td class="email">${u.user_email}</td>
-                    <td class="type">${u.user_type}</td>
-                    <td class="roles">${(u.roles || []).join(", ")}</td>
-                    <td class="roles"></td>
-                    <td>
-                        <button class="edit-user">Edit</button>
-                        <button class="delete-user">Delete</button>
-                    </td>
-                </tr>
-            `;
+  
+                    <tr data-id="${u._id}">
+                        <td class="name">${u.user_name}</td>
+                        <td class="email">${u.user_email}</td>
+                        <td class="type">${u.user_type}</td>
+                        <td class="roles">${(u.roles || []).join(", ")}</td>
+                        <td class="status">${u.status}</td>
+                        <td class="password"></td>
+                        <td>
+                            <button class="edit-user">Edit</button>
+                            <button class="delete-user">Delete</button>
+                        </td>
+                    </tr>
+                    `;
         });
     }
 

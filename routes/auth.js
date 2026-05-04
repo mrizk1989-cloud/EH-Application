@@ -48,7 +48,8 @@ router.post('/register', registerLimiter, async (req, res) => {
             user_name: fullName,
             user_email: emailNormalized,
             user_password: await bcrypt.hash(password, 10),
-            roles: []
+            roles: [],
+            status: 'pending'
         });
 
         return res.json({
@@ -60,7 +61,7 @@ router.post('/register', registerLimiter, async (req, res) => {
         console.error(err);
         return res.json({
             success: false,
-            message: "Server error"
+            message: "Server error,Or Check provided Email should be Ex:xxx@xxx.com"
         });
     }
 });
@@ -84,6 +85,13 @@ router.post('/login', loginLimiter, async (req, res) => {
             return res.json({ success: false, message: "Invalid credentials" });
         }
 
+        if (user.user_type !== "admin" && user.status !== "active") {
+            return res.json({
+                success: false,
+                message: "Account not approved yet"
+            });
+        }
+
         // ✅ CRITICAL: REGENERATE SESSION (prevents session fixation)
         req.session.regenerate((err) => {
             if (err) {
@@ -95,7 +103,8 @@ router.post('/login', loginLimiter, async (req, res) => {
                 id: user._id,
                 userType: user.user_type,
                 roles: user.roles || [],
-                userName: user.user_name // ✅ ADD THIS
+                userName: user.user_name,
+                status: user.status
             };
 
             // ✅ SAVE AFTER REGENERATE
@@ -108,7 +117,9 @@ router.post('/login', loginLimiter, async (req, res) => {
                 return res.json({
                     success: true,
                     roles: user.roles || [],
-                    userType: user.user_type
+                    userType: user.user_type,
+                    status: user.status,
+                    userName: user.user_name
                 });
             });
         });

@@ -37,9 +37,15 @@ const userSchema = new mongoose.Schema({
     },
 
     mustChangePassword: {
-    type: Boolean,
-    default: false
-}
+        type: Boolean,
+        default: false
+    },
+
+    status: {
+        type: String,
+        enum: ['pending', 'active', 'rejected', 'suspended'],
+        default: 'pending'
+    }
 
 }, { timestamps: true });
 

@@ -28,7 +28,7 @@ router.get('/users', verifyToken, requireAdmin, async (req, res) => {
 router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
     try {
 
-        const { user_name, user_email, user_type, roles, password } = req.body;
+        const { user_name, user_email, user_type, roles, status, password } = req.body;
 
         const updateData = {};
 
@@ -45,6 +45,8 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
                 ? roles.filter(r => r && r.trim())
                 : [];
         }
+
+        if (status) updateData.status = status;
 
         // 🔐 PASSWORD
         if (password && password.trim().length > 0) {
