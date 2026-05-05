@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
+    
+
+
+
     let currencyOptions = [];
     let expenseTypes = [];
 
@@ -59,21 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
-    // ================= BUILD EXPENSE TYPE =================
-    // function normalizeExpenseType(name) {
 
-    //     const map = {
-    //         "medical": "medical",
-    //         "medical expenses": "medical",
-    //         "travel": "travel",
-    //         "travel request": "travel",
-    //         "other": "other"
-    //     };
-
-    //     const key = name.toLowerCase().trim();
-
-    //     return map[key] || "other";
-    // }
 
     function buildExpenseSelect() {
         return `
@@ -189,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const fileInput = row.querySelector("[name='file[]']");
             const file = fileInput?.files[0];
+            
 
             const item = {
                 customerId: row.querySelector("[name='customerId[]']").value,

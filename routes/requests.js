@@ -167,7 +167,8 @@ router.post(
                         "application/vnd.ms-powerpoint",
                         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 
-                        "message/rfc822"
+                        "message/rfc822",
+                        "application/x-cfb" // ✅ ADD THIS
                     ];
 
                     const blockedMimes = [
@@ -195,13 +196,21 @@ router.post(
                 }
 
                 // 3. Upload to Cloudinary
-                const result = await uploadToCloudinary(file.buffer);
+                // const type = await fileTypeFromBuffer(file.buffer);
+
+                const result = await uploadToCloudinary(
+                    file.buffer,
+                    file.originalname,
+                    type?.mime || file.mimetype
+                );
+
 
                 uploadedFiles.push({
-                    url: result.secure_url,
+                    url: result.url,
                     public_id: result.public_id,
-                    type: result.resource_type,
-                    originalName: file.originalname
+                    originalName: result.originalName,
+                    extension: ext, // ✅ SAVE THIS
+                    mimeType: result.mimeType // ✅ CORRECT
                 });
             }
 

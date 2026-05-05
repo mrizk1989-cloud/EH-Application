@@ -2,11 +2,17 @@ let requestsCache = [];
 let currenciesCache = [];
 let expenseTypesCache = [];
 
+import FileHandler from "./utils/fileHandler.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const logoutBtn = document.getElementById("logoutBtn");
     const wrapper = document.getElementById("settingsTableWrapper");
     const title = document.getElementById("settingsTitle");
+
+     // 🔥 initialize once
+    FileHandler.init();
+    
 
     // ================= NAV =================
     document.querySelectorAll(".nav-links button[data-section]")
@@ -123,15 +129,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
-                     <td class="password"></td>
+                    <td class="attachments">
+                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
+                    </td>
                     <td>
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
                     </td>
             `;
-                {/* <button class="edit-request">Edit</button> */ }
+                
                 body.appendChild(tr);
             });
+            
 
         } catch (err) {
             console.error("loadRequests error:", err);
@@ -439,6 +448,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             await renderRequestItems(parentRow);
         }
+
+
 
 
         // ================= EDIT ITEM =================
@@ -934,6 +945,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                    <td class="attachments">
+                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
+                    </td>
                     <td>
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
@@ -1034,6 +1048,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                    <td class="attachments">
+                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
+                    </td>
                     <td>
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>

@@ -200,3 +200,10 @@ h3 {
 .sub-table tr:hover {
     background: rgba(212,175,55,0.08);
 }
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}

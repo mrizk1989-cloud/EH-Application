@@ -4,7 +4,9 @@ const attachmentSchema = new mongoose.Schema({
     url: String,
     public_id: String,
     type: String,
-    originalName: String
+    originalName: String,
+    extension: String,   // ✅ NEW (".pdf", ".jpeg")
+    mimeType: String     // ✅ NEW ("application/pdf", "image/jpeg")
 }, { _id: false });
 
 const masterRequestSchema = new mongoose.Schema({
