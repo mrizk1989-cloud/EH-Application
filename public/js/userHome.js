@@ -1,4 +1,9 @@
+import FileHandler from "./utils/fileHandler.js";
+
 document.addEventListener("DOMContentLoaded", () => {
+
+    // 🔥 initialize once
+    FileHandler.init();
 
     const logoutBtn = document.getElementById("logoutBtn");
     const newRequestBtn = document.getElementById("newRequestBtn");
@@ -72,6 +77,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = await res.json();
             const data = json.data;
 
+            console.log(data)
+
             if (!Array.isArray(data)) {
                 wrapper.innerHTML = "<p>Error loading</p>";
                 return;
@@ -84,18 +91,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     <th>Request No</th>
                     <th>Total (SAR)</th>
                     <th>Status</th>
+                    <th>Attachments</th>
                     <th>Details</th>
                 </tr>
             </thead>
             <tbody>
         `;
-
+            
             data.forEach(r => {
                 html += `
             <tr data-id="${r._id}">
                 <td>${r.requestNo}</td>
                 <td>${r.totalAmountSAR}</td>
                 <td>${r.status}</td>
+                <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                 <td><button class="view-request">View</button></td>
             </tr>
             `;

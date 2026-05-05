@@ -62,9 +62,11 @@ body {
 
 /* ================= ACTIONS ================= */
 .actions {
+    margin-top: 15px;
     margin-bottom: 15px;
     display: flex;
     gap: 10px;
+    float: right;
 }
 
 /* ================= TABLE ================= */
@@ -90,7 +92,9 @@ th {
 td {
     padding: 8px;
     border: 1px solid rgba(255,255,255,0.08);
+    
 }
+
 
 /* ROW HOVER */
 tbody tr:hover {
@@ -105,6 +109,7 @@ input, select {
     border: none;
     outline: none;
     font-size: 13px;
+    
 }
 
 /* ================= BUTTONS ================= */
@@ -120,3 +125,4 @@ button {
 button:hover {
     background: #d99a14;
 }
+

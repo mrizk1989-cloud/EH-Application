@@ -1,3 +1,4 @@
+/* ================= RESET ================= */
 * {
     margin: 0;
     padding: 0;
@@ -5,6 +6,7 @@
     font-family: Arial, sans-serif;
 }
 
+/* ================= ROOT THEME ================= */
 :root {
     --bg: #0f141a;
     --panel: #151c24;
@@ -13,18 +15,22 @@
     --border: rgba(255,255,255,0.08);
 }
 
+/* ================= BODY ================= */
 body {
     background: var(--bg);
     color: var(--text);
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     background: var(--panel);
     padding: 14px 20px;
+
+    border-bottom: 1px solid var(--border);
 }
 
 .nav-links {
@@ -33,6 +39,7 @@ body {
     align-items: center;
 }
 
+/* NAV BUTTONS */
 .nav-links button {
     padding: 7px 14px;
     border: 1px solid var(--gold);
@@ -40,6 +47,7 @@ body {
     color: var(--gold);
     cursor: pointer;
     border-radius: 4px;
+    transition: 0.2s;
 }
 
 .nav-links button:hover {
@@ -47,7 +55,7 @@ body {
     color: #111;
 }
 
-/* DROPDOWN */
+/* ================= DROPDOWN ================= */
 .dropdown {
     position: relative;
 }
@@ -65,12 +73,15 @@ body {
     position: absolute;
     top: 40px;
     left: 0;
+
     background: var(--panel);
     border: 1px solid var(--border);
     min-width: 180px;
+
     display: none;
     flex-direction: column;
-    z-index: 999999;
+
+    z-index: 9999;
 }
 
 .dropdown.open .dropdown-menu {
@@ -86,7 +97,7 @@ body {
     background: rgba(212,175,55,0.2);
 }
 
-/* MAIN */
+/* ================= MAIN ================= */
 main {
     padding: 20px;
 }
@@ -99,64 +110,65 @@ main {
     display: block;
 }
 
-/* ========================= */
-/* TABLE FIXES (IMPORTANT) */
-/* ========================= */
-
+/* ================= TABLE SYSTEM ================= */
 table {
     width: 100%;
     margin-top: 15px;
 
     border-collapse: collapse;
-
-    /* 🔥 THIS IS THE KEY FIX */
-    table-layout: auto; /* allow content to control width */
+    table-layout: auto;
 }
 
-/* HEADER */
+/* HEADERS */
 th {
     text-align: center;
     padding: 12px;
+
     border-bottom: 1px solid var(--border);
-    white-space: nowrap; /* prevent breaking */
+    white-space: nowrap;
 }
 
 /* CELLS */
 td {
     text-align: center;
     padding: 10px;
-    border-bottom: 1px solid var(--border);
 
-    /* 🔥 helps auto sizing */
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
 }
 
-/* ALLOW LONG TEXT TO BREAK ONLY WHEN NEEDED */
+/* ALLOW WRAPPING ONLY FOR LONG TEXT */
 td.name,
 td.email {
     white-space: normal;
     word-break: break-word;
 }
 
-/* INPUTS INSIDE TABLE */
+/* ================= TABLE INPUTS ================= */
 table input {
     width: 100%;
     padding: 6px;
+
     background: #0f141a;
     border: 1px solid var(--border);
     color: var(--text);
+
     border-radius: 4px;
     text-align: center;
 }
 
-/* TABLE BUTTONS */
+/* ================= TABLE BUTTONS ================= */
 table button {
     padding: 6px 10px;
+
     border: 1px solid var(--gold);
     background: transparent;
     color: var(--gold);
+
     border-radius: 4px;
     cursor: pointer;
+
+    transition: 0.2s;
 }
 
 table button:hover {
@@ -164,7 +176,7 @@ table button:hover {
     color: #111;
 }
 
-/* ACTION COLUMN CLEAN ALIGN */
+/* ACTION CELL ALIGNMENT */
 td:last-child {
     display: flex;
     justify-content: center;
@@ -172,18 +184,17 @@ td:last-child {
     flex-wrap: wrap;
 }
 
-/* SMALL POLISH */
+/* ================= HEADINGS ================= */
 h3 {
     margin-bottom: 10px;
 }
 
-/* SUB TABLE ROW */
+/* ================= SUB TABLE ================= */
 .sub-table-row td {
     background: #0c1116;
     padding: 15px;
 }
 
-/* INNER TABLE */
 .sub-table {
     width: 100%;
     border-collapse: collapse;
@@ -196,14 +207,59 @@ h3 {
     text-align: center;
 }
 
-/* HOVER EFFECT */
 .sub-table tr:hover {
     background: rgba(212,175,55,0.08);
 }
 
+/* ================= FILE SYSTEM (MATCH YOUR UI) ================= */
 .file-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
+
+    padding: 6px 10px;
+
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+
+    font-size: 13px;
+}
+
+/* file name */
+.file-item span {
+    flex: 1;
+    text-align: left;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* file buttons */
+.file-item button {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    border-radius: 4px;
+    cursor: pointer;
+
+    font-size: 12px;
+}
+
+.file-item button:hover {
+    background: var(--gold);
+    color: #111;
+}
+
+/* icons spacing */
+.file-preview,
+.file-download {
+    min-width: 30px;
 }

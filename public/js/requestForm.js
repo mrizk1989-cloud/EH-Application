@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </select>
             </td>
             <td>
-                <input type="file" name="file[]">
+                <input class="UploadFile" type="file" name="file[]">
             </td>
         `;
 
