@@ -27,6 +27,8 @@ const masterRequestSchema = new mongoose.Schema({
 
     userName: String,
 
+    userArea: [String],
+
     exchangeRate: Number,
 
     totalAmountSAR: {
@@ -43,8 +45,28 @@ const masterRequestSchema = new mongoose.Schema({
 
     currentRole: {
         type: String,
-        enum: ['budget_control', 'direct_manager', 'bi', 'vp_finance', null],
+        enum: ['direct_manager', 'budget_control', 'bi', 'vp_finance', 'finished', null],
         default: 'budget_control'
+    },
+
+    direct_manager_comment: {
+        type: String,
+        default: 'no_comment'
+    },
+
+    budget_control_comment: {
+        type: String,
+        default: 'no_comment'
+    },
+
+    bi_comment: {
+        type: String,
+        default: 'no_comment'
+    },
+
+    vp_finance_comment: {
+        type: String,
+        default: 'no_comment'
     },
 
     // ✅ FIXED (EXPLICIT)

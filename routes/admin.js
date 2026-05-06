@@ -3,6 +3,9 @@ const router = express.Router();
 
 const { verifyToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/requireAdmin');
+const { requireBudgetcontrole } = require('../middleware/requireBudgetcontrole');
+const { requireDirectmanager } = require('../middleware/requireDirectmanager');
+const { requireBiorVpfinance } = require('../middleware/requireBiorVpfinance');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
@@ -28,7 +31,8 @@ router.get('/users', verifyToken, requireAdmin, async (req, res) => {
 router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
     try {
 
-        const { user_name, user_email, user_type, roles, status, password } = req.body;
+        const { user_name, user_email, user_type, roles, status, password, country, area_section } = req.body;
+
 
         const updateData = {};
 
@@ -47,6 +51,14 @@ router.put('/users/:id', verifyToken, requireAdmin, async (req, res) => {
         }
 
         if (status) updateData.status = status;
+
+        if (country) updateData.country = country;
+
+        if (area_section) {
+            updateData.area_section = Array.isArray(area_section)
+                ? area_section.filter(e => e && e.trim())
+                : [];
+        }
 
         // 🔐 PASSWORD
         if (password && password.trim().length > 0) {
@@ -182,28 +194,6 @@ router.get('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
     }
 });
 
-// router.delete('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
-//     try {
-
-//         const deleted = await MasterRequest.findByIdAndDelete(req.params.id);
-
-//         if (!deleted) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "Not found"
-//             });
-//         }
-
-//         // optional cleanup (IMPORTANT)
-//         await RequestItem.deleteMany({ requestId: req.params.id });
-
-//         res.json({ success: true });
-
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ success: false });
-//     }
-// });
 
 router.put('/requests/:id/cancel', verifyToken, requireAdmin, async (req, res) => {
     try {
@@ -525,5 +515,134 @@ router.delete('/expense-types/:id', verifyToken, requireAdmin, async (req, res) 
     await ExpenseType.findByIdAndDelete(req.params.id);
     res.json({ success: true });
 });
+
+
+//--------------LOAD REQUESTS BY ROLE----------------------
+//--------------BUDGET CONTROLE----------------------
+router.get('/budgetControl', verifyToken, requireBudgetcontrole, async (req, res) => {
+    try {
+
+        const requests = await MasterRequest
+            .find({ currentRole: "budget_control" })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            data: requests
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.get('/budgetControl/:id/items', verifyToken, requireBudgetcontrole, async (req, res) => {
+    try {
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const items = await RequestItem.find({
+            requestId: req.params.id
+        });
+
+        res.json(items);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+//--------------DIRECT MANAGER----------------------
+router.get('/directMangaer', verifyToken, requireDirectmanager, async (req, res) => {
+    try {
+
+        const userAreas = req.session.user.userArea || [];
+
+        const requests = await MasterRequest
+            .find({
+                currentRole: "direct_manager",
+                userArea: { $in: userAreas }
+            })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            data: requests
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.get('/directMangaer/:id/items', verifyToken, requireDirectmanager, async (req, res) => {
+    try {
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const items = await RequestItem.find({
+            requestId: req.params.id
+        });
+
+        res.json(items);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+//--------------BI VP Finance----------------------
+router.get('/biVpfinance', verifyToken, requireBiorVpfinance, async (req, res) => {
+    try {
+
+        const requests = await MasterRequest
+            .find({
+                currentRole: { $in: ["bi", "vp_finance"] }
+            })
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            data: requests
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.get('/biVpfinance/:id/items', verifyToken, requireBudgetcontrole, async (req, res) => {
+    try {
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const items = await RequestItem.find({
+            requestId: req.params.id
+        });
+
+        res.json(items);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
 
 module.exports = router;

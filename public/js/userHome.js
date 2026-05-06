@@ -1,5 +1,7 @@
 import FileHandler from "./utils/fileHandler.js";
 
+let userRole
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // 🔥 initialize once
@@ -53,6 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/me", { credentials: "include" });
             const data = await res.json();
 
+            // console.log((data.user.roles || []).join(", "))
+
+            userRole = (data.user.roles || []).join(", ")
+
+
             if (data.success) {
                 userNameEl.innerText = data.user.userName;
 
@@ -68,6 +75,176 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================= LOAD REQUESTS =================
+
+    async function loadRequestsBudgetcontrol() {
+        try {
+            const res = await fetch("/admin/budgetControl", {
+                credentials: "include"
+            });
+
+            const json = await res.json();
+            const data = json.data;
+
+
+
+            if (!Array.isArray(data)) {
+                wrapper.innerHTML = "<p>Error loading</p>";
+                return;
+            }
+
+            let html = `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Request No</th>
+                                        <th>Total (SAR)</th>
+                                        <th>Status</th>
+                                        <th>Attachments</th>
+                                        <th>Details</th>
+                                        <th>Approval</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            `;
+
+            data.forEach(r => {
+                html += `
+                            <tr data-id="${r._id}">
+                                <td>${r.requestNo}</td>
+                                <td>${r.totalAmountSAR}</td>
+                                <td>${r.status}</td>
+                                <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
+                                <td><button class="view-request">View</button></td>
+                                <td>
+                                    <button class="approve-request">Approve</button>
+                                    <button class="reject-request">Reject</button>
+                                </td>
+                            </tr>
+                            `;
+            });
+
+            html += `</tbody></table>`;
+            wrapper.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+            wrapper.innerHTML = "<p>Error loading data</p>";
+        }
+    }
+
+    async function loadRequestsBiVpfinance() {
+        try {
+            const res = await fetch("/admin/biVpfinance", {
+                credentials: "include"
+            });
+
+            const json = await res.json();
+            const data = json.data;
+
+
+
+            if (!Array.isArray(data)) {
+                wrapper.innerHTML = "<p>Error loading</p>";
+                return;
+            }
+
+            let html = `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Request No</th>
+                                        <th>Total (SAR)</th>
+                                        <th>Status</th>
+                                        <th>Attachments</th>
+                                        <th>Details</th>
+                                        <th>Approval</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            `;
+
+            data.forEach(r => {
+                html += `
+                            <tr data-id="${r._id}">
+                                <td>${r.requestNo}</td>
+                                <td>${r.totalAmountSAR}</td>
+                                <td>${r.status}</td>
+                                <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
+                                <td><button class="view-request">View</button></td>
+                                <td>
+                                    <button class="approve-request">Approve</button>
+                                    <button class="reject-request">Reject</button>
+                                </td>
+                            </tr>
+                            `;
+            });
+
+            html += `</tbody></table>`;
+            wrapper.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+            wrapper.innerHTML = "<p>Error loading data</p>";
+        }
+    }
+
+    async function loadRequestsDirectmanager() {
+        try {
+            const res = await fetch("/admin/directMangaer", {
+                credentials: "include"
+            });
+
+            const json = await res.json();
+            const data = json.data;
+
+
+
+            if (!Array.isArray(data)) {
+                wrapper.innerHTML = "<p>Error loading</p>";
+                return;
+            }
+
+            let html = `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Request No</th>
+                                        <th>Total (SAR)</th>
+                                        <th>Status</th>
+                                        <th>Attachments</th>
+                                        <th>Details</th>
+                                        <th>Approval</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            `;
+
+            data.forEach(r => {
+                html += `
+                            <tr data-id="${r._id}">
+                                <td>${r.requestNo}</td>
+                                <td>${r.totalAmountSAR}</td>
+                                <td>${r.status}</td>
+                                <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
+                                <td><button class="view-request">View</button></td>
+                                <td>
+                                    <button class="approve-request">Approve</button>
+                                    <button class="reject-request">Reject</button>
+                                </td>
+                            </tr>
+                            `;
+            });
+
+            html += `</tbody></table>`;
+            wrapper.innerHTML = html;
+
+        } catch (err) {
+            console.error(err);
+            wrapper.innerHTML = "<p>Error loading data</p>";
+        }
+    }
+
+
     async function loadRequests() {
         try {
             const res = await fetch("/api/request/my-detailed", {
@@ -77,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = await res.json();
             const data = json.data;
 
-            console.log(data)
+
 
             if (!Array.isArray(data)) {
                 wrapper.innerHTML = "<p>Error loading</p>";
@@ -97,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </thead>
             <tbody>
         `;
-            
+
             data.forEach(r => {
                 html += `
             <tr data-id="${r._id}">
@@ -135,16 +312,27 @@ document.addEventListener("DOMContentLoaded", () => {
         // close others
         document.querySelectorAll(".sub-table-row").forEach(el => el.remove());
 
-        const res = await fetch(`/api/request/my/${requestId}/items`, {
-            credentials: "include"
-        });
-
+        let res;
+        ////////////////////////////////////////////////////////////
+        if (userRole === "budget_control") {
+            res = await fetch(`/admin/budgetControl/${requestId}/items`, {
+                credentials: "include"
+            });
+        } else if (userRole === "direct_manager") {
+            res = await fetch(`/admin/directMangaer/${requestId}/items`, {
+                credentials: "include"
+            });
+        } else if (userRole === "bi" || userRole === "vp_finance") {
+             res = await fetch(`/admin/biVpfinance/${requestId}/items`, {
+                credentials: "include"
+            });
+        } else {
+            res = await fetch(`/api/request/my/${requestId}/items`, {
+                credentials: "include"
+            });
+        }
+        /////////////////////////////////////////////////////////////
         const items = await res.json(); // ✅ correct
-
-        // const items = await res.json({
-        //     success: true,
-        //     items
-        // });
 
         if (!Array.isArray(items) || items.length === 0) return;
 
@@ -212,8 +400,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ================= INIT =================
-    loadUser();
-    loadRequests();
+    async function init() {
+        await loadUser();
+
+        if (userRole === "budget_control") {
+            loadRequestsBudgetcontrol();
+        } else if (userRole === "direct_manager") {
+            loadRequestsDirectmanager();
+        } else if (userRole === "bi" || userRole === "vp_finance") {
+            loadRequestsBiVpfinance();
+        } else {
+            loadRequests();
+        }
+    }
+
+    init();
 
 });
 

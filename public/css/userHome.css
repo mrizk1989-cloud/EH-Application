@@ -219,7 +219,9 @@ html, body {
 }
 
 
-.view-request {
+.view-request,
+.approve-request,
+.reject-request{
     background: #f5b21b;
     border: none;
     padding: 4px 8px;

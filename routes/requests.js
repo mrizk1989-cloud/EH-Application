@@ -108,6 +108,8 @@ router.post(
                 });
             }
 
+            
+
             let items;
 
             try {
@@ -245,7 +247,8 @@ router.post(
                 totalAmountSAR: 0,
                 status: "pending",
                 currentRole: "budget_control",
-                attachments: uploadedFiles
+                attachments: uploadedFiles,
+                userArea: sessionUser.userArea || [],
             });
 
             master.attachments = uploadedFiles;
@@ -272,8 +275,9 @@ router.post(
 
             return res.json({
                 success: true,
-                message: "Request submitted successfully",
-                requestNo
+                message: `Request ${requestNo} submitted successfully`,
+                requestNo,
+                
             });
 
         } catch (err) {

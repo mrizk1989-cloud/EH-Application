@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrapper = document.getElementById("settingsTableWrapper");
     const title = document.getElementById("settingsTitle");
 
-     // 🔥 initialize once
+    // 🔥 initialize once
     FileHandler.init();
-    
+
 
     // ================= NAV =================
     document.querySelectorAll(".nav-links button[data-section]")
@@ -92,6 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td class="email">${u.user_email}</td>
                         <td class="type">${u.user_type}</td>
                         <td class="roles">${(u.roles || []).join(", ")}</td>
+                        <td class="type">${u.country}</td>
+                        <td class="type">${(u.area_section || []).join(", ")}</td>
                         <td class="status">${u.status}</td>
                         <td class="password"></td>
                         <td>
@@ -137,10 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         <button class="delete-request">Cancel Request</button>
                     </td>
             `;
-                
+
                 body.appendChild(tr);
             });
-            
+
 
         } catch (err) {
             console.error("loadRequests error:", err);
@@ -325,6 +327,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td><input value="${row.querySelector(".email").innerText}"></td>
                             <td><input value="${row.querySelector(".type").innerText}"></td>
                             <td><input value="${row.querySelector(".roles").innerText}"></td>
+                            <td><input type="country" placeholder="Cuntry"></td>
+                            <td><input type="area" placeholder="Area"></td>
                             <td><input value="${row.querySelector(".status").innerText}"></td>
                             <td><input type="password" placeholder="New password (optional)"></td>
                             <td>
@@ -345,22 +349,43 @@ document.addEventListener("DOMContentLoaded", () => {
             const passwordInput = row.querySelector('input[type="password"]');
             const password = passwordInput ? passwordInput.value.trim() : "";
 
-            await fetch(`/admin/users/${row.dataset.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    user_name: row.children[0].children[0].value,
-                    user_email: row.children[1].children[0].value,
-                    user_type: row.children[2].children[0].value,
-                    roles: row.children[3].children[0].value.split(",").map(r => r.trim()),
-                    status: row.children[4].children[0].value,
-                    ...(password && { password }), // ✅ ONLY send if filled
 
-                })
-            });
 
-            loadUsers();
+            try {
+                const res = await fetch(`/admin/users/${row.dataset.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        user_name: row.children[0].children[0].value,
+                        user_email: row.children[1].children[0].value,
+                        user_type: row.children[2].children[0].value,
+                        roles: row.children[3].children[0].value
+                            .split(",")
+                            .map(r => r.trim()),
+                        country: row.children[4].children[0].value,
+                        area_section: row.children[5].children[0].value
+                            .split(",")
+                            .map(e => e.trim()),
+                        status: row.children[6].children[0].value,
+                        ...(password && { password })
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    console.error("UPDATE FAILED:", data.message);
+                    alert(data.message);
+                    return;
+                }
+
+                loadUsers();
+
+            } catch (err) {
+                console.error("FETCH ERROR:", err);
+                alert("Network or server error");
+            }
         }
 
         if (e.target.classList.contains("delete-user")) {
@@ -1008,6 +1033,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td class="email">${u.user_email}</td>
                         <td class="type">${u.user_type}</td>
                         <td class="roles">${(u.roles || []).join(", ")}</td>
+                        <td class="type">${u.country}</td>
+                        <td class="type">${(u.area_section || []).join(", ")}</td>
                         <td class="status">${u.status}</td>
                         <td class="password"></td>
                         <td>

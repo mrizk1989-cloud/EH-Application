@@ -49,7 +49,9 @@ router.post('/register', registerLimiter, async (req, res) => {
             user_email: emailNormalized,
             user_password: await bcrypt.hash(password, 10),
             roles: [],
-            status: 'pending'
+            status: 'pending',
+            mustChangePassword: false,
+            
         });
 
         return res.json({
@@ -61,7 +63,7 @@ router.post('/register', registerLimiter, async (req, res) => {
         console.error(err);
         return res.json({
             success: false,
-            message: "Server error,Or Check provided Email should be Ex:xxx@xxx.com"
+            message: err.message || "Server error"
         });
     }
 });
@@ -104,7 +106,9 @@ router.post('/login', loginLimiter, async (req, res) => {
                 userType: user.user_type,
                 roles: user.roles || [],
                 userName: user.user_name,
-                status: user.status
+                status: user.status,
+                userArea: user.area_section || [],
+                country: user.country,
             };
 
             // ✅ SAVE AFTER REGENERATE
@@ -119,7 +123,9 @@ router.post('/login', loginLimiter, async (req, res) => {
                     roles: user.roles || [],
                     userType: user.user_type,
                     status: user.status,
-                    userName: user.user_name
+                    userName: user.user_name,
+                    userArea: user.area_section || [],
+                    country: user.country,
                 });
             });
         });
