@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                    <td class="userName">${r.currentRole || ""}</td>
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>
@@ -970,6 +971,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                    <td class="userName">${r.currentRole || ""}</td>
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>
@@ -1075,6 +1077,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="userName">${r.userName || ""}</td>
                     <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
                     <td class="status">${r.status || "pending"}</td>
+                    <td class="userName">${r.currentRole || ""}</td>
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>

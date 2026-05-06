@@ -268,6 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <th>Request No</th>
                     <th>Total (SAR)</th>
                     <th>Status</th>
+                    <th>Current Role</th>
                     <th>Attachments</th>
                     <th>Details</th>
                 </tr>
@@ -281,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${r.requestNo}</td>
                 <td>${r.totalAmountSAR}</td>
                 <td>${r.status}</td>
+                <td>${r.currentRole}</td>
                 <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                 <td><button class="view-request">View</button></td>
             </tr>
