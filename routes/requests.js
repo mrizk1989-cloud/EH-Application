@@ -74,6 +74,7 @@ const { uploadToCloudinary } = require('../services/cloudinaryService');
 
 const MasterRequest = require('../models/MasterRequest');
 const RequestItem = require('../models/RequestItem'); // 🔥 NEW (IMPORTANT)
+const Customers = require('../models/Customers');
 
 const cloudinary = require('../config/cloudinary');
 const streamifier = require('streamifier');
@@ -108,7 +109,7 @@ router.post(
                 });
             }
 
-            
+
 
             let items;
 
@@ -219,14 +220,21 @@ router.post(
 
 
             const rawItems = items.map(i => ({
+
                 customerId: i.customerId,
+                customerName: i.customerName,
+                salesTerritory: i.salesTerritory,
+
                 amount: i.amount,
                 currency: i.currency,
+
                 expenseType: i.expenseType,
                 purpose: i.purpose,
                 doctorName: i.doctorName,
+
                 requestPeriodMonth: i.requestPeriodMonth,
                 requestPeriodYear: i.requestPeriodYear
+
             }));
 
             // ================= CONVERT TO SAR =================
@@ -277,7 +285,7 @@ router.post(
                 success: true,
                 message: `Request ${requestNo} submitted successfully`,
                 requestNo,
-                
+
             });
 
         } catch (err) {
@@ -393,4 +401,33 @@ router.get('/my/:id/items', verifyToken, async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+//================GET CUSTOMERS===================================
+
+router.get('/customers', verifyToken, async (req, res) => {
+    try {
+
+        const userAreas = req.session.user.userArea || [];
+
+        console.log("USER AREAS:", userAreas);
+
+        const customers = await Customers.find({
+            area: { $in: userAreas }
+        })
+            .select("customer_number cutomer_name territory area")
+            .sort({ cutomer_name: 1 });
+
+        res.json({
+            success: true,
+            data: customers
+        });
+
+    } catch (err) {
+        console.error("CUSTOMER LOAD ERROR:", err);
+
+        res.status(500).json({
+            success: false
+        });
+    }
+});
+
 module.exports = router;

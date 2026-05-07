@@ -8,12 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    
+
 
 
 
     let currencyOptions = [];
     let expenseTypes = [];
+    let customers = [];
 
     // ================= BACK =================
     backBtn?.addEventListener("click", () => {
@@ -36,6 +37,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // ================= LOAD CUSTOMERS =================
+    async function loadCustomers() {
+
+        const res = await fetch("/api/request/customers", {
+            credentials: "include"
+        });
+
+        const data = await res.json();
+
+        customers = data.success ? data.data : [];
+
+        console.log("CUSTOMERS:", customers);
+    }
+
     // ================= LOAD CURRENCIES =================
     async function loadCurrencies() {
         const res = await fetch("/api/currencies", { credentials: "include" });
@@ -50,6 +65,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         expenseTypes = data.success ? data.data : [];
+    }
+
+    // ================= BUILD CUSTOMERS =================
+    function buildCustomerDatalist() {
+
+        return `
+        <datalist id="customersList">
+
+            ${customers.map(c => `
+                <option 
+                    value="${c.customer_number}">
+                    ${c.customer_number} - ${c.cutomer_name}
+                </option>
+            `).join("")}
+
+        </datalist>
+    `;
     }
 
     // ================= BUILD CURRENCY =================
@@ -84,9 +116,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         row.innerHTML = `
             <td><input type="checkbox" class="row-check"></td>
+            <td>
+                <input 
+                    type="text"
+                    name="customerId[]"
+                    class="customer-id-input"
+                    list="customersList"
+                    placeholder="Customer ID"
+                    required>
+            </td>
 
-            <td><input type="text" name="customerId[]" required></td>
-
+            <td>
+                <input 
+                    type="text"
+                    name="customerName[]"
+                    readonly>
+            </td>
+            <td>
+                <input 
+                    type="text"
+                    name="salesTerritory[]"
+                    readonly>
+            </td>
             <td><input type="number" name="amount[]" step="0.01" min="0" required></td>
 
             <td>${buildCurrencySelect()}</td>
@@ -152,6 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
     (async function init() {
         await loadCurrencies();
         await loadExpenseTypes();
+        await loadCustomers();
+
+        document.body.insertAdjacentHTML(
+            "beforeend",
+            buildCustomerDatalist()
+        );
 
         // IMPORTANT: remove static row problem
         tableBody.innerHTML = "";
@@ -179,10 +236,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const fileInput = row.querySelector("[name='file[]']");
             const file = fileInput?.files[0];
-            
+
 
             const item = {
                 customerId: row.querySelector("[name='customerId[]']").value,
+                customerName: row.querySelector("[name='customerName[]']").value,
+                salesTerritory: row.querySelector("[name='salesTerritory[]']").value,
                 amount: Number(row.querySelector("[name='amount[]']").value),
                 currency: row.querySelector("[name='currency[]']").value,
                 expenseType: row.querySelector("[name='expenseType[]']").value,
@@ -214,4 +273,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success) location.reload();
     });
 
+    document.addEventListener("input", (e) => {
+
+        if (!e.target.classList.contains("customer-id-input")) return;
+
+        const customerId = e.target.value;
+
+        const customer = customers.find(c =>
+            c.customer_number === customerId
+        );
+
+        const row = e.target.closest("tr");
+
+        row.querySelector("[name='customerName[]']").value =
+            customer?.cutomer_name || "";
+
+        row.querySelector("[name='salesTerritory[]']").value =
+            customer?.area  || "";
+    });
 });
+
+
