@@ -15,36 +15,14 @@ const allowedExtensions = [
     ".jpg",
     ".jpeg",
     ".png",
-    ".webp",
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-    ".ppt",
-    ".pptx",
-    ".eml",
-    ".msg"
+    ".webp"
 ];
 
 const allowedMimeTypes = [
     "application/pdf",
-
     "image/jpeg",
     "image/png",
-    "image/jpg",
-    "image/webp",
-
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-
-    "message/rfc822", // .eml (sometimes)
-    "application/octet-stream" // fallback for msg/eml/office files
+    "image/webp"
 ];
 
 const upload = multer({
@@ -57,10 +35,10 @@ const upload = multer({
         const isValidMime = allowedMimeTypes.includes(file.mimetype);
         const isValidExt = allowedExtensions.includes(ext);
 
-        if (isValidMime || isValidExt) {
+        if (isValidMime && isValidExt) {
             cb(null, true);
         } else {
-            cb(new Error("Invalid file type. Only PDF, images, Office files, and Outlook emails allowed"));
+            cb(new Error("Only PDF and image files are allowed"));
         }
     }
 });
@@ -156,22 +134,9 @@ router.post(
 
                     const allowedDetectedMimes = [
                         "application/pdf",
-
                         "image/jpeg",
                         "image/png",
-                        "image/webp",
-
-                        "application/msword",
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-
-                        "application/vnd.ms-excel",
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-
-                        "application/vnd.ms-powerpoint",
-                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-
-                        "message/rfc822",
-                        "application/x-cfb" // ✅ ADD THIS
+                        "image/webp"
                     ];
 
                     const blockedMimes = [

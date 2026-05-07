@@ -1,29 +1,36 @@
 const path = require("path");
-const crypto = require("crypto");
 const { fileTypeFromBuffer } = require("file-type");
-const UploadLog = require('../models/UploadLog');
+const UploadLog = require("../models/UploadLog");
 
-/**
- * 1. VALIDATE FILE UPLOAD (basic security gate)
- */
+// ================= HELPERS =================
+
+// PDF structure check (%PDF header)
+function isValidPDF(buffer) {
+    if (!buffer || buffer.length < 5) return false;
+    return buffer.toString("utf8", 0, 5) === "%PDF-";
+}
+
+// detect obvious EXE signature (MZ header)
+function isWindowsExecutable(buffer) {
+    if (!buffer || buffer.length < 2) return false;
+    return buffer.toString("utf8", 0, 2) === "MZ";
+}
+
+// ================= 1. VALIDATE FILE UPLOAD =================
 async function validateFileUpload(req, res, next) {
     try {
         const files = req.files || [];
-
         if (!files.length) return next();
 
         const allowedExtensions = [
-            ".pdf", ".jpg", ".jpeg", ".png", ".webp",
-            ".doc", ".docx", ".xls", ".xlsx",
-            ".ppt", ".pptx",
-            ".eml", ".msg"
+            ".pdf", ".jpg", ".jpeg", ".png", ".webp"
         ];
 
         const blockedNames = ["..", "/", "\\"];
 
         for (const file of files) {
 
-            // ❌ 1. filename sanity check
+            // ❌ 1. filename safety
             if (blockedNames.some(b => file.originalname.includes(b))) {
                 return res.status(400).json({
                     success: false,
@@ -33,14 +40,15 @@ async function validateFileUpload(req, res, next) {
 
             // ❌ 2. extension check
             const ext = path.extname(file.originalname).toLowerCase();
+
             if (!allowedExtensions.includes(ext)) {
                 return res.status(400).json({
                     success: false,
-                    message: `File type not allowed: ${file.originalname}`
+                    message: "Only PDF and images are allowed"
                 });
             }
 
-            // ❌ 3. empty file check
+            // ❌ 3. empty file
             if (!file.buffer || file.buffer.length === 0) {
                 return res.status(400).json({
                     success: false,
@@ -48,23 +56,44 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 4. real file type check (anti fake extension)
+            // ❌ 4. fake PDF detection
+            if (ext === ".pdf" && !isValidPDF(file.buffer)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Corrupted or fake PDF detected"
+                });
+            }
+
+            // ❌ 5. executable detection (renamed malware)
+            if (isWindowsExecutable(file.buffer)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Executable file detected"
+                });
+            }
+
+            // ❌ 6. real MIME verification
             const type = await fileTypeFromBuffer(file.buffer);
 
-            if (type) {
-                const blocked = [
-                    "application/x-msdownload",
-                    "application/x-executable",
-                    "application/x-dosexec",
-                    "application/x-msdos-program"
-                ];
+            if (!type) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Unknown or corrupted file type"
+                });
+            }
 
-                if (blocked.includes(type.mime)) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "Executable files are not allowed"
-                    });
-                }
+            const allowedMime = [
+                "application/pdf",
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedMime.includes(type.mime)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid file type: ${type.mime}`
+                });
             }
         }
 
@@ -78,9 +107,7 @@ async function validateFileUpload(req, res, next) {
     }
 }
 
-/**
- * 2. DETECT SUSPICIOUS FILES (light heuristic check)
- */
+// ================= 2. DETECT SUSPICIOUS FILES =================
 function detectSuspiciousFile(req, res, next) {
     try {
         const files = req.files || [];
@@ -97,7 +124,7 @@ function detectSuspiciousFile(req, res, next) {
                 });
             }
 
-            // ❌ common attack patterns
+            // ❌ dangerous extensions
             const suspiciousPatterns = [
                 ".exe", ".bat", ".cmd", ".js", ".vbs", ".ps1", ".sh"
             ];
@@ -105,7 +132,7 @@ function detectSuspiciousFile(req, res, next) {
             if (suspiciousPatterns.some(p => name.includes(p))) {
                 return res.status(400).json({
                     success: false,
-                    message: "Potentially unsafe file blocked"
+                    message: "Unsafe file type blocked"
                 });
             }
         }
@@ -120,14 +147,10 @@ function detectSuspiciousFile(req, res, next) {
     }
 }
 
-/**
- * 3. LOG UPLOADS (audit trail)
- */
+// ================= 3. LOG UPLOADS =================
 async function logUpload(req, res, next) {
-
     const files = req.files || [];
-
-    if (files.length === 0) return next();
+    if (!files.length) return next();
 
     const logs = files.map(file => ({
         userId: req.session?.user?.id || null,

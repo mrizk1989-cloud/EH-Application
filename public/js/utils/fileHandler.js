@@ -99,13 +99,23 @@ const FileHandler = {
     download(file) {
         if (!file?.url) return;
 
-        const a = document.createElement("a");
+        let url = file.url;
 
-        a.href = file.url.replace(
-            "/upload/",
-            `/upload/fl_attachment:${encodeURIComponent(file.originalName)}/`
-        );
+        // ensure we inject fl_attachment safely
+        if (url.includes("/upload/")) {
+
+            const parts = url.split("/upload/");
+
+            url =
+                parts[0] +
+                "/upload/fl_attachment/" +
+                parts[1];
+        }
+
+        const a = document.createElement("a");
+        a.href = url;
         a.target = "_blank";
+        a.rel = "noopener noreferrer";
 
         document.body.appendChild(a);
         a.click();
