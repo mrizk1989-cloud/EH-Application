@@ -325,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 credentials: "include"
             });
         } else if (userRole === "bi" || userRole === "vp_finance") {
-             res = await fetch(`/admin/biVpfinance/${requestId}/items`, {
+            res = await fetch(`/admin/biVpfinance/${requestId}/items`, {
                 credentials: "include"
             });
         } else {
@@ -381,6 +381,70 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
         parentRow.insertAdjacentElement("afterend", subRow);
+    });
+
+    document.addEventListener("click", async (e) => {
+
+        const id = e.target.closest("tr")?.dataset?.id;
+        if (!id) return;
+
+        let endpoint = null;
+
+        // ================= BUDGET CONTROL =================
+        if (e.target.classList.contains("approve-request") && userRole === "budget_control") {
+            endpoint = `/admin/budgetControl/${id}/approve`;
+        }
+
+        if (e.target.classList.contains("reject-request") && userRole === "budget_control") {
+            endpoint = `/admin/budgetControl/${id}/reject`;
+        }
+
+        // ================= DIRECT MANAGER =================
+        if (e.target.classList.contains("approve-request") && userRole === "direct_manager") {
+            endpoint = `/admin/directMangaer/${id}/approve`;
+        }
+
+        if (e.target.classList.contains("reject-request") && userRole === "direct_manager") {
+            endpoint = `/admin/directMangaer/${id}/reject`;
+        }
+
+        // ================= BI =================
+        if (e.target.classList.contains("approve-request") && userRole === "bi") {
+            endpoint = `/admin/bi/${id}/approve`;
+        }
+
+        if (e.target.classList.contains("reject-request") && userRole === "bi") {
+            endpoint = `/admin/bi/${id}/reject`;
+        }
+
+        // ================= VP FINANCE =================
+        if (e.target.classList.contains("approve-request") && userRole === "vp_finance") {
+            endpoint = `/admin/vpFinance/${id}/approve`;
+        }
+
+        if (e.target.classList.contains("reject-request") && userRole === "vp_finance") {
+            endpoint = `/admin/vpFinance/${id}/reject`;
+        }
+
+        if (!endpoint) return;
+
+        const comment = prompt("Add comment (optional):") || "";
+
+        const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ comment })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            alert("Updated successfully");
+            init(); // reload table
+        } else {
+            alert("Failed");
+        }
     });
 
     // ================= NAVIGATION =================

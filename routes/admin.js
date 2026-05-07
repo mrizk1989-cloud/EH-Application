@@ -623,7 +623,7 @@ router.get('/biVpfinance', verifyToken, requireBiorVpfinance, async (req, res) =
     }
 });
 
-router.get('/biVpfinance/:id/items', verifyToken, requireBudgetcontrole, async (req, res) => {
+router.get('/biVpfinance/:id/items', verifyToken, requireBiorVpfinance, async (req, res) => {
     try {
 
         const request = await MasterRequest.findById(req.params.id);
@@ -637,6 +637,310 @@ router.get('/biVpfinance/:id/items', verifyToken, requireBudgetcontrole, async (
         });
 
         res.json(items);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+
+async function handleApproval({
+    request,
+    role,
+    action, // "approve" | "reject"
+    comment
+}) {
+    const master = request;
+
+    const total = master.totalAmountSAR || 0;
+
+    const isApprove = action === "approve";
+    const isReject = action === "reject";
+    // ================= ROLE HANDLING =================
+    // ================= BUDGET CONTROLE =================
+    if (role === "budget_control") {
+
+        if (isReject) {
+            master.status = "rejected";
+            master.currentRole = "finished";
+            master.budget_control_comment = comment || "no_comment";
+        }
+
+        if (isApprove) {
+            master.budget_control_comment = comment || "no_comment";
+            master.status = "in_progress";
+            master.currentRole = "direct_manager";
+        }
+    }
+
+    // ================= Direct Manager =================
+    if (role === "direct_manager") {
+
+        if (isReject) {
+            master.status = "rejected";
+            master.currentRole = "finished";
+            master.direct_manager_comment = comment || "no_comment";
+        }
+
+        if (isApprove) {
+
+            master.direct_manager_comment = comment || "no_comment";
+
+            if (total <= 2000) {
+                master.status = "approved";
+                master.currentRole = "finished";
+            } else {
+                master.status = "in_progress";
+                master.currentRole = "vp_finance";
+            }
+        }
+    }
+
+    // ================= BI =================
+    if (role === "bi") {
+
+        if (isReject) {
+            master.status = "rejected";
+            master.currentRole = "finished";
+            master.bi_comment = comment || "no_comment";
+        }
+
+        if (isApprove) {
+            master.bi_comment = comment || "no_comment";
+            master.status = "in_progress";
+            master.currentRole = "vp_finance";
+        }
+    }
+
+    // ================= VP FINANCE =================
+    if (role === "vp_finance") {
+
+        if (isReject) {
+            master.status = "rejected";
+            master.currentRole = "finished";
+            master.vp_finance_comment = comment || "no_comment";
+        }
+
+        if (isApprove) {
+            master.vp_finance_comment = comment || "no_comment";
+            master.status = "approved";
+            master.currentRole = "finished";
+        }
+    }
+
+    await master.save();
+
+    // optional: sync items status
+    await RequestItem.updateMany(
+        { requestId: master._id },
+        { status: master.status }
+    );
+
+    return master;
+};
+
+router.post('/directMangaer/:id/approve', verifyToken, requireDirectmanager, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "direct_manager",
+            action: "approve",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/directMangaer/:id/reject', verifyToken, requireDirectmanager, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "direct_manager",
+            action: "reject",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/bi/:id/approve', verifyToken, requireBiorVpfinance, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "bi",
+            action: "approve",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/bi/:id/reject', verifyToken, requireBiorVpfinance, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "bi",
+            action: "reject",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/vpFinance/:id/approve', verifyToken, requireBiorVpfinance, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "vp_finance",
+            action: "approve",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/vpFinance/:id/reject', verifyToken, requireBiorVpfinance, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "vp_finance",
+            action: "reject",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/budgetControl/:id/approve', verifyToken, requireBudgetcontrole, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "budget_control",
+            action: "approve",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+});
+
+router.post('/budgetControl/:id/reject', verifyToken, requireBudgetcontrole, async (req, res) => {
+    try {
+
+        const { comment } = req.body;
+
+        const request = await MasterRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ success: false });
+        }
+
+        const updated = await handleApproval({
+            request,
+            role: "budget_control",
+            action: "reject",
+            comment
+        });
+
+        res.json({ success: true, data: updated });
 
     } catch (err) {
         console.error(err);

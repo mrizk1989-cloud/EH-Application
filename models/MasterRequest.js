@@ -49,6 +49,11 @@ const masterRequestSchema = new mongoose.Schema({
         default: 'budget_control'
     },
 
+    budget_control_comment: {
+        type: String,
+        default: 'no_comment'
+    },
+
     direct_manager_comment: {
         type: String,
         default: 'no_comment'
