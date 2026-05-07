@@ -1,125 +1,146 @@
+/* ================= RESET ================= */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
 }
 
-/* Background */
+/* ================= DEFAULT THEME (DARK) ================= */
+:root {
+    --bg: linear-gradient(135deg, #1f242a, #2c3238);
+    --panel: rgba(255,255,255,0.05);
+    --text: #ffffff;
+    --gold: #f5b21b;
+    --border: rgba(255,255,255,0.08);
+}
+
+/* ================= LIGHT THEME OVERRIDE ================= */
+[data-theme="light"] {
+    --bg: #eceff3;
+    --panel: #ffffff;
+    --text: #1f2937;
+    --gold: #9c7a1c;
+    --border: rgba(0,0,0,0.12);
+}
+
+/* ================= BODY ================= */
 body {
     height: 100vh;
-    background: linear-gradient(135deg, #1f242a, #2c3238);
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text);
+}
+
+/* ================= NAV ================= */
+#nav-links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px 25px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#nav-links h2 {
+    color: var(--gold);
+}
+
+/* NAV BUTTONS */
+#nav-links button {
+    width: 60px;
+    margin-left: 10px;
+
+    padding: 7px 14px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* ================= CENTER ================= */
+.container {
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Container */
-.container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-/* Card */
+/* CARD */
 .box {
     width: 380px;
-    background: rgba(255,255,255,0.05);
+    background: var(--panel);
     padding: 30px;
     border-radius: 10px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
 }
 
-/* Tabs */
+/* ================= TABS ================= */
 .tabs {
     display: flex;
-    margin-bottom: 20px;
     gap: 10px;
+    margin-bottom: 20px;
 }
 
 .tabs button {
     flex: 1;
     padding: 10px;
-    background: #2c3238;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
+
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 6px;
 }
 
 .tabs button:hover {
-    background: #f5b21b;
-    color: #1f242a;
+    background: var(--gold);
+    color: #000;
 }
 
-/* Forms */
-form h2 {
-    color: #f5b21b;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-/* Inputs */
+/* ================= INPUT ================= */
 input {
     width: 100%;
     padding: 12px;
     margin-bottom: 12px;
+
     border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(0,0,0,0.3);
-    color: #fff;
+    border: 1px solid var(--border);
+
+    background: transparent;
+    color: var(--text);
+
     outline: none;
 }
 
-input:focus {
-    border-color: #f5b21b;
-}
-
-/* Role box */
-.role-box {
-    margin-bottom: 12px;
-    color: #fff;
-}
-
-.role-box label {
-    font-size: 13px;
-    color: #cfd6dc;
-}
-
-.roles {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding: 8px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 6px;
-}
-
-/* Button */
-button {
+/* ================= BUTTON ================= */
+form button {
     width: 100%;
     padding: 12px;
-    background: #f5b21b;
+
+    background: var(--gold);
     border: none;
-    color: #1f242a;
+    color: #000;
+
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
 }
 
-button:hover {
-    background: #d99a14;
-}
-
+/* ================= PASSWORD ================= */
 .password-wrapper {
     position: relative;
-    width: 100%;
 }
 
 .password-wrapper input {
-    width: 100%;
     padding-right: 45px;
 }
 
@@ -129,7 +150,4 @@ button:hover {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    font-size: 14px;
-    color: #aaa;
-    z-index: 10;
 }

@@ -1,3 +1,14 @@
+// window.setTheme = function (mode) {
+//     const theme = document.getElementById("themeStylesheet");
+
+//     theme.href =
+//         mode === "light"
+//             ? "/css/login-light.css"
+//             : "/css/login.css";
+
+//     localStorage.setItem("theme", mode);
+// };
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const loginForm = document.getElementById("loginForm");
@@ -5,6 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const loginBtn = document.getElementById("loginBtn");
     const registerBtn = document.getElementById("registerBtn");
+
+    document.getElementById("darkModeBtn").addEventListener("click", () => {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+    });
+
+    document.getElementById("lightModeBtn").addEventListener("click", () => {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.setItem("theme", "light");
+    });
+
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
 
     // ================= SWITCH TABS =================
     if (loginBtn && registerBtn && loginForm && registerForm) {

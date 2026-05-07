@@ -2,6 +2,27 @@ import FileHandler from "./utils/fileHandler.js";
 
 let userRole
 
+function setTheme(mode) {
+
+    document.documentElement.setAttribute("data-theme", mode);
+
+    localStorage.setItem("theme", mode);
+
+    // update button text
+    const themeBtn = document.getElementById("themeToggleBtn");
+
+    if (themeBtn) {
+        themeBtn.textContent = mode === "dark"
+            ? "Light"
+            : "Dark";
+    }
+}
+
+// ================= LOAD SAVED THEME =================
+const savedTheme = localStorage.getItem("theme") || "light";
+
+setTheme(savedTheme);
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // 🔥 initialize once
@@ -16,6 +37,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("passwordModal");
     const savePasswordBtn = document.getElementById("savePasswordBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
+
+    const themeBtn = document.getElementById("themeToggleBtn");
+
+    themeBtn.addEventListener("click", () => {
+
+        const currentTheme =
+            document.documentElement.getAttribute("data-theme");
+
+        const newTheme =
+            currentTheme === "dark"
+                ? "light"
+                : "dark";
+
+        setTheme(newTheme);
+    });
+
 
     // ================= OPEN MODAL =================
     changePasswordBtn.addEventListener("click", () => {

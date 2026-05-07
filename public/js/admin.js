@@ -5,6 +5,12 @@ let expenseTypesCache = [];
 import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
 
+
+const savedTheme = localStorage.getItem("theme") || "light";
+
+document.documentElement.setAttribute("data-theme", savedTheme);
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const logoutBtn = document.getElementById("logoutBtn");
@@ -13,6 +19,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🔥 initialize once
     FileHandler.init();
+
+    
+
+    document.getElementById("darkModeBtn").addEventListener("click", () => {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+    });
+
+    document.getElementById("lightModeBtn").addEventListener("click", () => {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.setItem("theme", "light");
+    });
 
 
     // ================= NAV =================
@@ -100,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td class="type">${(u.area_section || []).join(", ")}</td>
                         <td class="status">${u.status}</td>
                         <td class="password"></td>
-                        <td>
+                        <td class="action-cell">
                             <button class="edit-user">Edit</button>
                             <button class="delete-user">Delete</button>
                         </td>
@@ -139,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>
-                    <td>
+                    <td class="action-cell">
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
                     </td>
@@ -178,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input id="curCountry"></td>
             <td><input id="curCode"></td>
             <td><input id="curName"></td>
-            <td><button data-action="create-currency">Create</button></td>
+            <td class="action-cell"><button data-action="create-currency">Create</button></td>
         </tr>
         `;
 
@@ -188,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="country">${c.country}</td>
                     <td class="code">${c.code}</td>
                     <td class="name">${c.name || ""}</td>
-                    <td>
+                    <td class="action-cell">
                         <button class="edit-currency">Edit</button>
                         <button class="delete-currency">Delete</button>
                     </td>
@@ -227,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td><input id="rateFrom"></td>
         <td><input id="rateTo"></td>
         <td><input id="rateValue"></td>
-        <td><button data-action="create-rate">Create</button></td>
+        <td class="action-cell"><button data-action="create-rate">Create</button></td>
     </tr>
     `;
 
@@ -237,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td class="from">${r.fromCurrency}</td>
                 <td class="to">${r.toCurrency}</td>
                 <td class="rate">${r.rate}</td>
-                <td>
+                <td class="action-cell">
                     <button class="edit-rate">Edit</button>
                     <button class="delete-rate">Delete</button>
                 </td>
@@ -279,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <!-- CREATE ROW -->
         <tr>
             <td><input id="expName" placeholder="Expense type name"></td>
-            <td>
+            <td class="action-cell">
                 <button data-action="create-expense">Create</button>
             </td>
         </tr>
@@ -290,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 html += `
                 <tr data-id="${t._id}">
                     <td class="name">${t.name || ""}</td>
-                    <td>
+                    <td class="action-cell">
                         <button class="edit-expense">Edit</button>
                         <button class="delete-expense">Delete</button>
                     </td>
@@ -336,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td><input type="area" placeholder="Area"></td>
                             <td><input value="${row.querySelector(".status").innerText}"></td>
                             <td><input type="password" placeholder="New password (optional)"></td>
-                            <td>
+                            <td class="action-cell">
                                 <button class="save-user">Save</button>
                                 <button class="cancel-user">Cancel</button>
                             </td>
@@ -539,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </select>
         </td>
 
-        <td>
+        <td class="action-cell">
             <button class="save-item">Save</button>
             <button class="cancel-item">Cancel</button>
         </td>
@@ -654,7 +672,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td>${item.exchangeRate}</td>
                             <td>${item.amountSAR}</td>
 
-                            <td>
+                            <td class="action-cell">
                                 <button class="edit-item">Edit</button>
                                 <button class="delete-item">Delete</button>
                             </td>
@@ -705,7 +723,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input id="curCountry"></td>
             <td><input id="curCode"></td>
             <td><input id="curName"></td>
-            <td><button data-action="create-currency">Create</button></td>
+            <td class="action-cell"><button data-action="create-currency">Create</button></td>
         </tr>
     `;
 
@@ -715,7 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td class="country">${c.name || ""}</td>
                 <td class="code">${c.code}</td>
                 <td class="name">${c.name || ""}</td>
-                <td>
+                <td class="action-cell">
                     <button class="edit-currency">Edit</button>
                     <button class="delete-currency">Delete</button>
                 </td>
@@ -755,7 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <tr>
             <td><input id="expName" placeholder="Expense type"></td>
-            <td><button data-action="create-expense">Create</button></td>
+            <td class="action-cell"><button data-action="create-expense">Create</button></td>
         </tr>
     `;
 
@@ -763,7 +781,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 html += `
             <tr data-id="${t._id}">
                 <td class="name">${t.name}</td>
-                <td>
+                <td class="action-cell">
                     <button class="edit-expense">Edit</button>
                     <button class="delete-expense">Delete</button>
                 </td>
@@ -979,7 +997,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>
-                    <td>
+                    <td class="action-cell">
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
                     </td>
@@ -1043,7 +1061,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td class="type">${(u.area_section || []).join(", ")}</td>
                         <td class="status">${u.status}</td>
                         <td class="password"></td>
-                        <td>
+                        <td class="action-cell">
                             <button class="edit-user">Edit</button>
                             <button class="delete-user">Delete</button>
                         </td>
@@ -1085,7 +1103,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="attachments">
                         ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
                     </td>
-                    <td>
+                    <td class="action-cell">
                         <button class="view-request">View</button>
                         <button class="delete-request">Cancel Request</button>
                     </td>
@@ -1124,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input id="curCountry"></td>
             <td><input id="curCode"></td>
             <td><input id="curName"></td>
-            <td><button data-action="create-currency">Create</button></td>
+            <td class="action-cell"><button data-action="create-currency">Create</button></td>
         </tr>
         `;
 
@@ -1134,7 +1152,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="country">${c.country}</td>
                     <td class="code">${c.code}</td>
                     <td class="name">${c.name || ""}</td>
-                    <td>
+                    <td class="action-cell">
                         <button class="edit-currency">Edit</button>
                         <button class="delete-currency">Delete</button>
                     </td>
@@ -1166,7 +1184,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input id="rateFrom"></td>
             <td><input id="rateTo"></td>
             <td><input id="rateValue"></td>
-            <td><button data-action="create-rate">Create</button></td>
+            <td class="action-cell"><button data-action="create-rate">Create</button></td>
         </tr>
         `;
 
@@ -1176,7 +1194,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td class="from">${r.fromCurrency}</td>
                     <td class="to">${r.toCurrency}</td>
                     <td class="rate">${r.rate}</td>
-                    <td>
+                    <td class="action-cell">
                         <button class="edit-rate">Edit</button>
                         <button class="delete-rate">Delete</button>
                     </td>
@@ -1204,7 +1222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <tr>
             <td><input id="expName"></td>
-            <td><button data-action="create-expense">Create</button></td>
+            <td class="action-cell"><button data-action="create-expense">Create</button></td>
         </tr>
         `;
 
@@ -1212,7 +1230,7 @@ document.addEventListener("DOMContentLoaded", () => {
             html += `
                 <tr data-id="${t._id}">
                     <td class="name">${t.name}</td>
-                    <td>
+                    <td class="action-cell">
                         <button class="edit-expense">Edit</button>
                         <button class="delete-expense">Delete</button>
                     </td>

@@ -1,3 +1,35 @@
+/* ================= THEME ================= */
+
+
+[data-theme="light"] {
+    --bg: #eceff3;
+    --panel: #ffffff;
+    --text: #1f2937;
+    --gold: #9c7a1c;
+    --border: rgba(0,0,0,0.12);
+
+    --panel-2: #f8fafc;
+    --hover: rgba(0,0,0,0.04);
+
+    --modal-bg: #ffffff;
+    --input-bg: #ffffff;
+    --nav: #111827;
+}
+
+[data-theme="dark"] {
+    --bg: #1f242a;
+    --panel: #15191e;
+    --text: #ffffff;
+    --gold: #f5b21b;
+    --border: rgba(255,255,255,0.1);
+    --nav: #ffffff;
+    --panel-2: rgba(255,255,255,0.05);
+    --hover: rgba(255,255,255,0.1);
+
+    --modal-bg: #1f242a;
+    --input-bg: #15191e;
+}
+
 /* ================= RESET ================= */
 * {
     margin: 0;
@@ -8,8 +40,8 @@
 
 /* ================= BODY ================= */
 body {
-    background: #1f242a;
-    color: white;
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* ================= NAVBAR ================= */
@@ -24,8 +56,11 @@ body {
     align-items: center;
 
     padding: 15px 30px;
-    background: #15191e;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+
+    background: var(--panel);
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 /* LEFT SIDE */
@@ -34,12 +69,13 @@ body {
     font-weight: bold;
     display: flex;
     align-items: center;
+    color: var(--nav);
 }
 
-/* USERNAME HIGHLIGHT */
+/* USERNAME */
 #userName {
     margin-left: 6px;
-    color: #f5b21b;
+    color: var(--gold);
 }
 
 /* RIGHT SIDE */
@@ -52,16 +88,17 @@ body {
 /* NAV BUTTONS */
 .nav-right button {
     padding: 8px 15px;
-    background: #f5b21b;
+    background: var(--gold);
     border: none;
     cursor: pointer;
     border-radius: 6px;
     font-weight: bold;
+    color: white;
     white-space: nowrap;
 }
 
 .nav-right button:hover {
-    background: #d99a14;
+    filter: brightness(0.9);
 }
 
 /* ================= MAIN CONTAINER ================= */
@@ -77,17 +114,18 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background: rgba(255,255,255,0.05);
+
+    background: var(--panel);
 }
 
 th, td {
     padding: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
     text-align: center;
 }
 
 th {
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.04);
 }
 
 /* ================= FULL HEIGHT FIX ================= */
@@ -103,6 +141,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
+
     background: rgba(0,0,0,0.6);
 
     display: flex;
@@ -115,8 +154,9 @@ html, body {
 }
 
 .modal-content {
-    background: #1f242a;
-    color: white;
+    background: var(--panel);
+    color: var(--text);
+
     padding: 25px;
     border-radius: 10px;
     width: 350px;
@@ -124,22 +164,25 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    border: 1px solid var(--border);
 }
 
 /* MODAL TITLE */
 .modal-content h3 {
     margin-bottom: 10px;
     text-align: center;
-    color: #f5b21b;
+    color: var(--gold);
 }
 
 /* MODAL INPUTS */
 .modal-content input {
     padding: 10px;
     border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: #15191e;
-    color: white;
+
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
 }
 
 /* MODAL BUTTONS */
@@ -153,12 +196,12 @@ html, body {
 
 /* SAVE BUTTON */
 #savePasswordBtn {
-    background: #f5b21b;
-    color: black;
+    background: var(--gold);
+    color: white;
 }
 
 #savePasswordBtn:hover {
-    background: #d99a14;
+    filter: brightness(0.9);
 }
 
 /* CLOSE BUTTON */
@@ -171,63 +214,74 @@ html, body {
     background: #666;
 }
 
-/* ================= FILE HANDLER UI ================= */
+/* ================= FILE SYSTEM ================= */
 .file-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 8px;
 
     padding: 6px 10px;
     margin-bottom: 5px;
 
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
     border-radius: 6px;
 
     font-size: 13px;
 }
 
-/* file name text */
+/* file name */
 .file-item span {
     flex: 1;
     text-align: left;
+
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* buttons inside file item */
+/* file buttons */
 .file-item button {
-    background: #f5b21b;
+    background: var(--gold);
     border: none;
     padding: 4px 8px;
     border-radius: 4px;
+
     cursor: pointer;
     font-size: 12px;
     font-weight: bold;
+    color: white;
 }
 
 .file-item button:hover {
-    background: #d99a14;
+    filter: brightness(0.9);
 }
 
-/* optional icons spacing */
+/* icons spacing */
 .file-preview,
 .file-download {
     min-width: 30px;
 }
 
-
+/* ================= REQUEST BUTTONS ================= */
 .view-request,
 .approve-request,
-.reject-request{
-    background: #f5b21b;
+.reject-request {
+    background: var(--gold);
     border: none;
     padding: 4px 8px;
     border-radius: 4px;
+
     cursor: pointer;
     font-size: 12px;
     font-weight: bold;
+    color: white;
 }
 
+.view-request:hover,
+.approve-request:hover,
+.reject-request:hover {
+    filter: brightness(0.9);
+}

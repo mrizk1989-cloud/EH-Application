@@ -1,0 +1,318 @@
+/* ================= RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* ================= THEME SYSTEM ================= */
+:root {
+    /* LIGHT THEME DEFAULT */
+    --bg: #eceff3;
+    --panel: #ffffff;
+    --gold: #9c7a1c;
+    --text: #1f2937;
+    --border: rgba(0,0,0,0.12);
+    --row-hover: rgba(156,122,28,0.06);
+    --th: #f8fafc ;
+    --h2: #111827;
+}
+
+/* DARK MODE OVERRIDE */
+[data-theme="dark"] {
+    --bg: #0f141a;
+    --panel: #151c24;
+    --gold: #d4af37;
+    --text: #e6e6e6;
+    --border: rgba(255,255,255,0.08);
+    --row-hover: rgba(212,175,55,0.08);
+    --th: #151c24 ;
+    --h2: #e6e6e6;
+}
+
+/* ================= BODY ================= */
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: var(--panel);
+    padding: 14px 20px;
+
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.navbar h2 {
+    color: var(--h2);
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* NAV BUTTONS */
+.nav-links button {
+    padding: 7px 14px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    cursor: pointer;
+    border-radius: 4px;
+
+    transition: all 0.2s ease;
+}
+
+.nav-links button:hover {
+    background: var(--gold);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ================= DROPDOWN ================= */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-btn {
+    padding: 7px 14px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+
+    background: var(--panel);
+    border: 1px solid var(--border);
+
+    min-width: 180px;
+    display: none;
+    flex-direction: column;
+
+    z-index: 9999;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dropdown.open .dropdown-menu {
+    display: flex;
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* ================= MAIN ================= */
+main {
+    padding: 20px;
+}
+
+.section {
+    display: none;
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.section.active {
+    display: block;
+}
+
+/* ================= TABLE ================= */
+table {
+    width: 100%;
+    margin-top: 15px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    background: var(--panel);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* HEADERS */
+th {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+
+    background: var(--th);
+}
+
+/* CELLS */
+td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+tbody tr:hover {
+    background: var(--row-hover);
+}
+
+/* LONG TEXT */
+td.name,
+td.email {
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* ================= INPUTS ================= */
+table input {
+    width: 100%;
+    padding: 6px;
+
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* ================= BUTTONS ================= */
+table button {
+    padding: 6px 10px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    border-radius: 4px;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+table button:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* ACTION CELL */
+td:last-child {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ================= SUB TABLE ================= */
+.sub-table-row td {
+    background: var(--panel);
+    padding: 15px;
+}
+
+.sub-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sub-table th,
+.sub-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+}
+
+.sub-table tr:hover {
+    background: var(--row-hover);
+}
+
+/* ================= FILE SYSTEM ================= */
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+    margin-bottom: 5px;
+
+    padding: 6px 10px;
+
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+
+    font-size: 13px;
+}
+
+.file-item span {
+    flex: 1;
+    text-align: left;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-item button {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.file-item button:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* ================= EXPORT ================= */
+.exportBtn {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.export-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.export-box select {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+
+    border-radius: 4px;
+}

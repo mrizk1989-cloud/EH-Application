@@ -1,3 +1,8 @@
+/* fallback */
+:root {
+    --bg: #eceff3;
+}
+
 /* ================= RESET ================= */
 * {
     margin: 0;
@@ -6,10 +11,54 @@
     font-family: Arial, sans-serif;
 }
 
+/* ================= THEME ================= */
+/* LIGHT */
+[data-theme="light"] {
+    --bg: #eceff3;
+    --panel: #ffffff;
+    --panel-2: #f8fafc;
+
+    --text: #1f2937;
+    --gold: #9c7a1c;
+
+    --border: rgba(0,0,0,0.12);
+
+    --navbar-bg: #ffffff;
+    --table-header: #f3f4f6;
+
+    --hover: rgba(156,122,28,0.08);
+
+    --input-bg: #ffffff;
+    --button-text: #ffffff;
+}
+
+/* DARK */
+[data-theme="dark"] {
+    --bg: #1f242a;
+    --panel: #15191e;
+    --panel-2: rgba(255,255,255,0.04);
+
+    --text: #ffffff;
+    --gold: #f5b21b;
+
+    --border: rgba(255,255,255,0.08);
+
+    --navbar-bg: #111418;
+    --table-header: #2c3238;
+
+    --hover: rgba(245,178,27,0.08);
+
+    --input-bg: #ffffff;
+    --button-text: #111;
+}
 /* ================= PAGE ================= */
 body {
-    background: #1f242a;
-    color: #fff;
+    background: var(--bg);
+    color: var(--text);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
 /* ================= NAVBAR ================= */
@@ -22,18 +71,22 @@ body {
     justify-content: space-between;
     align-items: center;
 
-    background: #111418;
+    background: var(--navbar-bg);
     padding: 15px 25px;
 
-    border-bottom: 1px solid rgba(245, 178, 27, 0.3);
+    border-bottom: 1px solid var(--border);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .navbar h2 {
-    color: #f5b21b;
+    color: var(--gold);
     font-size: 20px;
 }
 
-/* NAV BUTTONS */
+/* ================= NAV BUTTONS ================= */
 .nav-links {
     display: flex;
     gap: 10px;
@@ -41,22 +94,28 @@ body {
 
 .nav-links button {
     padding: 8px 14px;
-    background: #f5b21b;
+
+    background: var(--gold);
+    color: var(--button-text);
+
     border: none;
     border-radius: 5px;
+
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s;
+
+    transition: 0.2s ease;
 }
 
 .nav-links button:hover {
-    background: #d99a14;
+    filter: brightness(0.92);
 }
 
 /* ================= CONTAINER ================= */
 .container {
     width: 95%;
     max-width: 1200px;
+
     margin: 30px auto;
 }
 
@@ -64,8 +123,10 @@ body {
 .actions {
     margin-top: 15px;
     margin-bottom: 15px;
+
     display: flex;
     gap: 10px;
+
     float: right;
 }
 
@@ -73,56 +134,86 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(255,255,255,0.04);
+
+    background: var(--panel-2);
+
     border-radius: 8px;
     overflow: hidden;
+
+    transition: background 0.2s ease;
 }
 
 /* HEADER */
 th {
-    background: #2c3238;
-    color: #f5b21b;
+    background: var(--table-header);
+    color: var(--gold);
+
     padding: 10px;
+
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
 /* CELLS */
 td {
     padding: 8px;
-    border: 1px solid rgba(255,255,255,0.08);
-    
-}
 
+    border: 1px solid var(--border);
+    color: var(--text);
+
+    transition:
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
 
 /* ROW HOVER */
 tbody tr:hover {
-    background: rgba(245, 178, 27, 0.08);
+    background: var(--hover);
 }
 
 /* ================= INPUTS ================= */
-input, select {
+input,
+select {
     width: 100%;
+
     padding: 6px;
+
     border-radius: 4px;
-    border: none;
+    border: 1px solid var(--border);
+
     outline: none;
+
     font-size: 13px;
-    
+
+    background: var(--input-bg);
+    color: #111;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
 
 /* ================= BUTTONS ================= */
 button {
     padding: 10px 14px;
-    background: #f5b21b;
+
+    background: var(--gold);
+    color: var(--button-text);
+
     border: none;
     border-radius: 5px;
+
     font-weight: bold;
     cursor: pointer;
+
+    transition: 0.2s ease;
 }
 
 button:hover {
-    background: #d99a14;
+    filter: brightness(0.92);
 }
-
