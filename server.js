@@ -91,6 +91,7 @@ app.use('/api/refresh', refreshRoutes);
 app.use('/api/request', requestRoutes);
 app.use('/api/currencies', currencyRoutes);
 app.use('/api/expense-types', expenseTypeRoutes);
+app.use("/api/export", require("./routes/export"));
 
 // ================= ERROR =================
 app.use((err, req, res, next) => {
