@@ -9,92 +9,100 @@
 
 <body>
 
-<nav class="navbar">
+    <nav class="navbar">
 
-    <h2>Admin Panel</h2>
-    
-    <div class="nav-links">
-        
-        <button data-section="users">Users</button>
-        <button data-section="requests">Requests</button>
-        
+        <h2>Admin Panel</h2>
 
-        <!-- SETTINGS DROPDOWN -->
-        <div class="dropdown" id="settingsDropdown">
+        <div class="nav-links">
 
-            <button class="dropdown-btn" id="dropdownBtn" type="button">
-                Settings ▼
-            </button>
+            <button data-section="users">Users</button>
+            <button data-section="requests">Requests</button>
+            <button data-section="export">Export</button>
 
-            <div class="dropdown-menu" id="dropdownMenu">
-                <div class="dropdown-item" data-value="rates">Exchange Rates</div>
-                <div class="dropdown-item" data-value="currencies">Currencies</div>
-                <div class="dropdown-item" data-value="expenseTypes">Expense Types</div>
-                
+
+            <!-- SETTINGS DROPDOWN -->
+            <div class="dropdown" id="settingsDropdown">
+
+                <button class="dropdown-btn" id="dropdownBtn" type="button">
+                    Settings ▼
+                </button>
+
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item" data-value="rates">Exchange Rates</div>
+                    <div class="dropdown-item" data-value="currencies">Currencies</div>
+                    <div class="dropdown-item" data-value="expenseTypes">Expense Types</div>
+
+                </div>
+
             </div>
+
+            <button id="logoutBtn">Logout</button>
 
         </div>
 
-        <button id="logoutBtn">Logout</button>
+    </nav>
 
-    </div>
+    <main>
 
-</nav>
+        <section id="welcomeSection" class="section active">
+            <div class="welcome-box">
+                <h1>Welcome Admin 👑</h1>
+            </div>
+        </section>
 
-<main>
+        <section id="exportSection" class="section">
+            <h3>Export Data</h3>
 
-<section id="welcomeSection" class="section active">
-    <div class="welcome-box">
-        <h1>Welcome Admin 👑</h1>
-    </div>
-</section>
+            <div id="exportContainer"></div>
+        </section>
 
-<section id="usersSection" class="section">
-    <h3>Users</h3>
-    <table>
-        <thead id="usersTableHead">
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Type</th>
-            <th>Roles</th>
-            <th>Country</th>
-            <th>Area</th>
-            <th>Status</th>
-            <th>Passowrd</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="usersTableBody"></tbody>
-    </table>
-</section>
+        <section id="usersSection" class="section">
+            <h3>Users</h3>
+            <table>
+                <thead id="usersTableHead">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Roles</th>
+                        <th>Country</th>
+                        <th>Area</th>
+                        <th>Status</th>
+                        <th>Passowrd</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </section>
 
-<section id="requestsSection" class="section">
-    <h3>Requests (Master + Sub Items)</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>Request Number</th>
-            <th>Requested By</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Current Role</th>
-            <th>Attachments</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody id="requestsTableBody"></tbody>
-    </table>
-</section>
+        <section id="requestsSection" class="section">
+            <h3>Requests (Master + Sub Items)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Request Number</th>
+                        <th>Requested By</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Current Role</th>
+                        <th>Attachments</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody"></tbody>
+            </table>
+        </section>
 
-<section id="settingsSection" class="section">
-    <h3 id="settingsTitle">Settings</h3>
-    <div id="settingsTableWrapper"></div>
-</section>
+        <section id="settingsSection" class="section">
+            <h3 id="settingsTitle">Settings</h3>
+            <div id="settingsTableWrapper"></div>
+        </section>
 
-</main>
+    </main>
 
-<script type="module" src="/js/admin.js"></script>
+    <script type="module" src="/js/admin.js"></script>
 
 </body>
+
 </html>

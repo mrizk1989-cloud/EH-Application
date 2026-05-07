@@ -263,3 +263,39 @@ h3 {
 .file-download {
     min-width: 30px;
 }
+
+.exportBtn {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+
+    border-radius: 4px;
+    cursor: pointer;
+
+    font-size: 12px;
+}
+
+.export-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.export-box select {
+    padding: 4px 8px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    outline: none;
+}
+
+/* optional: style dropdown arrow consistency */
+.export-box select option {
+    color: #000;
+}
+

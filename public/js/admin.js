@@ -3,6 +3,7 @@ let currenciesCache = [];
 let expenseTypesCache = [];
 
 import FileHandler from "./utils/fileHandler.js";
+import ExportModule from "./utils/exportModule.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -28,6 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (section === "users") loadUsers();
                 if (section === "requests") loadRequests();
+                if (section === "export") {
+                    ExportModule.render("exportContainer");
+                }
             });
         });
 

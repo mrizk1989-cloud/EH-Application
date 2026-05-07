@@ -29,7 +29,7 @@ async function exportToExcel({
 
     return {
         buffer,
-        fileName: `${fileName}.xlsx`
+        fileName: `${fileName}`
     };
 }
 

@@ -23,7 +23,7 @@ const ExportModule = (() => {
                     ).join("")}
                 </select>
 
-                <button id="exportBtn">Export Excel</button>
+                <button id="exportBtn" class="exportBtn">Export Excel</button>
             </div>
         `;
 
