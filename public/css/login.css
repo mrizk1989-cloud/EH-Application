@@ -54,7 +54,8 @@ body {
 /* NAV BUTTONS */
 #nav-links button {
     width: 60px;
-    margin-left: 10px;
+    margin-left: -100px;
+    margin-top: -100px;
 
     padding: 7px 14px;
     border: 1px solid var(--gold);
@@ -150,4 +151,26 @@ form button {
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+}
+
+/* ================= LOGO AREA ================= */
+#logo {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+/* logo image */
+.logo {
+    height: 90px;
+    width: auto;
+    object-fit: contain;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* optional heading style */
+#logo h2 {
+    margin: 0;
+    margin-left: -25px;
 }
