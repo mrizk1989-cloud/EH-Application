@@ -7,7 +7,7 @@
 }
 
 /* ================= DEFAULT THEME (DARK) ================= */
-:root {
+[data-theme="dark"] {
     --bg: linear-gradient(135deg, #1f242a, #2c3238);
     --panel: rgba(255,255,255,0.05);
     --text: #ffffff;

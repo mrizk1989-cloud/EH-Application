@@ -1,13 +1,22 @@
-// window.setTheme = function (mode) {
-//     const theme = document.getElementById("themeStylesheet");
+function setTheme(mode) {
 
-//     theme.href =
-//         mode === "light"
-//             ? "/css/login-light.css"
-//             : "/css/login.css";
+    document.documentElement.setAttribute("data-theme", mode);
 
-//     localStorage.setItem("theme", mode);
-// };
+    localStorage.setItem("theme", mode);
+
+    // update button text
+    const themeBtn = document.getElementById("themeToggleBtn");
+
+    if (themeBtn) {
+        themeBtn.textContent = mode === "dark"
+            ? "Light"
+            : "Dark";
+    }
+}
+// ================= LOAD SAVED THEME =================
+const savedTheme = localStorage.getItem("theme") || "light";
+
+setTheme(savedTheme);
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -17,18 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById("loginBtn");
     const registerBtn = document.getElementById("registerBtn");
 
-    document.getElementById("darkModeBtn").addEventListener("click", () => {
-        document.documentElement.setAttribute("data-theme", "dark");
-        localStorage.setItem("theme", "dark");
-    });
+    const themeBtn = document.getElementById("themeToggleBtn");
+    themeBtn.addEventListener("click", () => {
 
-    document.getElementById("lightModeBtn").addEventListener("click", () => {
-        document.documentElement.setAttribute("data-theme", "light");
-        localStorage.setItem("theme", "light");
-    });
+        const currentTheme =
+            document.documentElement.getAttribute("data-theme");
 
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
+        const newTheme =
+            currentTheme === "dark"
+                ? "light"
+                : "dark";
+
+        setTheme(newTheme);
+    });
 
     // ================= SWITCH TABS =================
     if (loginBtn && registerBtn && loginForm && registerForm) {
@@ -139,3 +149,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
