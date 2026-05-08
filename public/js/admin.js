@@ -6,9 +6,25 @@ import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
 
 
+function setTheme(mode) {
+
+    document.documentElement.setAttribute("data-theme", mode);
+
+    localStorage.setItem("theme", mode);
+
+    // update button text
+    const themeBtn = document.getElementById("themeToggleBtn");
+
+    if (themeBtn) {
+        themeBtn.textContent = mode === "dark"
+            ? "Light"
+            : "Dark";
+    }
+}
+// ================= LOAD SAVED THEME =================
 const savedTheme = localStorage.getItem("theme") || "light";
 
-document.documentElement.setAttribute("data-theme", savedTheme);
+setTheme(savedTheme);
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -20,16 +36,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🔥 initialize once
     FileHandler.init();
 
-    
 
-    document.getElementById("darkModeBtn").addEventListener("click", () => {
-        document.documentElement.setAttribute("data-theme", "dark");
-        localStorage.setItem("theme", "dark");
-    });
 
-    document.getElementById("lightModeBtn").addEventListener("click", () => {
-        document.documentElement.setAttribute("data-theme", "light");
-        localStorage.setItem("theme", "light");
+    const themeBtn = document.getElementById("themeToggleBtn");
+    themeBtn.addEventListener("click", () => {
+
+        const currentTheme =
+            document.documentElement.getAttribute("data-theme");
+
+        const newTheme =
+            currentTheme === "dark"
+                ? "light"
+                : "dark";
+
+        setTheme(newTheme);
     });
 
 

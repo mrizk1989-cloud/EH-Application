@@ -285,3 +285,28 @@ html, body {
 .reject-request:hover {
     filter: brightness(0.9);
 }
+
+#logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* logo image */
+.logo {
+    height: 90px;
+    width: auto;
+    object-fit: contain;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* optional heading style */
+#logo h2 {
+    margin: 0;
+    /* margin-left: -25px; */
+}
+
+.nav-left{
+   margin-left: -30px;
+}

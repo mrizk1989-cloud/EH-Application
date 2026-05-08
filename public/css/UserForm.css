@@ -217,3 +217,26 @@ button {
 button:hover {
     filter: brightness(0.92);
 }
+
+
+
+#logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* logo image */
+.logo {
+    height: 90px;
+    width: auto;
+    object-fit: contain;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* optional heading style */
+#logo h2 {
+    margin: 0;
+    margin-left: -25px;
+}
