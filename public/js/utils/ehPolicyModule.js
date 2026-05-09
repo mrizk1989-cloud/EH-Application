@@ -360,7 +360,6 @@ const EhPolicyModule = (() => {
                 <th>Depreciation</th>
                 <th>Remaining</th>
                 <th>Progress</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -378,13 +377,7 @@ const EhPolicyModule = (() => {
             <td>${row.depreciation}</td>
             <td>${row.remaining}</td>
             <td>${row.progress.toFixed(2)}%</td>
-            <td>
-                <button class="view-area-btn"
-                    data-area="${row.area}"
-                    data-year="${yearKey}">
-                    View
-                </button>
-            </td>
+  
         </tr>
         `;
                     });
