@@ -169,9 +169,10 @@ th {
     padding: 14px 12px;
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
-
+    
     background: var(--th);
 }
+
 
 /* CELLS */
 td {
@@ -655,4 +656,88 @@ h3 {
     background: var(--panel);
     color: var(--text);
     border-radius: 6px;
+}
+/* /////////////////////////////////////////////////////////////// */
+
+/* ================= EHP MODULE ================= */
+.ehp-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* tabs */
+.ehp-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.ehp-tabs button {
+    padding: 8px 12px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.ehp-tabs button:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* sections */
+.ehp-section {
+    display: none;
+    padding: 15px;
+    background: var(--panel);
+    border-radius: 10px;
+}
+
+.ehp-section.active {
+    display: block;
+}
+
+/* forms */
+.ehp-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.ehp-form input {
+    padding: 6px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 5px;
+}
+
+/* buttons */
+.ehp-form button {
+    padding: 6px 12px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.ehp-form button:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* dashboard card */
+.ehp-card {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+}
+
+tr[data-editing] {
+    background: #fff3cda6;
+    border-left: 4px solid #ff9800;
 }

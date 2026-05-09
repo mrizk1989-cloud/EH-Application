@@ -5,6 +5,7 @@ let expenseTypesCache = [];
 import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
 import ImportModule from "./utils/importModule.js";
+import EhPolicyModule from "./utils/ehPolicyModule.js";
 
 
 function setTheme(mode) {
@@ -71,7 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (section === "export") {
                     ExportModule.render("exportContainer");
                     ImportModule.render("importContainer");
-                }
+                };
+                if (section === "eh-policy") {
+                    EhPolicyModule.render("ehPolicyContainer");
+                };
             });
         });
 

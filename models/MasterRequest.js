@@ -31,6 +31,8 @@ const masterRequestSchema = new mongoose.Schema({
 
     exchangeRate: Number,
 
+    
+
     totalAmountSAR: {
         type: Number,
         default: 0
@@ -63,6 +65,8 @@ const masterRequestSchema = new mongoose.Schema({
         type: String,
         default: 'no_comment'
     },
+
+  
 
     bi_comment: {
         type: String,

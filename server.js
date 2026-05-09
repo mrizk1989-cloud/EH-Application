@@ -17,6 +17,7 @@ const refreshRoutes = require('./routes/refresh');
 const requestRoutes = require('./routes/requests');
 const currencyRoutes = require('./routes/currencies');
 const expenseTypeRoutes = require('./routes/expenseTypes');
+const ehPolicyRoutes = require("./routes/ehPolicy");
 
 const { apiLimiter } = require('./middleware/rateLimiter');
 
@@ -95,6 +96,8 @@ app.use('/api/currencies', currencyRoutes);
 app.use('/api/expense-types', expenseTypeRoutes);
 app.use("/api/export", require("./routes/export"));
 app.use("/api/import", require("./routes/import"));
+app.use("/api/eh", ehPolicyRoutes);
+
 
 // ================= ERROR =================
 app.use((err, req, res, next) => {
