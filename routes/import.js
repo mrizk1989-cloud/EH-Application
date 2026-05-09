@@ -417,7 +417,7 @@ router.post(
 
                 } else {
 
-                    await col.bulkWrite(ops);
+                    await col.bulkWrite(ops, { session });
 
                 }
 
