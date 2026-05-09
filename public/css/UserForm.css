@@ -21,12 +21,12 @@
     --text: #1f2937;
     --gold: #9c7a1c;
 
-    --border: rgba(0,0,0,0.12);
+    --border: rgba(0, 0, 0, 0.12);
 
     --navbar-bg: #ffffff;
     --table-header: #f3f4f6;
 
-    --hover: rgba(156,122,28,0.08);
+    --hover: rgba(156, 122, 28, 0.08);
 
     --input-bg: #ffffff;
     --button-text: #ffffff;
@@ -36,21 +36,22 @@
 [data-theme="dark"] {
     --bg: #1f242a;
     --panel: #15191e;
-    --panel-2: rgba(255,255,255,0.04);
+    --panel-2: rgba(255, 255, 255, 0.04);
 
     --text: #ffffff;
     --gold: #f5b21b;
 
-    --border: rgba(255,255,255,0.08);
+    --border: rgba(255, 255, 255, 0.08);
 
     --navbar-bg: #111418;
     --table-header: #2c3238;
 
-    --hover: rgba(245,178,27,0.08);
+    --hover: rgba(245, 178, 27, 0.08);
 
     --input-bg: #ffffff;
     --button-text: #111;
 }
+
 /* ================= PAGE ================= */
 body {
     background: var(--bg);
@@ -72,13 +73,16 @@ body {
     align-items: center;
 
     background: var(--navbar-bg);
-    padding: 15px 25px;
+    /* padding: 15px 25px; */
+    padding-right: 30px;
 
     border-bottom: 1px solid var(--border);
 
     transition:
         background 0.2s ease,
         border-color 0.2s ease;
+
+    height: auto;
 }
 
 .navbar h2 {
@@ -113,10 +117,12 @@ body {
 
 /* ================= CONTAINER ================= */
 .container {
-    width: 95%;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1600px;
 
-    margin: 30px auto;
+    /* margin: 30px auto; */
+    margin-top: 30px;
+    margin-left: 50px;
 }
 
 /* ================= ACTIONS ================= */
@@ -141,6 +147,9 @@ table {
     overflow: hidden;
 
     transition: background 0.2s ease;
+
+    table-layout: auto;
+    /* dynamic sizing */
 }
 
 /* HEADER */
@@ -157,6 +166,14 @@ th {
     transition:
         background 0.2s ease,
         color 0.2s ease;
+
+    white-space: nowrap;
+
+    min-width: 80px;
+    max-width: 250px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* CELLS */
@@ -169,6 +186,16 @@ td {
     transition:
         border-color 0.2s ease,
         color 0.2s ease;
+
+
+    white-space: nowrap;
+
+    min-width: 80px;
+    max-width: 250px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 
 /* ROW HOVER */
@@ -196,6 +223,12 @@ select {
     transition:
         border-color 0.2s ease,
         background 0.2s ease;
+
+    white-space: normal;
+    word-break: break-word;
+
+    min-width: 100px;
+    max-width: 400px;
 }
 
 /* ================= BUTTONS ================= */
@@ -212,6 +245,7 @@ button {
     cursor: pointer;
 
     transition: 0.2s ease;
+    
 }
 
 button:hover {
@@ -239,4 +273,8 @@ button:hover {
 #logo h2 {
     margin: 0;
     margin-left: -25px;
+}
+
+h3 {
+    margin-bottom: 10px;
 }

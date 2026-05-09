@@ -67,7 +67,9 @@ app.use(session({
 }));
 
 // ================= LIMIT =================
-app.use(apiLimiter);
+// app.use(apiLimiter);
+app.use("/api", apiLimiter);
+app.use("/admin", apiLimiter);
 
 // ================= STATIC =================
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -92,6 +94,7 @@ app.use('/api/request', requestRoutes);
 app.use('/api/currencies', currencyRoutes);
 app.use('/api/expense-types', expenseTypeRoutes);
 app.use("/api/export", require("./routes/export"));
+app.use("/api/import", require("./routes/import"));
 
 // ================= ERROR =================
 app.use((err, req, res, next) => {

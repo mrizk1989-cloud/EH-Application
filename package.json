@@ -17,6 +17,7 @@
     "connect-redis": "^9.0.0",
     "cookie-parser": "^1.4.7",
     "csurf": "^1.11.0",
+    "csv-parser": "^3.2.1",
     "csvtojson": "^2.0.14",
     "ejs": "^5.0.2",
     "exceljs": "^4.4.0",

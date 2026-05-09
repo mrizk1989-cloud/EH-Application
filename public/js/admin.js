@@ -4,6 +4,7 @@ let expenseTypesCache = [];
 
 import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
+import ImportModule from "./utils/importModule.js";
 
 
 function setTheme(mode) {
@@ -69,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (section === "requests") loadRequests();
                 if (section === "export") {
                     ExportModule.render("exportContainer");
+                    ImportModule.render("importContainer");
                 }
             });
         });
@@ -198,7 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadCurrencies() {
 
         const res = await fetch("/admin/currencies", { credentials: "include" });
-        const data = await res.json();
+        const json = await res.json();
+
+        const data = json.currencies;
 
         let html = `
         <table>

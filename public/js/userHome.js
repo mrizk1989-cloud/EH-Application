@@ -136,6 +136,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                         <th>Request No</th>
                                         <th>Total (SAR)</th>
                                         <th>Status</th>
+                                        <th>Budget Controle Comment</th>
+                                        <th>Direct Manager Comment</th>
+                                        <th>BI Comment</th>
+                                        <th>VP Finance Comment</th>
                                         <th>Attachments</th>
                                         <th>Details</th>
                                         <th>Approval</th>
@@ -150,6 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td>${r.requestNo}</td>
                                 <td>${r.totalAmountSAR}</td>
                                 <td>${r.status}</td>
+                                <td>${r.budget_control_comment}</td>
+                                <td>${r.direct_manager_comment}</td>
+                                <td>${r.bi_comment}</td>
+                                <td>${r.vp_finance_comment}</td>
                                 <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                                 <td><button class="view-request">View</button></td>
                                 <td>
@@ -192,6 +200,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                         <th>Request No</th>
                                         <th>Total (SAR)</th>
                                         <th>Status</th>
+                                        <th>Budget Controle Comment</th>
+                                        <th>Direct Manager Comment</th>
+                                        <th>BI Comment</th>
+                                        <th>VP Finance Comment</th>
                                         <th>Attachments</th>
                                         <th>Details</th>
                                         <th>Approval</th>
@@ -206,6 +218,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td>${r.requestNo}</td>
                                 <td>${r.totalAmountSAR}</td>
                                 <td>${r.status}</td>
+                                <td>${r.budget_control_comment}</td>
+                                <td>${r.direct_manager_comment}</td>
+                                <td>${r.bi_comment}</td>
+                                <td>${r.vp_finance_comment}</td>
                                 <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                                 <td><button class="view-request">View</button></td>
                                 <td>
@@ -248,6 +264,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                         <th>Request No</th>
                                         <th>Total (SAR)</th>
                                         <th>Status</th>
+                                        <th>Budget Controle Comment</th>
+                                        <th>Direct Manager Comment</th>
+                                        <th>BI Comment</th>
+                                        <th>VP Finance Comment</th>
                                         <th>Attachments</th>
                                         <th>Details</th>
                                         <th>Approval</th>
@@ -262,6 +282,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <td>${r.requestNo}</td>
                                 <td>${r.totalAmountSAR}</td>
                                 <td>${r.status}</td>
+                                <td>${r.budget_control_comment}</td>
+                                <td>${r.direct_manager_comment}</td>
+                                <td>${r.bi_comment}</td>
+                                <td>${r.vp_finance_comment}</td>
                                 <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                                 <td><button class="view-request">View</button></td>
                                 <td>
@@ -305,6 +329,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <th>Request No</th>
                     <th>Total (SAR)</th>
                     <th>Status</th>
+                    <th>Budget Controle Comment</th>
+                    <th>Direct Manager Comment</th>
+                    <th>BI Comment</th>
+                    <th>VP Finance Comment</th>
                     <th>Current Role</th>
                     <th>Attachments</th>
                     <th>Details</th>
@@ -319,6 +347,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${r.requestNo}</td>
                 <td>${r.totalAmountSAR}</td>
                 <td>${r.status}</td>
+                 <td>${r.budget_control_comment}</td>
+                <td>${r.direct_manager_comment}</td>
+                <td>${r.bi_comment}</td>
+                <td>${r.vp_finance_comment}</td>
                 <td>${r.currentRole}</td>
                 <td> ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}</td>
                 <td><button class="view-request">View</button></td>

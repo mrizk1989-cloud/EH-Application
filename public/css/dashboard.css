@@ -13,11 +13,17 @@
     --panel: #ffffff;
     --gold: #9c7a1c;
     --text: #1f2937;
-    --border: rgba(0,0,0,0.12);
-    --row-hover: rgba(156,122,28,0.06);
-    --th: #f8fafc ;
+    --border: rgba(0, 0, 0, 0.12);
+    --row-hover: rgba(156, 122, 28, 0.06);
+    --th: #f8fafc;
     --h2: #111827;
+    --ft:#eceff3;
 }
+
+ /* background: #1f242a;
+    padding: 10px;
+    border-radius: 6px;
+    color: white; */
 
 /* DARK MODE OVERRIDE */
 [data-theme="dark"] {
@@ -25,10 +31,11 @@
     --panel: #151c24;
     --gold: #d4af37;
     --text: #e6e6e6;
-    --border: rgba(255,255,255,0.08);
-    --row-hover: rgba(212,175,55,0.08);
-    --th: #151c24 ;
+    --border: rgba(255, 255, 255, 0.08);
+    --row-hover: rgba(212, 175, 55, 0.08);
+    --th: #151c24;
     --h2: #e6e6e6;
+    --ft:#1f242a;
 }
 
 /* ================= BODY ================= */
@@ -47,7 +54,7 @@ body {
     padding: 14px 20px;
 
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .navbar h2 {
@@ -290,7 +297,8 @@ td:last-child {
 }
 
 /* ================= EXPORT ================= */
-.exportBtn {
+.exportBtn,
+.loadBtn {
     padding: 4px 8px;
 
     border: 1px solid var(--gold);
@@ -309,6 +317,36 @@ td:last-child {
 
 .export-box select {
     padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+
+    border-radius: 4px;
+}
+
+.sap-header {
+    display: flex;
+    align-items: baseline;
+    gap: 50px;
+
+}
+
+.sap-header select {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+
+    border-radius: 4px;
+}
+
+
+
+.importFile {
+
+    padding: 10px 8px;
 
     border: 1px solid var(--gold);
     background: var(--panel);
@@ -336,4 +374,285 @@ td:last-child {
 #logo h2 {
     margin: 0;
     /* margin-left: -25px; */
+}
+
+h3 {
+    margin-bottom: 10px;
+}
+
+.sap-import {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+/* HEADER */
+.sap-header {
+    display: flex;
+    gap: 10px;
+}
+
+/* GRID */
+.sap-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+}
+
+/* PANELS */
+.sap-panel,
+.sap-footer {
+    background: var(--ft);
+    padding: 10px;
+    border-radius: 6px;
+    color: var(--h2);
+    overflow: auto;
+    max-height: 500px;
+}
+
+/* TABLE */
+.sap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.sap-table th,
+.sap-table td {
+    border: 1px solid #444;
+    padding: 5px;
+}
+
+/* MAPPING ROW */
+.map-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* FOOTER */
+.sap-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.progress-container {
+    width: 100%;
+    height: 18px;
+    background: #2c3238;
+    border-radius: 10px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f5b21b, #ffcc55);
+    transition: width 0.2s ease;
+}
+
+#progressText {
+    position: absolute;
+    right: 10px;
+    top: -1px;
+    font-size: 12px;
+    color: white;
+}
+
+/* ================= IMPORT HEADER (UPDATED) ================= */
+.sap-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+/* inputs in header */
+.sap-header select,
+.sap-header input[type="file"] {
+    padding: 6px 10px;
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 5px;
+}
+
+/* load button */
+.sap-header button {
+    padding: 6px 12px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.sap-header button:hover {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* ================= IMPORT FOOTER (FIX LAYOUT) ================= */
+.sap-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* duplicate dropdown */
+#duplicateField {
+    padding: 6px 10px;
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 5px;
+}
+
+/* ================= TABLE IMPROVEMENTS ================= */
+.sap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+/* header */
+.sap-table th {
+    background: var(--th);
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+/* cells */
+.sap-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* preview container scroll */
+#tablePreview {
+    max-height: 450px;
+    overflow: auto;
+}
+
+/* ================= MAPPING PANEL ================= */
+.map-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+.map-row span {
+    flex: 1;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.map-row select {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 4px;
+}
+
+/* ================= STATUS BOX ================= */
+#statusBox {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text);
+}
+
+/* ================= DUPLICATE COLORS (IMPORTANT UX) ================= */
+.cell-dup-csv {
+    background: #ff9800 !important;
+    color: #000;
+}
+
+.cell-dup-db {
+    background: #ff4d4d !important;
+    color: #fff;
+}
+
+/* ================= IMPORT ACTION BUTTONS ================= */
+.sap-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* unified button style */
+.sap-footer button {
+    padding: 8px 14px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* hover effect */
+.sap-footer button:hover {
+    background: var(--gold);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* special emphasis buttons */
+#validateBtn {
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+#validateBtn:hover {
+    background: #4caf50;
+    color: #fff;
+}
+
+#dryRunBtn {
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+#dryRunBtn:hover {
+    background: #ff9800;
+    color: #fff;
+}
+
+#importBtn {
+    border-color: #d4af37;
+    color: #d4af37;
+    font-weight: bold;
+}
+
+#importBtn:hover {
+    background: #d4af37;
+    color: #1f242a;
+}
+
+/* duplicate dropdown styling */
+#duplicateField {
+    padding: 6px 10px;
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 6px;
 }
