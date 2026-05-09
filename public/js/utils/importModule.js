@@ -416,8 +416,9 @@ const ImportModule = (() => {
         field
     ) {
 
-        const index =
-            columns.indexOf(field);
+        const index = columns.findIndex(c =>
+            c.trim().replace(/^\uFEFF/, "") === field.trim()
+        );
 
         if (index === -1) return;
 
