@@ -38,7 +38,7 @@ setTheme(savedTheme);
 // MAIN
 // =====================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
     // =====================================================
     // DOM
@@ -71,6 +71,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================================================
     // THEME
     // =====================================================
+
+    async function initExportModule() {
+
+        const res = await fetch("/api/me", {
+            credentials: "include"
+        });
+
+        const data = await res.json();
+
+        console.log("USER INFO:", data);
+
+        const user = data.user || data;
+
+        const roles = Array.isArray(user.roles)
+            ? user.roles
+            : (user.roles ? [user.roles] : []);
+
+        console.log("ROLES:", roles);
+
+        const isAdmin = roles.includes("admin");
+
+        console.log("IS ADMIN:", isAdmin);
+
+        ExportModule.setRole(isAdmin ? "admin" : "user");
+    }
+
+    await initExportModule();
+    ExportModule.render("exportContainer");
 
     themeBtn?.addEventListener("click", () => {
 
@@ -847,8 +875,8 @@ async function loadRequests() {
 
                 <td class="attachments">
                     ${(r.attachments || [])
-                        .map(file => FileHandler.render(file))
-                        .join("")}
+                    .map(file => FileHandler.render(file))
+                    .join("")}
                 </td>
 
                 <td class="action-cell">

@@ -3,41 +3,26 @@ const router = express.Router();
 const { exportToExcel } = require("../services/excelExportService");
 const mappers = require("../services/exportMappers");
 
-// MODELS
-const Counter = require("../models/Counter");
-const Currency = require("../models/Currency");
-const Customers = require("../models/Customers");
-const ExchangeRate = require("../models/ExchangeRate");
-const ExpenseType = require("../models/ExpenseType");
-const MasterRequest = require("../models/MasterRequest");
-const RequestItem = require("../models/RequestItem");
-const UploadLog = require("../models/UploadLog");
-const User = require("../models/User");
-const EHPerformance = require("../models/EHPerformance");
-const EHPolicy = require("../models/EHPolicy");
-
-
-// ================= COLLECTION MAP =================
-const collections = {
-    counters: Counter,
-    currencies: Currency,
-    customers: Customers,
-    exchangeRates: ExchangeRate,
-    expenseTypes: ExpenseType,
-    masterRequests: MasterRequest,
-    requestItems: RequestItem,
-    uploadLogs: UploadLog,
-    users: User,
-    EHPerformance: EHPerformance,
-    EHPolicy: EHPolicy,
+const models = {
+    counters: require("../models/Counter"),
+    currencies: require("../models/Currency"),
+    customers: require("../models/Customers"),
+    exchangeRates: require("../models/ExchangeRate"),
+    expenseTypes: require("../models/ExpenseType"),
+    masterRequests: require("../models/MasterRequest"),
+    requestItems: require("../models/RequestItem"),
+    uploadLogs: require("../models/UploadLog"),
+    users: require("../models/User"),
+    EHPerformance: require("../models/EHPerformance"),
+    EHPolicy: require("../models/EHPolicy"),
 };
 
-// ================= EXPORT =================
 router.get("/:collection", async (req, res) => {
+
     try {
         const { collection } = req.params;
 
-        const Model = collections[collection];
+        const Model = models[collection];
 
         if (!Model) {
             return res.status(400).json({
@@ -46,13 +31,78 @@ router.get("/:collection", async (req, res) => {
             });
         }
 
-        const raw = await Model.find().lean();
+        const user = req.session?.user;
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        const roles = user.roles || [];
+
+        const isAdmin = roles.includes("admin");
+        const isFinance = roles.includes("bi") || roles.includes("vp_finance");
+        const isManager = roles.includes("direct_manager");
+        const isSales = roles.includes("sales_manager");
+
+        let query = {};
+
+        // ================= RULE =================
+        if (!isAdmin && collection !== "requestItems") {
+            return res.status(403).json({
+                success: false,
+                message: "Only requestItems export allowed"
+            });
+        }
+
+        if (!isAdmin && collection === "requestItems") {
+
+            // ✅ FIX: support BOTH naming styles
+            const areas = (user.area_section || user.userArea || [])
+                .map(a => String(a).trim())
+                .filter(Boolean);
+
+            if (isFinance) {
+                query = {};
+
+            } else if (isManager || isSales) {
+
+                // 🔥 IMPORTANT SAFETY CHECK
+                if (areas.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "No area_section assigned to user",
+                        debug: user
+                    });
+                }
+
+                query = {
+                    salesTerritory: { $in: areas }
+                };
+
+            } else {
+                query = { createdBy: user._id };
+            }
+        }
+
+        const raw = await Model.find(query).lean();
+
+        if (!raw || raw.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No data available for export",
+                debug: {
+                    roles,
+                    area_section: user.area_section,
+                    query
+                }
+            });
+        }
 
         const mapper = mappers[collection];
-
-        const data = mapper
-            ? raw.map(mapper)
-            : raw;
+        const data = mapper ? raw.map(mapper) : raw;
 
         const { buffer, fileName } = await exportToExcel({
             data,
@@ -69,11 +119,12 @@ router.get("/:collection", async (req, res) => {
             `attachment; filename=${fileName}.xlsx`
         );
 
-        res.send(buffer);
+        return res.send(buffer);
 
     } catch (err) {
-        console.error(err);
-        res.status(500).json({
+        console.error("EXPORT ERROR:", err);
+
+        return res.status(500).json({
             success: false,
             message: "Export failed"
         });

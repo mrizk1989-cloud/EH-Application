@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
         default: 'pending'
     },
 
+    
     country: {
         type: String,
         enum: ['KSA', 'UAE', 'QTR', 'OMN', 'BHR', 'JOR', 'LBN', 'KWT', 'EGY'],

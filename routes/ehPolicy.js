@@ -4,6 +4,8 @@ const router = express.Router();
 const EHPolicy = require("../models/EHPolicy");
 const EHPerformance = require("../models/EHPerformance");
 const RequestItem = require("../models/RequestItem");
+const User = require("../models/User");
+
 
 const { verifyToken } = require("../middleware/auth");
 const { requireAdmin } = require("../middleware/requireAdmin");
@@ -65,47 +67,63 @@ router.post("/performance", verifyToken, requireAdmin, async (req, res) => {
     }
 });
 
+async function buildDashboardData(year) {
 
-// ================= DASHBOARD =================
-router.get("/dashboard", verifyToken, requireAdmin, async (req, res) => {
-    try {
+    // LOAD DATA
+    const policies =
+        await EHPolicy.find(
+            year
+                ? { year: Number(year) }
+                : {}
+        );
 
-        const { year } = req.query;
+    const performance =
+        await EHPerformance.find({});
 
-        // LOAD DATA
-        const policies = await EHPolicy.find(year ? { year: Number(year) } : {});
-        const performance = await EHPerformance.find({});
-        const requests = await RequestItem.find({});
+    const requests =
+        await RequestItem.find({});
 
-        // YEARS
-        const years = year
-            ? [Number(year)]
-            : [...new Set(policies.map(p => p.year))].sort((a, b) => a - b);
+    // YEARS
+    const years = year
+        ? [Number(year)]
+        : [...new Set(
+            policies.map(p => p.year)
+        )].sort((a, b) => a - b);
 
-        // AREAS
-        const areas = [...new Set(policies.map(p => p.territory))];
+    // AREAS
+    const areas = [
+        ...new Set(
+            policies.map(p => p.territory)
+        )
+    ];
 
-        const result = {};
+    const result = {};
 
-        for (const y of years) {
+    for (const y of years) {
 
-            result[y] = [];
+        result[y] = [];
 
-            for (const area of areas) {
+        for (const area of areas) {
 
-                // POLICY
-                const policy = policies.find(p =>
-                    p.year === y &&
-                    p.territory?.trim().toLowerCase() === area?.trim().toLowerCase()
-                );
+            // POLICY
+            const policy = policies.find(p =>
 
-                const budget = policy?.budget || 0;
+                p.year === y &&
 
-                // PERFORMANCE
-                const perfRows = performance.filter(p => {
+                p.territory?.trim().toLowerCase() ===
+                area?.trim().toLowerCase()
+            );
+
+            const budget =
+                policy?.budget || 0;
+
+            // PERFORMANCE
+            const perfRows =
+                performance.filter(p => {
 
                     const perfYear = Number(
-                        String(p.month || "").split("-")[1]
+                        String(p.month || "")
+                            .split("-")[1]
                     );
 
                     return (
@@ -116,109 +134,268 @@ router.get("/dashboard", verifyToken, requireAdmin, async (req, res) => {
                     );
                 });
 
-                const latestPerf = perfRows.sort((a, b) =>
+            const latestPerf =
+                perfRows.sort((a, b) =>
                     b.month.localeCompare(a.month)
                 )[0];
 
-                const performancePercent =
-                    latestPerf?.performancePercent || 0;
+            const performancePercent =
+                latestPerf?.performancePercent || 0;
 
+            const availableBudget =
+                budget * (performancePercent / 100);
 
-
-                const availableBudget =
-                    budget * (performancePercent / 100);
-
-                // const totalDemo = perfRows.reduce((s, p) => s + (p.demoCount || 0), 0);
-
-                // REQUESTS (FIXED — NO YEAR BUG)
-                const areaRequests = requests.filter(r => {
+            // REQUESTS
+            const areaRequests =
+                requests.filter(r => {
 
                     const requestYear =
                         Number(r.requestPeriodYear);
 
                     return (
-                        String(r.salesTerritory).trim().toLowerCase() ===
-                        String(area).trim().toLowerCase()
+                        String(r.salesTerritory)
+                            .trim()
+                            .toLowerCase()
+                        ===
+                        String(area)
+                            .trim()
+                            .toLowerCase()
                         &&
                         requestYear === y
                     );
                 });
 
-                // APPROVED ONLY
-                const approvedRequests = areaRequests.filter(r =>
-                    String(r.status).toLowerCase().trim() === "approved"
+            // APPROVED
+            const approvedRequests =
+                areaRequests.filter(r =>
+                    String(r.status)
+                        .toLowerCase()
+                        .trim() === "approved"
                 );
 
-                const approvedExpenses = approvedRequests.reduce(
-                    (s, r) => s + (Number(r.amountSAR) || 0),
+            const approvedExpenses =
+                approvedRequests.reduce(
+                    (s, r) =>
+                        s + (Number(r.amountSAR) || 0),
                     0
                 );
 
-                // REJECTED
-                const rejectedRequests = areaRequests.filter(r =>
-                    String(r.status).toLowerCase().trim() === "rejected"
+            // REJECTED
+            const rejectedRequests =
+                areaRequests.filter(r =>
+                    String(r.status)
+                        .toLowerCase()
+                        .trim() === "rejected"
                 );
 
-                const rejectedExpenses = rejectedRequests.reduce(
-                    (s, r) => s + (Number(r.amountSAR) || 0),
+            const rejectedExpenses =
+                rejectedRequests.reduce(
+                    (s, r) =>
+                        s + (Number(r.amountSAR) || 0),
                     0
                 );
 
-                // OPEN
-                const openRequests = areaRequests.filter(r =>
-                    String(r.status).toLowerCase().trim() === "in_progress"
+            // OPEN
+            const openRequests =
+                areaRequests.filter(r =>
+                    String(r.status)
+                        .toLowerCase()
+                        .trim() === "in_progress"
                 );
 
-                const openExpenses = openRequests.reduce(
-                    (s, r) => s + (Number(r.amountSAR) || 0),
+            const openExpenses =
+                openRequests.reduce(
+                    (s, r) =>
+                        s + (Number(r.amountSAR) || 0),
                     0
                 );
 
-                const demoCost = perfRows.reduce(
-                    (s, p) => s + (Number(p.demoCount) || 0),
+            const depreciation =
+                perfRows.reduce(
+                    (s, p) =>
+                        s + (
+                            Number(
+                                p.depreciationAmount
+                            ) || 0
+                        ),
                     0
                 );
 
-                const depreciation = perfRows.reduce(
-                    (s, p) => s + (Number(p.depreciationAmount) || 0),
-                    0
-                );
+            const remaining =
+                availableBudget
+                - approvedExpenses
+                - depreciation;
 
-                const remaining =
-                    availableBudget
-                    - approvedExpenses
-                    - depreciation;
-
-                const progress = availableBudget
-                    ? (approvedExpenses / availableBudget) * 100
+            const progress =
+                availableBudget
+                    ? (
+                        approvedExpenses /
+                        availableBudget
+                    ) * 100
                     : 0;
 
-                result[y].push({
-                    area,
-                    budget,
-                    expenses: approvedExpenses,
-                    depreciation,
-                    remaining,
-                    progress,
-                    approvedCount: approvedRequests.length,
-                    approvedAmount: approvedExpenses,
-                    rejectedCount: rejectedRequests.length,
-                    rejectedAmount: rejectedExpenses,
-                    openCount: openRequests.length,
-                    openAmount: openExpenses,
-                    performancePercent,
-                    availableBudget,
+            result[y].push({
+
+                area,
+
+                budget,
+
+                expenses:
+                    approvedExpenses,
+
+                depreciation,
+
+                remaining,
+
+                progress,
+
+                approvedCount:
+                    approvedRequests.length,
+
+                approvedAmount:
+                    approvedExpenses,
+
+                rejectedCount:
+                    rejectedRequests.length,
+
+                rejectedAmount:
+                    rejectedExpenses,
+
+                openCount:
+                    openRequests.length,
+
+                openAmount:
+                    openExpenses,
+
+                performancePercent,
+
+                availableBudget
+            });
+        }
+    }
+
+    return result;
+}
+// ================= DASHBOARD =================
+router.get(
+    "/dashboard",
+    verifyToken,
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const { year } =
+                req.query;
+
+            const result =
+                await buildDashboardData(year);
+
+            res.json({
+                success: true,
+                data: result
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            res.status(500).json({
+                success: false,
+                message: err.message
+            });
+        }
+    }
+);
+
+router.get(
+    "/dashboard/restricted",
+    verifyToken,
+    async (req, res) => {
+
+        try {
+
+            const { year } =
+                req.query;
+
+            const user =
+                await User.findById(req.user.id);
+
+            if (!user) {
+
+                return res.status(404).json({
+                    success: false,
+                    message: "User not found"
                 });
             }
+
+            const roles =
+                user.roles || [];
+
+            // FULL ACCESS
+            if (
+                roles.includes("budget_control") ||
+                roles.includes("bi") ||
+                roles.includes("vp_finance")
+            ) {
+
+                const fullData =
+                    await buildDashboardData(year);
+
+                return res.json({
+                    success: true,
+                    data: fullData
+                });
+            }
+
+            // RESTRICTED
+            const allowedAreas =
+                user.area_section || [];
+
+            const dashboardData =
+                await buildDashboardData(year);
+
+            const filtered = {};
+
+            Object.keys(dashboardData)
+                .forEach(yearKey => {
+
+                    filtered[yearKey] =
+                        dashboardData[yearKey]
+                            .filter(row =>
+
+                                allowedAreas.some(a =>
+
+                                    String(a)
+                                        .trim()
+                                        .toLowerCase()
+                                    ===
+                                    String(row.area)
+                                        .trim()
+                                        .toLowerCase()
+                                )
+                            );
+                });
+
+            res.json({
+                success: true,
+                data: filtered
+            });
+
+        } catch (err) {
+
+            console.error(
+                "Restricted Dashboard Error:",
+                err
+            );
+
+            res.status(500).json({
+                success: false,
+                message: err.message
+            });
         }
-
-        res.json({ success: true, data: result });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: err.message });
     }
-});
+);
 
 
 // ================= DASHBOARD DETAILS =================
@@ -313,5 +490,7 @@ router.delete("/performance/:id", verifyToken, requireAdmin, async (req, res) =>
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+
 
 module.exports = router;
