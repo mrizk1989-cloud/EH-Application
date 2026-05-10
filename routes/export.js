@@ -13,6 +13,9 @@ const MasterRequest = require("../models/MasterRequest");
 const RequestItem = require("../models/RequestItem");
 const UploadLog = require("../models/UploadLog");
 const User = require("../models/User");
+const EHPerformance = require("../models/EHPerformance");
+const EHPolicy = require("../models/EHPolicy");
+
 
 // ================= COLLECTION MAP =================
 const collections = {
@@ -24,7 +27,9 @@ const collections = {
     masterRequests: MasterRequest,
     requestItems: RequestItem,
     uploadLogs: UploadLog,
-    users: User
+    users: User,
+    EHPerformance: EHPerformance,
+    EHPolicy: EHPolicy,
 };
 
 // ================= EXPORT =================

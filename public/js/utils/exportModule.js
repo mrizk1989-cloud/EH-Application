@@ -9,7 +9,10 @@ const ExportModule = (() => {
         { label: "Expense Types", value: "expenseTypes" },
         { label: "Customers", value: "customers" },
         { label: "Upload Logs", value: "uploadLogs" },
-        { label: "Counters", value: "counters" }
+        { label: "Counters", value: "counters" },
+        { label: "EHPolicy", value: "EHPolicy" },
+        { label: "EHPerformance", value: "EHPerformance" },
+        { label: "UploadLog", value: "UploadLog" },
     ];
 
     function render(containerId) {
