@@ -63,6 +63,30 @@ document.addEventListener("DOMContentLoaded", () => {
     closeModalBtn.addEventListener("click", () => {
         modal.classList.add("hidden");
     });
+    // ================= EYE MODAL =================
+    document.addEventListener("click", (e) => {
+
+        const target = e.target;
+
+        // accept both toggles
+        if (!target.classList.contains("toggle-eye-current") &&
+            !target.classList.contains("toggle-eye-new")) {
+            return;
+        }
+
+        const inputId = target.dataset.target;
+        const input = document.getElementById(inputId);
+
+        if (!input) return;
+
+        if (input.type === "password") {
+            input.type = "text";
+            target.textContent = "🙈";
+        } else {
+            input.type = "password";
+            target.textContent = "👁";
+        }
+    });
 
     // ================= SAVE PASSWORD =================
     savePasswordBtn.addEventListener("click", async () => {

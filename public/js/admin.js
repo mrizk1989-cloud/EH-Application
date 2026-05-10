@@ -7,6 +7,9 @@ import ExportModule from "./utils/exportModule.js";
 import ImportModule from "./utils/importModule.js";
 import EhPolicyModule from "./utils/ehPolicyModule.js";
 
+// =====================================================
+// THEME
+// =====================================================
 
 function setTheme(mode) {
 
@@ -14,34 +17,62 @@ function setTheme(mode) {
 
     localStorage.setItem("theme", mode);
 
-    // update button text
-    const themeBtn = document.getElementById("themeToggleBtn");
+    const themeBtn =
+        document.getElementById("themeToggleBtn");
 
     if (themeBtn) {
-        themeBtn.textContent = mode === "dark"
-            ? "Light"
-            : "Dark";
+
+        themeBtn.textContent =
+            mode === "dark"
+                ? "Light"
+                : "Dark";
     }
 }
-// ================= LOAD SAVED THEME =================
-const savedTheme = localStorage.getItem("theme") || "light";
+
+const savedTheme =
+    localStorage.getItem("theme") || "light";
 
 setTheme(savedTheme);
 
+// =====================================================
+// MAIN
+// =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    const wrapper = document.getElementById("settingsTableWrapper");
-    const title = document.getElementById("settingsTitle");
+    // =====================================================
+    // DOM
+    // =====================================================
 
-    // 🔥 initialize once
+    const logoutBtn =
+        document.getElementById("logoutBtn");
+
+    const wrapper =
+        document.getElementById("settingsTableWrapper");
+
+    const title =
+        document.getElementById("settingsTitle");
+
+    const dropdown =
+        document.getElementById("settingsDropdown");
+
+    const dropdownBtn =
+        document.getElementById("dropdownBtn");
+
+    const themeBtn =
+        document.getElementById("themeToggleBtn");
+
+    // =====================================================
+    // INIT
+    // =====================================================
+
     FileHandler.init();
 
+    // =====================================================
+    // THEME
+    // =====================================================
 
-
-    const themeBtn = document.getElementById("themeToggleBtn");
-    themeBtn.addEventListener("click", () => {
+    themeBtn?.addEventListener("click", () => {
 
         const currentTheme =
             document.documentElement.getAttribute("data-theme");
@@ -54,319 +85,124 @@ document.addEventListener("DOMContentLoaded", () => {
         setTheme(newTheme);
     });
 
+    // =====================================================
+    // NAVIGATION
+    // =====================================================
 
-    // ================= NAV =================
-    document.querySelectorAll(".nav-links button[data-section]")
+    document
+        .querySelectorAll(".nav-links button[data-section]")
         .forEach(btn => {
-            btn.addEventListener("click", () => {
+
+            btn.addEventListener("click", async () => {
 
                 const section = btn.dataset.section;
 
-                document.querySelectorAll(".section")
+                document
+                    .querySelectorAll(".section")
                     .forEach(s => s.classList.remove("active"));
 
-                document.getElementById(section + "Section").classList.add("active");
+                document
+                    .getElementById(section + "Section")
+                    ?.classList.add("active");
 
-                if (section === "users") loadUsers();
-                if (section === "requests") loadRequests();
+                if (section === "users") {
+                    await loadUsers();
+                }
+
+                if (section === "requests") {
+                    await loadRequestFilters();
+                    await loadRequests();
+                }
+
                 if (section === "export") {
+
                     ExportModule.render("exportContainer");
+
                     ImportModule.render("importContainer");
-                };
+                }
+
                 if (section === "eh-policy") {
+
                     EhPolicyModule.render("ehPolicyContainer");
-                };
+                }
             });
         });
 
-    // ================= DROPDOWN =================
-    const dropdown = document.getElementById("settingsDropdown");
-    const dropdownBtn = document.getElementById("dropdownBtn");
+    // =====================================================
+    // SETTINGS DROPDOWN
+    // =====================================================
 
-    dropdownBtn.addEventListener("click", (e) => {
+    dropdownBtn?.addEventListener("click", (e) => {
+
         e.stopPropagation();
+
         dropdown.classList.toggle("open");
     });
 
     document.addEventListener("click", (e) => {
+
         if (!dropdown.contains(e.target)) {
             dropdown.classList.remove("open");
         }
     });
 
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", async (e) => {
 
-        const item = e.target.closest(".dropdown-item");
+        const item =
+            e.target.closest(".dropdown-item");
+
         if (!item) return;
 
         const value = item.dataset.value;
 
-        document.querySelectorAll(".section")
+        document
+            .querySelectorAll(".section")
             .forEach(s => s.classList.remove("active"));
 
-        document.getElementById("settingsSection").classList.add("active");
+        document
+            .getElementById("settingsSection")
+            ?.classList.add("active");
 
         if (value === "rates") {
+
             title.innerText = "Exchange Rates";
-            loadRates();
+
+            await loadRates();
         }
 
         if (value === "currencies") {
+
             title.innerText = "Currencies";
-            loadCurrencies();
+
+            await loadCurrencies();
         }
 
         if (value === "expenseTypes") {
+
             title.innerText = "Expense Types";
-            loadExpenseTypes();
+
+            await loadExpenseTypes();
         }
     });
 
     // =====================================================
-    // USERS
+    // SEARCH REQUESTS
     // =====================================================
-    async function loadUsers() {
-        const res = await fetch("/admin/users", { credentials: "include" });
-        const data = await res.json();
 
-
-        const body = document.getElementById("usersTableBody");
-        body.innerHTML = ``;
-
-        data.forEach(u => {
-            body.innerHTML += `
-                    <tr data-id="${u._id}">
-                        <td class="name">${u.user_name}</td>
-                        <td class="email">${u.user_email}</td>
-                        <td class="type">${u.user_type}</td>
-                        <td class="roles">${(u.roles || []).join(", ")}</td>
-                        <td class="type">${u.country}</td>
-                        <td class="type">${(u.area_section || []).join(", ")}</td>
-                        <td class="status">${u.status}</td>
-                        <td class="password"></td>
-                        <td class="action-cell">
-                            <button class="edit-user">Edit</button>
-                            <button class="delete-user">Delete</button>
-                        </td>
-                    </tr>
-                    `;
-        });
-    };
-
-    async function loadRequests() {
-        try {
-            const res = await fetch("/admin/requests", {
-                credentials: "include"
-            });
-
-            const json = await res.json();
-            const data = json.data; // ✅ FIX
-
-            if (!Array.isArray(data)) {
-                console.error("Invalid requests response:", json);
-                return;
-            }
-
-            const body = document.getElementById("requestsTableBody");
-            body.innerHTML = "";
-
-            data.forEach(r => {
-                const tr = document.createElement("tr");
-                tr.dataset.id = r._id;
-
-                tr.innerHTML = `
-                    <td class="requestNo">${r.requestNo || ""}</td>
-                    <td class="userName">${r.userName || ""}</td>
-                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                    <td class="status">${r.status || "pending"}</td>
-                    <td class="userName">${r.currentRole || ""}</td>
-                    <td class="attachments">
-                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
-                    </td>
-                    <td class="action-cell">
-                        <button class="view-request">View</button>
-                        <button class="delete-request">Cancel Request</button>
-                    </td>
-            `;
-
-                body.appendChild(tr);
-            });
-
-
-        } catch (err) {
-            console.error("loadRequests error:", err);
-        }
-    }
+    document
+        .getElementById("searchRequestsBtn")
+        ?.addEventListener("click", loadRequests);
 
     // =====================================================
-    // SETTINGS LOADERS
+    // GLOBAL CLICK HANDLER
     // =====================================================
-    async function loadCurrencies() {
 
-        const res = await fetch("/admin/currencies", { credentials: "include" });
-        const json = await res.json();
-
-        const data = json.currencies;
-
-        let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>Country</th>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <tr>
-            <td><input id="curCountry"></td>
-            <td><input id="curCode"></td>
-            <td><input id="curName"></td>
-            <td class="action-cell"><button data-action="create-currency">Create</button></td>
-        </tr>
-        `;
-
-        data.forEach(c => {
-            html += `
-                <tr data-id="${c._id}">
-                    <td class="country">${c.country}</td>
-                    <td class="code">${c.code}</td>
-                    <td class="name">${c.name || ""}</td>
-                    <td class="action-cell">
-                        <button class="edit-currency">Edit</button>
-                        <button class="delete-currency">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        wrapper.innerHTML = html + "</tbody></table>";
-    }
-
-    async function loadRates() {
-
-        const res = await fetch("/admin/rates", { credentials: "include" });
-        const json = await res.json();
-
-        const data = json.data; // ✅ FIX HERE
-
-        if (!Array.isArray(data)) {
-            console.error("Invalid rates response:", json);
-            return;
-        }
-
-        let html = `
-    <table>
-    <thead>
-    <tr>
-        <th>From</th>
-        <th>To</th>
-        <th>Rate</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-
-    <tr>
-        <td><input id="rateFrom"></td>
-        <td><input id="rateTo"></td>
-        <td><input id="rateValue"></td>
-        <td class="action-cell"><button data-action="create-rate">Create</button></td>
-    </tr>
-    `;
-
-        data.forEach(r => {
-            html += `
-            <tr data-id="${r._id}">
-                <td class="from">${r.fromCurrency}</td>
-                <td class="to">${r.toCurrency}</td>
-                <td class="rate">${r.rate}</td>
-                <td class="action-cell">
-                    <button class="edit-rate">Edit</button>
-                    <button class="delete-rate">Delete</button>
-                </td>
-            </tr>
-        `;
-        });
-
-        wrapper.innerHTML = html + "</tbody></table>";
-    }
-
-    async function loadExpenseTypes() {
-
-        try {
-            const res = await fetch("/admin/expense-types", {
-                credentials: "include"
-            });
-
-            const json = await res.json();
-
-            // ✅ handle backend structure
-            const data = json.data;
-
-            // 🔒 safety check (prevents your crash)
-            if (!Array.isArray(data)) {
-                console.error("Invalid expense types response:", json);
-                return;
-            }
-
-            let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <!-- CREATE ROW -->
-        <tr>
-            <td><input id="expName" placeholder="Expense type name"></td>
-            <td class="action-cell">
-                <button data-action="create-expense">Create</button>
-            </td>
-        </tr>
-        `;
-
-            // ✅ render rows safely
-            data.forEach(t => {
-                html += `
-                <tr data-id="${t._id}">
-                    <td class="name">${t.name || ""}</td>
-                    <td class="action-cell">
-                        <button class="edit-expense">Edit</button>
-                        <button class="delete-expense">Delete</button>
-                    </td>
-                </tr>
-            `;
-            });
-
-            html += `</tbody></table>`;
-
-            // ✅ render to DOM
-            document.getElementById("settingsTableWrapper").innerHTML = html;
-
-        } catch (err) {
-            console.error("loadExpenseTypes error:", err);
-
-            document.getElementById("settingsTableWrapper").innerHTML = `
-            <p style="color:red;">Failed to load expense types</p>
-        `;
-        }
-    }
-
-    // =====================================================
-    // GLOBAL ACTION HANDLER
-    // =====================================================
     document.addEventListener("click", async (e) => {
 
         const row = e.target.closest("tr");
 
         // =====================================================
-        // USERS (FULLY ISOLATED — DO NOT TOUCH BY SETTINGS)
+        // USERS
         // =====================================================
 
         if (e.target.classList.contains("edit-user")) {
@@ -374,22 +210,24 @@ document.addEventListener("DOMContentLoaded", () => {
             row.dataset.original = row.innerHTML;
 
             row.innerHTML = `
-                            <td><input value="${row.querySelector(".name").innerText}"></td>
-                            <td><input value="${row.querySelector(".email").innerText}"></td>
-                            <td><input value="${row.querySelector(".type").innerText}"></td>
-                            <td><input value="${row.querySelector(".roles").innerText}"></td>
-                            <td><input type="country" placeholder="Cuntry"></td>
-                            <td><input type="area" placeholder="Area"></td>
-                            <td><input value="${row.querySelector(".status").innerText}"></td>
-                            <td><input type="password" placeholder="New password (optional)"></td>
-                            <td class="action-cell">
-                                <button class="save-user">Save</button>
-                                <button class="cancel-user">Cancel</button>
-                            </td>
-                        `;
+                <td><input value="${row.querySelector(".name").innerText}"></td>
+                <td><input value="${row.querySelector(".email").innerText}"></td>
+                <td><input value="${row.querySelector(".type").innerText}"></td>
+                <td><input value="${row.querySelector(".roles").innerText}"></td>
+                <td><input value="${row.children[4].innerText}"></td>
+                <td><input value="${row.children[5].innerText}"></td>
+                <td><input value="${row.querySelector(".status").innerText}"></td>
+                <td><input type="password" placeholder="New password"></td>
+
+                <td class="action-cell">
+                    <button class="save-user">Save</button>
+                    <button class="cancel-user">Cancel</button>
+                </td>
+            `;
         }
 
         if (e.target.classList.contains("cancel-user")) {
+
             row.innerHTML = row.dataset.original;
         }
 
@@ -397,46 +235,68 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!confirm("Save user changes?")) return;
 
-            const passwordInput = row.querySelector('input[type="password"]');
-            const password = passwordInput ? passwordInput.value.trim() : "";
+            const passwordInput =
+                row.querySelector('input[type="password"]');
 
+            const password =
+                passwordInput?.value.trim();
 
+            const payload = {
 
-            try {
-                const res = await fetch(`/admin/users/${row.dataset.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        user_name: row.children[0].children[0].value,
-                        user_email: row.children[1].children[0].value,
-                        user_type: row.children[2].children[0].value,
-                        roles: row.children[3].children[0].value
-                            .split(",")
-                            .map(r => r.trim()),
-                        country: row.children[4].children[0].value,
-                        area_section: row.children[5].children[0].value
-                            .split(",")
-                            .map(e => e.trim()),
-                        status: row.children[6].children[0].value,
-                        ...(password && { password })
-                    })
-                });
+                user_name:
+                    row.children[0].children[0].value,
 
-                const data = await res.json();
+                user_email:
+                    row.children[1].children[0].value,
 
-                if (!data.success) {
-                    console.error("UPDATE FAILED:", data.message);
-                    alert(data.message);
-                    return;
-                }
+                user_type:
+                    row.children[2].children[0].value,
 
-                loadUsers();
+                roles:
+                    row.children[3]
+                        .children[0]
+                        .value
+                        .split(",")
+                        .map(r => r.trim()),
 
-            } catch (err) {
-                console.error("FETCH ERROR:", err);
-                alert("Network or server error");
+                country:
+                    row.children[4].children[0].value,
+
+                area_section:
+                    row.children[5]
+                        .children[0]
+                        .value
+                        .split(",")
+                        .map(a => a.trim()),
+
+                status:
+                    row.children[6].children[0].value
+            };
+
+            if (password) {
+                payload.password = password;
             }
+
+            const res = await fetch(
+                `/admin/users/${row.dataset.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            const data = await res.json();
+
+            if (!data.success) {
+                alert(data.message || "Update failed");
+                return;
+            }
+
+            await loadUsers();
         }
 
         if (e.target.classList.contains("delete-user")) {
@@ -448,202 +308,202 @@ document.addEventListener("DOMContentLoaded", () => {
                 credentials: "include"
             });
 
-            loadUsers();
+            await loadUsers();
         }
 
-
-        if (e.target.classList.contains("cancel-request")) {
-            row.innerHTML = row.dataset.original;
-        }
-
-        if (e.target.classList.contains("save-request")) {
-
-            if (!confirm("Save request changes?")) return;
-            await fetch(`/admin/requests/${row.dataset.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    requestNo: row.children[0].children[0].value,
-                    userName: row.children[1].children[0].value,
-                    totalAmountSAR: row.children[2].children[0].value,
-                    status: row.children[3].children[0].value,
-                })
-            });
-
-            loadRequests();
-        }
+        // =====================================================
+        // REQUESTS
+        // =====================================================
 
         if (e.target.classList.contains("delete-request")) {
 
-            const row = e.target.closest("tr");
-            const id = row.dataset.id;
+            if (!confirm("Cancel request?")) return;
 
-            if (!confirm("Delete request?")) return;
-
-            // const res = await fetch(`/admin/requests/${id}`, {
-            //     method: "DELETE",
-            //     credentials: "include"
-            // });
-
-            const res = await fetch(`/admin/requests/${id}/cancel`, {
-                method: "PUT",
-                credentials: "include"
-            });
+            const res = await fetch(
+                `/admin/requests/${row.dataset.id}/cancel`,
+                {
+                    method: "PUT",
+                    credentials: "include"
+                }
+            );
 
             if (!res.ok) {
-                console.error("DELETE failed");
+                alert("Failed to cancel request");
                 return;
             }
 
-            loadRequests();
+            await loadRequests();
         }
 
-        // ================= TOGGLE SUB TABLE =================
-        // ================= VIEW REQUEST ITEMS =================
+        // =====================================================
+        // VIEW REQUEST ITEMS
+        // =====================================================
+
         if (e.target.classList.contains("view-request")) {
 
-            const parentRow = e.target.closest("tr");
-            const requestId = parentRow.dataset.id;
+            const parentRow =
+                e.target.closest("tr");
 
-            if (parentRow.nextElementSibling?.classList.contains("sub-table-row")) {
+            if (
+                parentRow.nextElementSibling?.classList.contains("sub-table-row")
+            ) {
+
                 parentRow.nextElementSibling.remove();
+
                 return;
             }
 
-            document.querySelectorAll(".sub-table-row").forEach(el => el.remove());
+            document
+                .querySelectorAll(".sub-table-row")
+                .forEach(el => el.remove());
 
-            // 🔥 FORCE LOAD CACHE BEFORE USING DROPDOWN
             await Promise.all([
-                loadCurrencies(),
-                loadExpenseTypes()
+                fetchCurrenciesCache(),
+                fetchExpenseTypesCache()
             ]);
-
-            await loadCurrencies();
-            await loadExpenseTypes();
 
             await renderRequestItems(parentRow);
         }
 
+        // =====================================================
+        // EDIT ITEM
+        // =====================================================
 
-
-
-        // ================= EDIT ITEM =================
         if (e.target.classList.contains("edit-item")) {
-
-            const row = e.target.closest("tr");
 
             row.dataset.original = row.innerHTML;
 
-            const currencyOptions = (currenciesCache || []).map(c =>
-                `<option value="${c.code?.trim()}">${c.code?.trim()}</option>`
-            ).join("");
+            const currencyOptions =
+                currenciesCache.map(c => `
+                    <option value="${c.code}">
+                        ${c.code}
+                    </option>
+                `).join("");
 
-
-            const expenseOptions = expenseTypesCache.map(t =>
-                `<option value="${t.name}">${t.name}</option>`
-            ).join("");
+            const expenseOptions =
+                expenseTypesCache.map(t => `
+                    <option value="${t.name}">
+                        ${t.name}
+                    </option>
+                `).join("");
 
             row.innerHTML = `
-        <td>${row.children[0].innerText}</td>
+                <td>${row.children[0].innerText}</td>
 
-        <td><input value="${row.children[1].innerText}"></td>
+                <td>
+                    <input value="${row.children[1].innerText}">
+                </td>
 
-        <td><input type="number" value="${row.children[2].innerText}"></td>
+                <td>
+                    <input type="number" value="${row.children[2].innerText}">
+                </td>
 
-        <!-- CURRENCY DROPDOWN -->
-        <td>
-            <select class="currency-select">
-                ${currencyOptions}
-            </select>
-        </td>
+                <td>
+                    <select class="currency-select">
+                        ${currencyOptions}
+                    </select>
+                </td>
 
-        <!-- EXPENSE TYPE DROPDOWN -->
-        <td>
-            <select class="expense-select">
-                ${expenseOptions}
-            </select>
-        </td>
+                <td>
+                    <select class="expense-select">
+                        ${expenseOptions}
+                    </select>
+                </td>
 
-        <td><input value="${row.children[5].innerText}"></td>
+                <td>
+                    <input value="${row.children[5].innerText}">
+                </td>
 
-        <td><input value="${row.children[6].innerText}"></td>
+                <td>
+                    <input value="${row.children[6].innerText}">
+                </td>
 
-        <td><input type="number" value="${row.children[7].innerText}"></td>
+                <td>
+                    <input type="number" value="${row.children[7].innerText}">
+                </td>
 
-        <td><input type="number" value="${row.children[8].innerText}"></td>
+                <td>
+                    <input type="number" value="${row.children[8].innerText}">
+                </td>
 
-        <td>${row.children[9].innerText}</td>
-        <td>${row.children[10].innerText}</td>
+                <td>${row.children[9].innerText}</td>
 
-        <td>
-            <select class="status-select">
-                <option value="pending">pending</option>
-                <option value="approved">approved</option>
-                <option value="rejected">rejected</option>
-                <option value="canceled">canceled</option>
-            </select>
-        </td>
+                <td>${row.children[10].innerText}</td>
 
-        <td class="action-cell">
-            <button class="save-item">Save</button>
-            <button class="cancel-item">Cancel</button>
-        </td>
-    `;
+                <td>
+                    <select class="status-select">
+                        <option value="pending">pending</option>
+                        <option value="approved">approved</option>
+                        <option value="rejected">rejected</option>
+                        <option value="canceled">canceled</option>
+                    </select>
+                </td>
 
-            // set current values properly
-            const currencySelect = row.querySelector(".currency-select");
-            const expenseSelect = row.querySelector(".expense-select");
-            const statusSelect = row.querySelector(".status-select");
+                <td class="action-cell">
+                    <button class="save-item">Save</button>
+                    <button class="cancel-item">Cancel</button>
+                </td>
+            `;
 
-            // set selected values safely
-            currencySelect.value = row.dataset.currency?.trim() || row.children[3].innerText.trim();
-            expenseSelect.value = row.dataset.expense?.trim() || row.children[4].innerText.trim();
-            statusSelect.value = row.dataset.status?.trim() || "pending";
+            row.querySelector(".currency-select").value =
+                row.dataset.currency;
+
+            row.querySelector(".expense-select").value =
+                row.dataset.expense;
+
+            row.querySelector(".status-select").value =
+                row.dataset.status || "pending";
         }
 
-
-        // ================= CANCEL ITEM EDIT =================
         if (e.target.classList.contains("cancel-item")) {
 
-            const row = e.target.closest("tr");
             row.innerHTML = row.dataset.original;
         }
 
-
-        // ================= SAVE ITEM =================
         if (e.target.classList.contains("save-item")) {
 
             if (!confirm("Save item changes?")) return;
 
-            const row = e.target.closest("tr");
-            const id = row.dataset.id;
+            const inputs =
+                row.querySelectorAll("input");
 
-            const inputs = row.querySelectorAll("input");
-            const selects = row.querySelectorAll("select");
+            const selects =
+                row.querySelectorAll("select");
 
             const payload = {
+
                 customerId: inputs[0].value,
+
                 amount: Number(inputs[1].value),
 
                 currency: selects[0].value,
+
                 expenseType: selects[1].value,
 
                 purpose: inputs[2].value,
+
                 doctorName: inputs[3].value,
 
-                requestPeriodMonth: Number(inputs[4].value),
-                requestPeriodYear: Number(inputs[5].value),
+                requestPeriodMonth:
+                    Number(inputs[4].value),
+
+                requestPeriodYear:
+                    Number(inputs[5].value),
 
                 status: selects[2].value
             };
 
-            const res = await fetch(`/admin/requests/items/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(payload)
-            });
+            const res = await fetch(
+                `/admin/requests/items/${row.dataset.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                }
+            );
 
             const data = await res.json();
 
@@ -652,41 +512,410 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // 🔥 refresh ONLY this request
-            const parentRow = row.closest(".sub-table-row").previousElementSibling;
+            const parentRow =
+                row.closest(".sub-table-row")
+                    .previousElementSibling;
+
             await renderRequestItems(parentRow);
 
-            loadRequests();
+            await loadRequests();
         }
 
-        async function renderRequestItems(parentRow) {
+        // =====================================================
+        // SETTINGS CREATE
+        // =====================================================
 
-            const requestId = parentRow.dataset.id;
+        if (e.target.dataset.action === "create-currency") {
 
-            const res = await fetch(`/admin/requests/${requestId}/items`, {
-                credentials: "include"
+            await fetch("/admin/currencies", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    country: curCountry.value,
+                    code: curCode.value,
+                    name: curName.value
+                })
             });
 
-            const items = await res.json();
+            await loadCurrencies();
+        }
 
-            // ❌ remove old table first (IMPORTANT FIX)
-            const old = parentRow.nextElementSibling;
-            if (old?.classList.contains("sub-table-row")) {
-                old.remove();
+        if (e.target.dataset.action === "create-rate") {
+
+            await fetch("/admin/rates", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    fromCurrency: rateFrom.value,
+                    toCurrency: rateTo.value,
+                    rate: rateValue.value
+                })
+            });
+
+            await loadRates();
+        }
+
+        if (e.target.dataset.action === "create-expense") {
+
+            await fetch("/admin/expense-types", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    name: expName.value
+                })
+            });
+
+            await loadExpenseTypes();
+        }
+
+        // =====================================================
+        // SETTINGS DELETE
+        // =====================================================
+
+        if (e.target.classList.contains("delete-currency")) {
+
+            await fetch(
+                `/admin/currencies/${row.dataset.id}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+            await loadCurrencies();
+        }
+
+        if (e.target.classList.contains("delete-rate")) {
+
+            await fetch(
+                `/admin/rates/${row.dataset.id}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+            await loadRates();
+        }
+
+        if (e.target.classList.contains("delete-expense")) {
+
+            await fetch(
+                `/admin/expense-types/${row.dataset.id}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+            await loadExpenseTypes();
+        }
+
+        // =====================================================
+        // SETTINGS EDIT
+        // =====================================================
+
+        if (
+            e.target.classList.contains("edit-currency") ||
+            e.target.classList.contains("edit-rate") ||
+            e.target.classList.contains("edit-expense")
+        ) {
+
+            row.dataset.original = row.innerHTML;
+
+            const cells =
+                row.querySelectorAll("td");
+
+            cells.forEach((cell, index) => {
+
+                if (index < cells.length - 1) {
+
+                    cell.innerHTML =
+                        `<input value="${cell.innerText}">`;
+                }
+            });
+
+            row.lastElementChild.innerHTML = `
+                <button class="save-setting">Save</button>
+                <button class="cancel-setting">Cancel</button>
+            `;
+        }
+
+        if (e.target.classList.contains("cancel-setting")) {
+
+            row.innerHTML = row.dataset.original;
+        }
+
+        if (e.target.classList.contains("save-setting")) {
+
+            const inputs =
+                row.querySelectorAll("input");
+
+            const values =
+                Array.from(inputs).map(i => i.value);
+
+            let url = "";
+            let payload = {};
+
+            if (title.innerText === "Currencies") {
+
+                url =
+                    `/admin/currencies/${row.dataset.id}`;
+
+                payload = {
+                    country: values[0],
+                    code: values[1],
+                    name: values[2]
+                };
             }
 
-            const subRow = document.createElement("tr");
-            subRow.classList.add("sub-table-row");
+            if (title.innerText === "Exchange Rates") {
 
-            subRow.innerHTML = `
+                url =
+                    `/admin/rates/${row.dataset.id}`;
+
+                payload = {
+                    fromCurrency: values[0],
+                    toCurrency: values[1],
+                    rate: values[2]
+                };
+            }
+
+            if (title.innerText === "Expense Types") {
+
+                url =
+                    `/admin/expense-types/${row.dataset.id}`;
+
+                payload = {
+                    name: values[0]
+                };
+            }
+
+            await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify(payload)
+            });
+
+            if (title.innerText === "Currencies") {
+                await loadCurrencies();
+            }
+
+            if (title.innerText === "Exchange Rates") {
+                await loadRates();
+            }
+
+            if (title.innerText === "Expense Types") {
+                await loadExpenseTypes();
+            }
+        }
+    });
+
+    // =====================================================
+    // LOGOUT
+    // =====================================================
+
+    logoutBtn?.addEventListener("click", async () => {
+
+        if (!confirm("Logout?")) return;
+
+        await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include"
+        });
+
+        window.location.href = "/";
+    });
+});
+
+// =====================================================
+// USERS
+// =====================================================
+
+async function loadUsers() {
+
+    const res = await fetch("/admin/users", {
+        credentials: "include"
+    });
+
+    const data = await res.json();
+
+    const body =
+        document.getElementById("usersTableBody");
+
+    body.innerHTML = "";
+
+    data.forEach(u => {
+
+        body.innerHTML += `
+            <tr data-id="${u._id}">
+                <td class="name">${u.user_name}</td>
+                <td class="email">${u.user_email}</td>
+                <td class="type">${u.user_type}</td>
+                <td class="roles">${(u.roles || []).join(", ")}</td>
+                <td>${u.country || ""}</td>
+                <td>${(u.area_section || []).join(", ")}</td>
+                <td class="status">${u.status}</td>
+                <td></td>
+
+                <td class="action-cell">
+                    <button class="edit-user">Edit</button>
+                    <button class="delete-user">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// =====================================================
+// REQUESTS
+// =====================================================
+
+async function loadRequests() {
+
+    try {
+
+        const userName =
+            document.getElementById("filterUser")?.value;
+
+        const year =
+            document.getElementById("filterYear")?.value;
+
+        const status =
+            document.getElementById("filterStatus")?.value;
+
+        const currentRole =
+            document.getElementById("filterRole")?.value;
+
+        const params =
+            new URLSearchParams();
+
+        if (userName)
+            params.append("userName", userName);
+
+        if (year)
+            params.append("year", year);
+
+        if (status)
+            params.append("status", status);
+
+        if (currentRole)
+            params.append("currentRole", currentRole);
+
+        const res = await fetch(
+            `/admin/requests?${params.toString()}`,
+            {
+                credentials: "include"
+            }
+        );
+
+        const json = await res.json();
+
+        const data =
+            json.data || [];
+
+        const body =
+            document.getElementById("requestsTableBody");
+
+        body.innerHTML = "";
+
+        data.forEach(r => {
+
+            const tr =
+                document.createElement("tr");
+
+            tr.dataset.id = r._id;
+
+            tr.innerHTML = `
+                <td>${r.requestNo || ""}</td>
+                <td>${r.userName || ""}</td>
+                <td>${r.totalAmountSAR || 0}</td>
+                <td>${r.status || "pending"}</td>
+                <td>${r.currentRole || ""}</td>
+
+                <td class="attachments">
+                    ${(r.attachments || [])
+                        .map(file => FileHandler.render(file))
+                        .join("")}
+                </td>
+
+                <td class="action-cell">
+                    <button class="view-request">
+                        View
+                    </button>
+
+                    <button class="delete-request">
+                        Cancel Request
+                    </button>
+                </td>
+            `;
+
+            body.appendChild(tr);
+        });
+
+    } catch (err) {
+
+        console.error("loadRequests error:", err);
+    }
+}
+
+// =====================================================
+// REQUEST ITEMS
+// =====================================================
+
+async function renderRequestItems(parentRow) {
+
+    const requestId =
+        parentRow.dataset.id;
+
+    const res = await fetch(
+        `/admin/requests/${requestId}/items`,
+        {
+            credentials: "include"
+        }
+    );
+
+    const items = await res.json();
+
+    const old =
+        parentRow.nextElementSibling;
+
+    if (old?.classList.contains("sub-table-row")) {
+        old.remove();
+    }
+
+    const subRow =
+        document.createElement("tr");
+
+    subRow.classList.add("sub-table-row");
+
+    subRow.innerHTML = `
         <td colspan="12">
+
             <table class="sub-table">
+
                 <tbody>
+
                     ${items.map(item => `
-                        <tr data-id="${item._id}"
+
+                        <tr
+                            data-id="${item._id}"
                             data-currency="${item.currency}"
                             data-expense="${item.expenseType}"
-                            data-status="${item.status || 'pending'}">
+                            data-status="${item.status || "pending"}"
+                        >
 
                             <td>${item.subRequestNo}</td>
                             <td>${item.customerId || "-"}</td>
@@ -701,595 +930,372 @@ document.addEventListener("DOMContentLoaded", () => {
                             <td>${item.amountSAR}</td>
 
                             <td class="action-cell">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
+                                <button class="edit-item">
+                                    Edit
+                                </button>
                             </td>
+
                         </tr>
+
                     `).join("")}
+
                 </tbody>
+
             </table>
+
         </td>
     `;
 
-            parentRow.insertAdjacentElement("afterend", subRow);
-        }
-        async function loadCurrencies() {
+    parentRow.insertAdjacentElement(
+        "afterend",
+        subRow
+    );
+}
 
-            const res = await fetch("/admin/currencies", {
-                credentials: "include"
-            });
+// =====================================================
+// REQUEST FILTERS
+// =====================================================
 
-            const json = await res.json();
+async function loadRequestFilters() {
 
-            console.log("Currencies API response:", json); // 👈 debug
+    try {
 
-            // ✅ FIX: support both formats (safe fallback)
-            const data = Array.isArray(json)
-                ? json
-                : json.currencies || [];
+        const res =
+            await fetch("/admin/requests/filters");
 
-            if (!Array.isArray(data)) {
-                console.error("Invalid currency response:", json);
-                return;
-            }
+        const json =
+            await res.json();
 
-            currenciesCache = data;
+        if (!json.success) return;
 
-            let html = `
-    <table>
-    <thead>
-        <tr>
-            <th>Country</th>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+        const {
+            users,
+            statuses,
+            roles,
+            years
+        } = json.data;
 
-        <tr>
-            <td><input id="curCountry"></td>
-            <td><input id="curCode"></td>
-            <td><input id="curName"></td>
-            <td class="action-cell"><button data-action="create-currency">Create</button></td>
-        </tr>
+        const userSelect =
+            document.getElementById("filterUser");
+
+        const yearSelect =
+            document.getElementById("filterYear");
+
+        const statusSelect =
+            document.getElementById("filterStatus");
+
+        const roleSelect =
+            document.getElementById("filterRole");
+
+        userSelect.innerHTML =
+            `<option value="">All Users</option>`;
+
+        yearSelect.innerHTML =
+            `<option value="">All Years</option>`;
+
+        statusSelect.innerHTML =
+            `<option value="">All Statuses</option>`;
+
+        roleSelect.innerHTML =
+            `<option value="">All Roles</option>`;
+
+        users.forEach(user => {
+
+            userSelect.innerHTML += `
+                <option value="${user}">
+                    ${user}
+                </option>
+            `;
+        });
+
+        years.forEach(year => {
+
+            yearSelect.innerHTML += `
+                <option value="${year}">
+                    ${year}
+                </option>
+            `;
+        });
+
+        statuses.forEach(status => {
+
+            statusSelect.innerHTML += `
+                <option value="${status}">
+                    ${status}
+                </option>
+            `;
+        });
+
+        roles.forEach(role => {
+
+            roleSelect.innerHTML += `
+                <option value="${role}">
+                    ${role}
+                </option>
+            `;
+        });
+
+    } catch (err) {
+
+        console.error(
+            "loadRequestFilters error:",
+            err
+        );
+    }
+}
+
+// =====================================================
+// CACHE LOADERS
+// =====================================================
+
+async function fetchCurrenciesCache() {
+
+    const res = await fetch("/admin/currencies", {
+        credentials: "include"
+    });
+
+    const json = await res.json();
+
+    currenciesCache =
+        json.data ||
+        json.currencies ||
+        [];
+}
+
+async function fetchExpenseTypesCache() {
+
+    const res = await fetch("/admin/expense-types", {
+        credentials: "include"
+    });
+
+    const json = await res.json();
+
+    expenseTypesCache =
+        json.data || [];
+}
+
+// =====================================================
+// SETTINGS
+// =====================================================
+
+async function loadCurrencies() {
+
+    const res = await fetch("/admin/currencies", {
+        credentials: "include"
+    });
+
+    const json = await res.json();
+
+    const data =
+        json.data ||
+        json.currencies ||
+        [];
+
+    const wrapper =
+        document.getElementById("settingsTableWrapper");
+
+    let html = `
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td><input id="curCountry"></td>
+                    <td><input id="curCode"></td>
+                    <td><input id="curName"></td>
+
+                    <td class="action-cell">
+                        <button data-action="create-currency">
+                            Create
+                        </button>
+                    </td>
+                </tr>
     `;
 
-            data.forEach(c => {
-                html += `
-            <tr data-id="${c.code}">
-                <td class="country">${c.name || ""}</td>
-                <td class="code">${c.code}</td>
-                <td class="name">${c.name || ""}</td>
+    data.forEach(c => {
+
+        html += `
+            <tr data-id="${c._id}">
+
+                <td>${c.country || ""}</td>
+                <td>${c.code || ""}</td>
+                <td>${c.name || ""}</td>
+
                 <td class="action-cell">
-                    <button class="edit-currency">Edit</button>
-                    <button class="delete-currency">Delete</button>
+
+                    <button class="edit-currency">
+                        Edit
+                    </button>
+
+                    <button class="delete-currency">
+                        Delete
+                    </button>
+
                 </td>
+
             </tr>
         `;
-            });
+    });
 
-            wrapper.innerHTML = html + "</tbody></table>";
-        }
-
-        async function loadExpenseTypes() {
-
-            const res = await fetch("/admin/expense-types", {
-                credentials: "include"
-            });
-
-            const json = await res.json();
-
-            if (!json.success) {
-                console.error("Failed to load expense types:", json);
-                return;
-            }
-
-            const data = json.data;
-
-            expenseTypesCache = data; // ✅ used for dropdowns
-
-            let html = `
-    <table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-            <td><input id="expName" placeholder="Expense type"></td>
-            <td class="action-cell"><button data-action="create-expense">Create</button></td>
-        </tr>
+    html += `
+            </tbody>
+        </table>
     `;
 
-            data.forEach(t => {
-                html += `
+    wrapper.innerHTML = html;
+}
+
+async function loadRates() {
+
+    const res = await fetch("/admin/rates", {
+        credentials: "include"
+    });
+
+    const json = await res.json();
+
+    const data =
+        json.data || [];
+
+    const wrapper =
+        document.getElementById("settingsTableWrapper");
+
+    let html = `
+        <table>
+
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Rate</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td><input id="rateFrom"></td>
+                    <td><input id="rateTo"></td>
+                    <td><input id="rateValue"></td>
+
+                    <td class="action-cell">
+                        <button data-action="create-rate">
+                            Create
+                        </button>
+                    </td>
+                </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr data-id="${r._id}">
+
+                <td>${r.fromCurrency}</td>
+                <td>${r.toCurrency}</td>
+                <td>${r.rate}</td>
+
+                <td class="action-cell">
+
+                    <button class="edit-rate">
+                        Edit
+                    </button>
+
+                    <button class="delete-rate">
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    wrapper.innerHTML = html;
+}
+
+async function loadExpenseTypes() {
+
+    const res = await fetch("/admin/expense-types", {
+        credentials: "include"
+    });
+
+    const json = await res.json();
+
+    const data =
+        json.data || [];
+
+    const wrapper =
+        document.getElementById("settingsTableWrapper");
+
+    let html = `
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>
+                        <input id="expName">
+                    </td>
+
+                    <td class="action-cell">
+
+                        <button data-action="create-expense">
+                            Create
+                        </button>
+
+                    </td>
+                </tr>
+    `;
+
+    data.forEach(t => {
+
+        html += `
             <tr data-id="${t._id}">
-                <td class="name">${t.name}</td>
+
+                <td>${t.name}</td>
+
                 <td class="action-cell">
-                    <button class="edit-expense">Edit</button>
-                    <button class="delete-expense">Delete</button>
+
+                    <button class="edit-expense">
+                        Edit
+                    </button>
+
+                    <button class="delete-expense">
+                        Delete
+                    </button>
+
                 </td>
+
             </tr>
         `;
-            });
-
-            wrapper.innerHTML = html + "</tbody></table>";
-        }
-
-        // =====================================================
-        // SETTINGS (SEPARATE BLOCK — SAFE)
-        // =====================================================
-
-        // ========= CREATE =========
-        if (e.target.dataset.action === "create-currency") {
-
-            if (!confirm("Create currency?")) return;
-
-            await fetch("/admin/currencies", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    country: curCountry.value,
-                    code: curCode.value,
-                    name: curName.value
-                })
-            });
-
-            loadCurrencies();
-        }
-
-        if (e.target.dataset.action === "create-rate") {
-
-            if (!confirm("Create rate?")) return;
-
-            await fetch("/admin/rates", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    fromCurrency: rateFrom.value,
-                    toCurrency: rateTo.value,
-                    rate: rateValue.value
-                })
-            });
-
-            loadRates();
-        }
-
-        if (e.target.dataset.action === "create-expense") {
-
-            if (!confirm("Create expense type?")) return;
-
-            await fetch("/admin/expense-types", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    name: expName.value
-                })
-            });
-
-            loadExpenseTypes();
-        }
-
-        // ========= DELETE =========
-        if (e.target.classList.contains("delete-currency")) {
-
-            if (!confirm("Delete currency?")) return;
-
-            await fetch(`/admin/currencies/${row.dataset.id}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            loadCurrencies();
-        }
-
-        if (e.target.classList.contains("delete-rate")) {
-
-            if (!confirm("Delete rate?")) return;
-
-            await fetch(`/admin/rates/${row.dataset.id}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            loadRates();
-        }
-
-        if (e.target.classList.contains("delete-expense")) {
-
-            if (!confirm("Delete expense type?")) return;
-
-            await fetch(`/admin/expense-types/${row.dataset.id}`, {
-                method: "DELETE",
-                credentials: "include"
-            });
-
-            loadExpenseTypes();
-        }
-
-        // ========= EDIT SETTINGS =========
-        if (
-            e.target.classList.contains("edit-currency") ||
-            e.target.classList.contains("edit-rate") ||
-            e.target.classList.contains("edit-expense")
-        ) {
-
-            row.dataset.original = row.innerHTML;
-
-            const cells = row.querySelectorAll("td");
-
-            cells.forEach((cell, index) => {
-                if (index < cells.length - 1) {
-                    cell.innerHTML = `<input value="${cell.innerText}">`;
-                }
-            });
-
-            row.lastElementChild.innerHTML = `
-            <button class="save-setting">Save</button>
-            <button class="cancel-setting">Cancel</button>
-        `;
-        }
-
-        // ========= SAVE SETTINGS =========
-        if (e.target.classList.contains("save-setting")) {
-
-            if (!confirm("Save changes?")) return;
-
-            const inputs = row.querySelectorAll("input");
-            const values = Array.from(inputs).map(i => i.value);
-
-            let url = "";
-            let payload = {};
-
-            if (title.innerText === "Currencies") {
-                url = `/admin/currencies/${row.dataset.id}`;
-                payload = { country: values[0], code: values[1], name: values[2] };
-            }
-
-            if (title.innerText === "Exchange Rates") {
-                url = `/admin/rates/${row.dataset.id}`;
-                payload = { fromCurrency: values[0], toCurrency: values[1], rate: values[2] };
-            }
-
-            if (title.innerText === "Expense Types") {
-                url = `/admin/expense-types/${row.dataset.id}`;
-                payload = { name: values[0] };
-            }
-
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify(payload)
-            });
-
-            if (title.innerText === "Currencies") loadCurrencies();
-            if (title.innerText === "Exchange Rates") loadRates();
-            if (title.innerText === "Expense Types") loadExpenseTypes();
-        }
-
-        // ========= CANCEL SETTINGS =========
-        if (e.target.classList.contains("cancel-setting")) {
-            row.innerHTML = row.dataset.original;
-        }
-
     });
 
-    // ================= LOGOUT =================
-    logoutBtn.addEventListener("click", async () => {
+    html += `
+            </tbody>
+        </table>
+    `;
 
-        if (!confirm("Logout?")) return;
-
-        await fetch("/api/logout", {
-            method: "POST",
-            credentials: "include"
-        });
-
-        window.location.href = "/";
-    });
-
-    async function loadRequests() {
-        try {
-            const res = await fetch("/admin/requests", {
-                credentials: "include"
-            });
-
-            const json = await res.json();
-            const data = json.data; // ✅ FIX
-
-            if (!Array.isArray(data)) {
-                console.error("Invalid requests response:", json);
-                return;
-            }
-
-            const body = document.getElementById("requestsTableBody");
-            body.innerHTML = "";
-
-            data.forEach(r => {
-                const tr = document.createElement("tr");
-                tr.dataset.id = r._id;
-
-                tr.innerHTML = `
-                    <td class="requestNo">${r.requestNo || ""}</td>
-                    <td class="userName">${r.userName || ""}</td>
-                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                    <td class="status">${r.status || "pending"}</td>
-                    <td class="userName">${r.currentRole || ""}</td>
-                    <td class="attachments">
-                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
-                    </td>
-                    <td class="action-cell">
-                        <button class="view-request">View</button>
-                        <button class="delete-request">Cancel Request</button>
-                    </td>
-            `;
-                {/* <button class="edit-request">Edit</button> */ }
-                body.appendChild(tr);
-            });
-
-        } catch (err) {
-            console.error("loadRequests error:", err);
-        }
-    }
-
-});
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const logoutBtn = document.getElementById("logoutBtn");
-    const wrapper = document.getElementById("settingsTableWrapper");
-    const title = document.getElementById("settingsTitle");
-
-    // ================= NAV =================
-    document.querySelectorAll(".nav-links button[data-section]")
-        .forEach(btn => {
-            btn.addEventListener("click", () => {
-
-                const section = btn.dataset.section;
-
-                document.querySelectorAll(".section")
-                    .forEach(s => s.classList.remove("active"));
-
-                document.getElementById(section + "Section").classList.add("active");
-
-                if (section === "users") loadUsers();
-                if (section === "requests") loadRequests();
-            });
-        });
-
-    // =====================================================
-    // USERS
-    // =====================================================
-    async function loadUsers() {
-
-        const res = await fetch("/admin/users", { credentials: "include" });
-        const data = await res.json();
-
-        const body = document.getElementById("usersTableBody");
-        body.innerHTML = "";
-
-        data.forEach(u => {
-            body.innerHTML += `
-  
-                    <tr data-id="${u._id}">
-                        <td class="name">${u.user_name}</td>
-                        <td class="email">${u.user_email}</td>
-                        <td class="type">${u.user_type}</td>
-                        <td class="roles">${(u.roles || []).join(", ")}</td>
-                        <td class="type">${u.country}</td>
-                        <td class="type">${(u.area_section || []).join(", ")}</td>
-                        <td class="status">${u.status}</td>
-                        <td class="password"></td>
-                        <td class="action-cell">
-                            <button class="edit-user">Edit</button>
-                            <button class="delete-user">Delete</button>
-                        </td>
-                    </tr>
-                    `;
-        });
-    }
-
-    // =====================================================
-    // ADMIN REQUESTS (FIXED + SCOPED PROPERLY)
-    // =====================================================
-    async function loadRequests() {
-        try {
-            const res = await fetch("/admin/requests", {
-                credentials: "include"
-            });
-
-            const json = await res.json();
-            const data = json.data; // ✅ FIX
-
-            if (!Array.isArray(data)) {
-                console.error("Invalid requests response:", json);
-                return;
-            }
-
-            const body = document.getElementById("requestsTableBody");
-            body.innerHTML = "";
-
-            data.forEach(r => {
-                const tr = document.createElement("tr");
-                tr.dataset.id = r._id;
-
-                tr.innerHTML = `
-                    <td class="requestNo">${r.requestNo || ""}</td>
-                    <td class="userName">${r.userName || ""}</td>
-                    <td class="totalAmountSAR">${r.totalAmountSAR || 0}</td>
-                    <td class="status">${r.status || "pending"}</td>
-                    <td class="userName">${r.currentRole || ""}</td>
-                    <td class="attachments">
-                        ${((r.attachments || []).map(file => FileHandler.render(file)).join(""))}
-                    </td>
-                    <td class="action-cell">
-                        <button class="view-request">View</button>
-                        <button class="delete-request">Cancel Request</button>
-                    </td>
-            `;
-
-                body.appendChild(tr);
-            });
-            // button class="edit-request">Edit</button
-        } catch (err) {
-            console.error("loadRequests error:", err);
-        }
-    }
-
-
-    // =====================================================
-    // SETTINGS LOADERS (UNCHANGED)
-    // =====================================================
-    async function loadCurrencies() {
-
-        const res = await fetch("/admin/currencies", { credentials: "include" });
-        const data = await res.json();
-
-        let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>Country</th>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <tr>
-            <td><input id="curCountry"></td>
-            <td><input id="curCode"></td>
-            <td><input id="curName"></td>
-            <td class="action-cell"><button data-action="create-currency">Create</button></td>
-        </tr>
-        `;
-
-        data.forEach(c => {
-            html += `
-                <tr data-id="${c._id}">
-                    <td class="country">${c.country}</td>
-                    <td class="code">${c.code}</td>
-                    <td class="name">${c.name || ""}</td>
-                    <td class="action-cell">
-                        <button class="edit-currency">Edit</button>
-                        <button class="delete-currency">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        wrapper.innerHTML = html + "</tbody></table>";
-    }
-
-    async function loadRates() {
-
-        const res = await fetch("/admin/rates", { credentials: "include" });
-        const data = await res.json();
-
-        let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Rate</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <tr>
-            <td><input id="rateFrom"></td>
-            <td><input id="rateTo"></td>
-            <td><input id="rateValue"></td>
-            <td class="action-cell"><button data-action="create-rate">Create</button></td>
-        </tr>
-        `;
-
-        data.forEach(r => {
-            html += `
-                <tr data-id="${r._id}">
-                    <td class="from">${r.fromCurrency}</td>
-                    <td class="to">${r.toCurrency}</td>
-                    <td class="rate">${r.rate}</td>
-                    <td class="action-cell">
-                        <button class="edit-rate">Edit</button>
-                        <button class="delete-rate">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        wrapper.innerHTML = html + "</tbody></table>";
-    }
-
-    async function loadExpenseTypes() {
-
-        const res = await fetch("/admin/expense-types", { credentials: "include" });
-        const data = await res.json();
-
-        let html = `
-        <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <tr>
-            <td><input id="expName"></td>
-            <td class="action-cell"><button data-action="create-expense">Create</button></td>
-        </tr>
-        `;
-
-        data.forEach(t => {
-            html += `
-                <tr data-id="${t._id}">
-                    <td class="name">${t.name}</td>
-                    <td class="action-cell">
-                        <button class="edit-expense">Edit</button>
-                        <button class="delete-expense">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        wrapper.innerHTML = html + "</tbody></table>";
-    }
-
-    // =====================================================
-    // GLOBAL ACTION HANDLER (UNCHANGED)
-    // =====================================================
-    document.addEventListener("click", async (e) => {
-
-        const row = e.target.closest("tr");
-
-        // (your existing logic stays untouched)
-    });
-
-    // ================= LOGOUT =================
-    logoutBtn.addEventListener("click", async () => {
-
-        if (!confirm("Logout?")) return;
-
-        await fetch("/api/logout", {
-            method: "POST",
-            credentials: "include"
-        });
-
-        window.location.href = "/";
-    });
-
-});
+    wrapper.innerHTML = html;
+}

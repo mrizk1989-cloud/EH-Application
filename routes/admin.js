@@ -157,9 +157,48 @@ router.put('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
 router.get('/requests', verifyToken, requireAdmin, async (req, res) => {
     try {
 
-        const requests = await MasterRequest
-            .find()
+        const {
+            userName,
+            status,
+            currentRole,
+            year
+        } = req.query;
+
+        const filter = {};
+
+        if (userName) {
+            filter.userName = userName;
+        }
+
+        if (status) {
+            filter.status = status;
+        }
+
+        if (currentRole) {
+            filter.currentRole = currentRole;
+        }
+
+        let requests = await MasterRequest
+            .find(filter)
             .sort({ createdAt: -1 });
+
+        // YEAR FILTER FROM REQUEST ITEMS
+        if (year) {
+
+            const requestItems = await RequestItem.find({
+                requestPeriodYear: Number(year)
+            });
+
+            const requestIds = [
+                ...new Set(
+                    requestItems.map(i => String(i.requestId))
+                )
+            ];
+
+            requests = requests.filter(r =>
+                requestIds.includes(String(r._id))
+            );
+        }
 
         res.json({
             success: true,
@@ -167,10 +206,87 @@ router.get('/requests', verifyToken, requireAdmin, async (req, res) => {
         });
 
     } catch (err) {
+
         console.error(err);
-        res.status(500).json({ success: false });
+
+        res.status(500).json({
+            success: false
+        });
     }
 });
+
+// ================= REQUEST FILTER DATA =================
+router.get(
+    '/requests/filters',
+    verifyToken,
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            // MASTER REQUESTS
+            const masterRequests = await MasterRequest.find();
+
+            // REQUEST ITEMS
+            const requestItems = await RequestItem.find();
+
+            // USERS
+            const users = [
+                ...new Set(
+                    masterRequests
+                        .map(r => r.userName)
+                        .filter(Boolean)
+                )
+            ].sort();
+
+            // STATUS
+            const statuses = [
+                ...new Set(
+                    masterRequests
+                        .map(r => r.status)
+                        .filter(Boolean)
+                )
+            ].sort();
+
+            // CURRENT ROLE
+            const roles = [
+                ...new Set(
+                    masterRequests
+                        .map(r => r.currentRole)
+                        .filter(Boolean)
+                )
+            ].sort();
+
+            // YEARS (FROM REQUEST ITEMS)
+            const years = [
+                ...new Set(
+                    requestItems
+                        .map(r => Number(r.requestPeriodYear))
+                        .filter(Boolean)
+                )
+            ].sort((a, b) => b - a);
+
+            res.json({
+                success: true,
+                data: {
+                    users,
+                    statuses,
+                    roles,
+                    years
+                }
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            res.status(500).json({
+                success: false,
+                message: err.message
+            });
+        }
+    }
+);
 
 router.get('/requests/:id', verifyToken, requireAdmin, async (req, res) => {
     try {
@@ -947,6 +1063,8 @@ router.post('/budgetControl/:id/reject', verifyToken, requireBudgetcontrole, asy
         res.status(500).json({ success: false });
     }
 });
+
+
 
 
 module.exports = router;

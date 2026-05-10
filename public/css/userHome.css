@@ -146,6 +146,7 @@ body {
 }
 
 /* ================= MODAL ================= */
+/* ================= MODAL ================= */
 .modal {
     position: fixed;
     top: 0;
@@ -158,6 +159,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    z-index: 99999;
 }
 
 .modal.hidden {
@@ -177,6 +180,9 @@ body {
     gap: 12px;
 
     border: 1px solid var(--border);
+
+    position: relative;
+    z-index: 100000;
 }
 
 /* MODAL TITLE */
@@ -192,7 +198,7 @@ body {
     border-radius: 6px;
 
     border: 1px solid var(--border);
-    background: #fff;
+    background: var(--input-bg);
     color: var(--text);
 }
 
@@ -321,3 +327,12 @@ body {
 .nav-left {
     margin-left: -30px;
 }
+
+/* .toggle-eye-current,
+.toggle-eye-new {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+} */
