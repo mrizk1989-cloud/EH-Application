@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addRowBtn = document.getElementById("addRowBtn");
     const deleteRowsBtn = document.getElementById("deleteRowsBtn");
     const requestForm = document.getElementById("requestForm");
-
+    const User = require('../models/User');
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
@@ -307,7 +307,33 @@ requestForm?.addEventListener("submit", async (e) => {
 
     alert(data.message);
 
-    if (data.success) location.reload();
+   
+
+    if (data.success) {
+
+        const emails = data.emails;
+
+        const subject = encodeURIComponent(
+            `New Request ${data.requestNo}`
+        );
+
+        const body = encodeURIComponent(
+            `A new request has been submitted.
+
+                Request No: ${data.requestNo}
+                Total Amount (SAR): ${data.totalAmountSAR}
+               
+
+                This is an automated notification.`
+        );
+
+        const mailtoLink =
+            `mailto:${emails.to}?cc=${emails.cc}&subject=${subject}&body=${body}`;
+
+        window.location.href = mailtoLink;
+
+        location.reload();
+    }
 });
 
 document.addEventListener("input", (e) => {

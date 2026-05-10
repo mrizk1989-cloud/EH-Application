@@ -745,7 +745,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
             alert("Updated successfully");
 
+            const request = data.data;
+
+            const subject = encodeURIComponent(
+                `Request ${request.requestNo} - Status Updated`
+            );
+
+            const body = encodeURIComponent(
+                `Request No: ${request.requestNo}
+                        Status: ${request.status}
+                        Total: ${request.totalAmountSAR} SAR
+
+                        Comment: ${comment || "N/A"}
+
+                        This is an automated notification from the approval system.`
+            );
+
+            const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+
+            // 🔥 MUST be executed immediately
+            const a = document.createElement("a");
+            a.href = mailtoLink;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // THEN refresh UI
             init();
+
+
 
         } else {
 

@@ -49,7 +49,7 @@ const { requestLimiter } = require('../middleware/rateLimiter');
 const { validateRequest } = require('../middleware/validateRequest');
 
 const { uploadToCloudinary } = require('../services/cloudinaryService');
-
+const User = require('../models/User');
 const MasterRequest = require('../models/MasterRequest');
 const RequestItem = require('../models/RequestItem'); // 🔥 NEW (IMPORTANT)
 const Customers = require('../models/Customers');
@@ -79,6 +79,28 @@ router.post(
 
         try {
             const sessionUser = req.session?.user;
+            
+
+            if (!sessionUser?.id) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized"
+                });
+            }
+
+            const submitter = await User.findById(sessionUser.id);
+
+            if (!submitter) {
+                return res.status(404).json({
+                    success: false,
+                    message: "User not found"
+                });
+            }
+
+            const directManager = await User.findOne({
+                roles: "direct_manager",
+                area_section: { $in: submitter.area_section }
+            });
 
             if (!sessionUser?.id) {
                 return res.status(401).json({
@@ -250,6 +272,12 @@ router.post(
                 success: true,
                 message: `Request ${requestNo} submitted successfully`,
                 requestNo,
+                totalAmountSAR: total,   // ✅ ADD THIS
+                emails: {
+                    to: directManager?.user_email || "" ,
+                    cc: submitter?.user_email || ""
+                    
+                },
 
             });
 
