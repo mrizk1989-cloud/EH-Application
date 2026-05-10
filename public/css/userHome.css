@@ -395,19 +395,7 @@ body {
     filter: brightness(0.92);
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
 
-    .export-box {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .export-box select,
-    .export-box button {
-        width: 100%;
-    }
-}
 
 .request-filters select,
 .request-filters button {
@@ -422,4 +410,15 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+#restrictedDashboardYear,
+#loadRestrictedDashboardBtn{
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+
+    border-radius: 4px;
 }

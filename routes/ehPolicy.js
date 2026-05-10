@@ -308,94 +308,78 @@ router.get(
     }
 );
 
-router.get(
-    "/dashboard/restricted",
-    verifyToken,
-    async (req, res) => {
+router.get("/dashboard/restricted", verifyToken, async (req, res) => {
 
-        try {
+    try {
 
-            const { year } =
-                req.query;
+        const { year } = req.query;
 
-            const user =
-                await User.findById(req.user.id);
+        const user = await User.findById(req.user.id);
 
-            if (!user) {
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
 
-                return res.status(404).json({
-                    success: false,
-                    message: "User not found"
-                });
-            }
+        const roles = user.roles || [];
 
-            const roles =
-                user.roles || [];
+        const dashboardData = await buildDashboardData(year);
 
-            // FULL ACCESS
-            if (
-                roles.includes("budget_control") ||
-                roles.includes("bi") ||
-                roles.includes("vp_finance")
-            ) {
+        const privilegedRoles = [
+            "budget_control",
+            "bi",
+            "vp_finance"
+        ];
 
-                const fullData =
-                    await buildDashboardData(year);
+        const isPrivileged = roles.some(r =>
+            privilegedRoles.includes(r)
+        );
 
-                return res.json({
-                    success: true,
-                    data: fullData
-                });
-            }
+        // =====================================================
+        // NORMAL USERS → FILTER BY AREA
+        // =====================================================
+        if (!isPrivileged) {
 
-            // RESTRICTED
-            const allowedAreas =
-                user.area_section || [];
-
-            const dashboardData =
-                await buildDashboardData(year);
+            const allowedAreas = user.area_section || [];
 
             const filtered = {};
 
-            Object.keys(dashboardData)
-                .forEach(yearKey => {
+            Object.keys(dashboardData).forEach(yearKey => {
 
-                    filtered[yearKey] =
-                        dashboardData[yearKey]
-                            .filter(row =>
+                filtered[yearKey] = dashboardData[yearKey].filter(row =>
+                    allowedAreas.some(a =>
+                        String(a).trim().toLowerCase() ===
+                        String(row.area).trim().toLowerCase()
+                    )
+                );
+            });
 
-                                allowedAreas.some(a =>
-
-                                    String(a)
-                                        .trim()
-                                        .toLowerCase()
-                                    ===
-                                    String(row.area)
-                                        .trim()
-                                        .toLowerCase()
-                                )
-                            );
-                });
-
-            res.json({
+            return res.json({
                 success: true,
                 data: filtered
             });
-
-        } catch (err) {
-
-            console.error(
-                "Restricted Dashboard Error:",
-                err
-            );
-
-            res.status(500).json({
-                success: false,
-                message: err.message
-            });
         }
+
+        // =====================================================
+        // PRIVILEGED USERS → NO AREA FILTER (but same format)
+        // =====================================================
+        return res.json({
+            success: true,
+            data: dashboardData
+        });
+
+    } catch (err) {
+
+        console.error("Restricted Dashboard Error:", err);
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
-);
+});
 
 
 // ================= DASHBOARD DETAILS =================

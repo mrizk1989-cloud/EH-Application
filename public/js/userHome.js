@@ -835,25 +835,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showView("dashboard");
 
-        dashboardContainer.innerHTML = ""; // optional clean
+        dashboardContainer.innerHTML = "";
 
-        // FULL ACCESS
-        if (
-            userRole === "budget_control" ||
-            userRole === "bi" ||
-            userRole === "vp_finance"
-        ) {
-            EhPolicyModule.render("dashboardContainer");
-            return;
-        }
-
-        // RESTRICTED
+        // ALL ROLES USE SAME DASHBOARD UI NOW
+        // (backend already handles permissions)
         if (
             userRole === "direct_manager" ||
             userRole === "sales_manager"
         ) {
             renderRestrictedDashboard();
+            return;
         }
+
+        if (
+            userRole === "budget_control" ||
+            userRole === "bi" ||
+            userRole === "vp_finance"
+        ) {
+            // SAME VIEW AS NORMAL USER (NO EHPolicyModule)
+            renderRestrictedDashboard();
+            return;
+        }
+
+        // fallback (normal user)
+        renderRestrictedDashboard();
     });
 
     requestsBtn.addEventListener("click", async () => {
