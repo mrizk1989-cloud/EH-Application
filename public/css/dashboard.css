@@ -17,10 +17,10 @@
     --row-hover: rgba(156, 122, 28, 0.06);
     --th: #f8fafc;
     --h2: #111827;
-    --ft:#eceff3;
+    --ft: #eceff3;
 }
 
- /* background: #1f242a;
+/* background: #1f242a;
     padding: 10px;
     border-radius: 6px;
     color: white; */
@@ -35,7 +35,7 @@
     --row-hover: rgba(212, 175, 55, 0.08);
     --th: #151c24;
     --h2: #e6e6e6;
-    --ft:#1f242a;
+    --ft: #1f242a;
 }
 
 /* ================= BODY ================= */
@@ -169,7 +169,7 @@ th {
     padding: 14px 12px;
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
-    
+
     background: var(--th);
 }
 
@@ -657,6 +657,7 @@ h3 {
     color: var(--text);
     border-radius: 6px;
 }
+
 /* /////////////////////////////////////////////////////////////// */
 
 /* ================= EHP MODULE ================= */
@@ -740,4 +741,22 @@ h3 {
 tr[data-editing] {
     background: #fff3cda6;
     border-left: 4px solid #ff9800;
+}
+
+.request-filters {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.request-filters select,
+.request-filters button {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--text);
+
+    border-radius: 4px;
 }

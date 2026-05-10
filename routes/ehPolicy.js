@@ -131,10 +131,18 @@ router.get("/dashboard", verifyToken, requireAdmin, async (req, res) => {
                 // const totalDemo = perfRows.reduce((s, p) => s + (p.demoCount || 0), 0);
 
                 // REQUESTS (FIXED — NO YEAR BUG)
-                const areaRequests = requests.filter(r =>
-                    String(r.salesTerritory).trim().toLowerCase() ===
-                    String(area).trim().toLowerCase()
-                );
+                const areaRequests = requests.filter(r => {
+
+                    const requestYear =
+                        Number(r.requestPeriodYear);
+
+                    return (
+                        String(r.salesTerritory).trim().toLowerCase() ===
+                        String(area).trim().toLowerCase()
+                        &&
+                        requestYear === y
+                    );
+                });
 
                 // APPROVED ONLY
                 const approvedRequests = areaRequests.filter(r =>
