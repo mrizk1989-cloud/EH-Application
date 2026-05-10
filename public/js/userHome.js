@@ -1,6 +1,7 @@
 import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
 import EhPolicyModule from "./utils/ehPolicyModule.js";
+import { formatNumber } from "./utils/format.js";
 
 let userRole;
 let allRequests = [];
@@ -334,7 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
             html += `
                 <tr data-id="${r._id}">
                     <td>${r.requestNo || ""}</td>
-                    <td>${r.totalAmountSAR || 0}</td>
+                    <td>${formatNumber(r.totalAmountSAR)}</td>
                     <td>${r.status || ""}</td>
                     <td>${r.budget_control_comment || ""}</td>
                     <td>${r.direct_manager_comment || ""}</td>
@@ -603,15 +604,15 @@ document.addEventListener("DOMContentLoaded", () => {
                             <tr>
                                 <td>${item.subRequestNo}</td>
                                 <td>${item.customerId}</td>
-                                <td>${item.amount}</td>
+                                <td>${formatNumber(item.amount)}</td>
                                 <td>${item.currency}</td>
                                 <td>${item.expenseType}</td>
                                 <td>${item.purpose}</td>
                                 <td>${item.doctorName}</td>
                                 <td>${item.requestPeriodMonth}</td>
                                 <td>${item.requestPeriodYear}</td>
-                                <td>${item.exchangeRate}</td>
-                                <td>${item.amountSAR}</td>
+                                <td>${formatNumber(item.exchangeRate)}</td>
+                                <td>${formatNumber(item.amountSAR)}</td>
                             </tr>
 
                         `).join("")}
@@ -754,7 +755,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const body = encodeURIComponent(
                 `Request No: ${request.requestNo}
                         Status: ${request.status}
-                        Total: ${request.totalAmountSAR} SAR
+                        Total: ${formatNumber(request.totalAmountSAR)} SAR
 
                         Comment: ${comment || "N/A"}
 
@@ -1009,13 +1010,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <tr>
                         <td>${row.area}</td>
-                        <td>${row.budget}</td>
+                        <td>${formatNumber(row.budget)}</td>
                         <td>${row.performancePercent}%</td>
-                        <td>${row.availableBudget.toFixed(2)}</td>
-                        <td>${row.expenses}</td>
-                        <td>${row.depreciation}</td>
-                        <td>${row.remaining}</td>
-                        <td>${row.progress.toFixed(2)}%</td>
+                        <td>${formatNumber(row.availableBudget)}</td>
+                        <td>${formatNumber(row.expenses)}</td>
+                        <td>${formatNumber(row.depreciation)}</td>
+                        <td>${formatNumber(row.remaining)}</td>
+                        <td>${formatNumber(row.progress)}%</td>
                     </tr>
                 `;
             });

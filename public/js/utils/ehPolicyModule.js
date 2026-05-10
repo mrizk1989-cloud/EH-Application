@@ -1,3 +1,12 @@
+function formatNumber(value) {
+    if (value === null || value === undefined || value === "") return "";
+
+    return Number(value).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 
 const $ = (id) => document.getElementById(id);
 
@@ -90,7 +99,7 @@ const EhPolicyModule = (() => {
             <td>${p.country}</td>
             <td>${p.territory}</td>
             <td>${p.year}</td>
-            <td>${p.budget}</td>
+            <td>${formatNumber(p.budget)}</td>
             <td>
                 <button class="edit-policy">Edit</button>
                 <button class="delete-policy">Delete</button>
@@ -164,9 +173,9 @@ const EhPolicyModule = (() => {
         <tr data-id="${p._id}">
             <td>${p.territory}</td>
             <td>${p.month}</td>
-            <td>${p.performancePercent}%</td>
-            <td>${p.demoCount}</td>
-            <td>${p.depreciationAmount || 0}</td>
+            <td>${formatNumber(p.performancePercent)}%</td>
+            <td>${formatNumber(p.demoCount)}</td>
+            <td>${formatNumber(p.depreciationAmount) || 0}</td>
             <td>
                 <button class="edit-perf">Edit</button>
                 <button class="delete-perf">Delete</button>
@@ -370,13 +379,13 @@ const EhPolicyModule = (() => {
                         html += `
         <tr>
             <td>${row.area}</td>
-            <td>${row.budget}</td>
-            <td>${row.performancePercent}%</td>
-            <td>${row.availableBudget.toFixed(2)}</td>
-            <td>${row.expenses}</td>
-            <td>${row.depreciation}</td>
-            <td>${row.remaining}</td>
-            <td>${row.progress.toFixed(2)}%</td>
+            <td>${formatNumber(row.budget)}</td>
+            <td>${formatNumber(row.performancePercent)}%</td>
+            <td>${formatNumber(row.availableBudget)}</td>
+            <td>${formatNumber(row.expenses)}</td>
+            <td>${formatNumber(row.depreciation)}</td>
+            <td>${formatNumber(row.remaining)}</td>
+            <td>${formatNumber(row.progress)}%</td>
   
         </tr>
         `;

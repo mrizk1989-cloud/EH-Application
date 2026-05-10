@@ -6,6 +6,7 @@ import FileHandler from "./utils/fileHandler.js";
 import ExportModule from "./utils/exportModule.js";
 import ImportModule from "./utils/importModule.js";
 import EhPolicyModule from "./utils/ehPolicyModule.js";
+import { formatNumber } from "./utils/format.js";
 
 // =====================================================
 // THEME
@@ -869,7 +870,7 @@ async function loadRequests() {
             tr.innerHTML = `
                 <td>${r.requestNo || ""}</td>
                 <td>${r.userName || ""}</td>
-                <td>${r.totalAmountSAR || 0}</td>
+                <td>${formatNumber(r.totalAmountSAR || 0)}</td>
                 <td>${r.status || "pending"}</td>
                 <td>${r.currentRole || ""}</td>
 
@@ -947,15 +948,15 @@ async function renderRequestItems(parentRow) {
 
                             <td>${item.subRequestNo}</td>
                             <td>${item.customerId || "-"}</td>
-                            <td>${item.amount}</td>
+                            <td>${formatNumber(item.amount)}</td>
                             <td>${item.currency}</td>
                             <td>${item.expenseType}</td>
                             <td>${item.purpose}</td>
                             <td>${item.doctorName}</td>
                             <td>${item.requestPeriodMonth}</td>
                             <td>${item.requestPeriodYear}</td>
-                            <td>${item.exchangeRate}</td>
-                            <td>${item.amountSAR}</td>
+                            <td>${formatNumber(item.exchangeRate)}</td>
+                            <td>${formatNumber(item.amountSAR)}</td>
 
                             <td class="action-cell">
                                 <button class="edit-item">
@@ -1230,7 +1231,7 @@ async function loadRates() {
 
                 <td>${r.fromCurrency}</td>
                 <td>${r.toCurrency}</td>
-                <td>${r.rate}</td>
+                <td>${formatNumber(r.rate)}</td>
 
                 <td class="action-cell">
 
