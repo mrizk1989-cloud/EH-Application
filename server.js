@@ -101,6 +101,7 @@ app.use("/api/import", require("./routes/import"));
 app.use("/api/eh", ehPolicyRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/policies", policiesViewRoutes);
+app.use("/api/policies", require("./routes/policies"));
 
 
 // ================= ERROR =================
