@@ -298,7 +298,7 @@ td:last-child {
 }
 
 /* ================= EXPORT ================= */
-.exportBtn,
+
 .loadBtn {
     padding: 4px 8px;
 
@@ -474,7 +474,11 @@ h3 {
 
 /* inputs in header */
 .sap-header select,
-.sap-header input[type="file"] {
+.sap-header input[type="file"],
+.upload-box input[type="file"],
+.policy-box input[type="file"],
+.policy-box input[type="date"],
+.policy-box input[type="text"] {
     padding: 6px 10px;
     border: 1px solid var(--gold);
     background: var(--panel);
@@ -482,8 +486,19 @@ h3 {
     border-radius: 5px;
 }
 
+h3 {
+    margin-top: 20px;
+}
+
+.upload-box {
+    margin-top: 5px;
+}
+
 /* load button */
-.sap-header button {
+.sap-header button,
+.upload-box button,
+.policy-box button,
+.exportBtn {
     padding: 6px 12px;
     border: 1px solid var(--gold);
     background: transparent;
@@ -611,7 +626,10 @@ h3 {
 }
 
 /* hover effect */
-.sap-footer button:hover {
+.sap-footer button:hover,
+.policy-box button:hover,
+.exportBtn button:hover,
+.exportBtn button:hover {
     background: var(--gold);
     color: #fff;
     transform: translateY(-1px);

@@ -781,6 +781,7 @@ async function handleApproval({
             master.status = "rejected";
             master.currentRole = "finished";
             master.budget_control_comment = comment || "no_comment";
+            master.approved_rejected_by = role;
         }
 
         if (isApprove) {
@@ -797,6 +798,7 @@ async function handleApproval({
             master.status = "rejected";
             master.currentRole = "finished";
             master.direct_manager_comment = comment || "no_comment";
+            master.approved_rejected_by = role;
         }
 
         if (isApprove) {
@@ -806,9 +808,10 @@ async function handleApproval({
             if (total <= 2000) {
                 master.status = "approved";
                 master.currentRole = "finished";
+                master.approved_rejected_by = role;
             } else {
                 master.status = "in_progress";
-                master.currentRole = "vp_finance";
+                master.currentRole = ["bi", "vp_finance"];
             }
         }
     }
@@ -820,12 +823,14 @@ async function handleApproval({
             master.status = "rejected";
             master.currentRole = "finished";
             master.bi_comment = comment || "no_comment";
+            master.approved_rejected_by = role;
         }
 
         if (isApprove) {
             master.bi_comment = comment || "no_comment";
-            master.status = "in_progress";
-            master.currentRole = "vp_finance";
+            master.status = "approved";
+            master.currentRole = "finished";
+            master.approved_rejected_by = role;
         }
     }
 
@@ -836,12 +841,14 @@ async function handleApproval({
             master.status = "rejected";
             master.currentRole = "finished";
             master.vp_finance_comment = comment || "no_comment";
+            master.approved_rejected_by = role;
         }
 
         if (isApprove) {
             master.vp_finance_comment = comment || "no_comment";
             master.status = "approved";
             master.currentRole = "finished";
+            master.approved_rejected_by = role;
         }
     }
 

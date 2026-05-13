@@ -7,6 +7,7 @@ import ExportModule from "./utils/exportModule.js";
 import ImportModule from "./utils/importModule.js";
 import EhPolicyModule from "./utils/ehPolicyModule.js";
 import { formatNumber } from "./utils/format.js";
+import PolicyModule from "./utils/PolicyModule.js";
 
 // =====================================================
 // THEME
@@ -148,6 +149,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     ExportModule.render("exportContainer");
 
                     ImportModule.render("importContainer");
+
+                    PolicyModule.render("uploadContainer");
                 }
 
                 if (section === "eh-policy") {

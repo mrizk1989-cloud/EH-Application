@@ -48,10 +48,10 @@ const ExportModule = (() => {
                 <button id="exportBtn" class="exportBtn">Export Excel</button>
                 
             </div>
+
         `;
 
         const exportBtn = container.querySelector("#exportBtn");
-        // const closeBtn = container.querySelector("#closeExportBtn");
 
         if (exportBtn) {
             exportBtn.addEventListener("click", () => {
@@ -62,11 +62,6 @@ const ExportModule = (() => {
             });
         }
 
-        // if (closeBtn) {
-        //     closeBtn.addEventListener("click", () => {
-        //         container.classList.add("hidden");
-        //     });
-        // }
     }
 
     return { render, setRole };

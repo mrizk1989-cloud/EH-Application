@@ -20,13 +20,13 @@ const EhPolicyModule = (() => {
         <div class="ehp-wrapper">
 
             <div class="ehp-tabs">
-                <button data-tab="policy">Policy</button>
+                <button data-tab="policy">Budget</button>
                 <button data-tab="performance">Performance</button>
                 <button data-tab="dashboard">Dashboard</button>
             </div>
 
             <div class="ehp-section active" id="policy">
-                <h3>Budget Policy Manager</h3>
+                <h3>Budget Manager</h3>
 
                 <div class="ehp-form">
                     <input id="p_country" placeholder="Country">

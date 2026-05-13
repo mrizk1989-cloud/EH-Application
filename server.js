@@ -18,6 +18,8 @@ const requestRoutes = require('./routes/requests');
 const currencyRoutes = require('./routes/currencies');
 const expenseTypeRoutes = require('./routes/expenseTypes');
 const ehPolicyRoutes = require("./routes/ehPolicy");
+const policyRoutes = require("./routes/policies");
+const policiesViewRoutes = require("./routes/policiesView");
 
 const { apiLimiter } = require('./middleware/rateLimiter');
 
@@ -97,6 +99,8 @@ app.use('/api/expense-types', expenseTypeRoutes);
 app.use("/api/export", require("./routes/export"));
 app.use("/api/import", require("./routes/import"));
 app.use("/api/eh", ehPolicyRoutes);
+app.use("/api/policies", policyRoutes);
+app.use("/api/policies", policiesViewRoutes);
 
 
 // ================= ERROR =================
@@ -117,3 +121,4 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server running...");
 });
+

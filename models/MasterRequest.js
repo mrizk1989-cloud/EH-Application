@@ -46,9 +46,9 @@ const masterRequestSchema = new mongoose.Schema({
     },
 
     currentRole: {
-        type: String,
+        type: [String],
         enum: ['direct_manager', 'budget_control', 'bi', 'vp_finance', 'finished', null],
-        default: 'budget_control'
+        default: ['budget_control']
     },
 
     budget_control_comment: {
@@ -76,6 +76,11 @@ const masterRequestSchema = new mongoose.Schema({
     vp_finance_comment: {
         type: String,
         default: 'no_comment'
+    },
+
+    approved_rejected_by: {
+        type: String,
+        default: ''
     },
 
     // ✅ FIXED (EXPLICIT)

@@ -285,7 +285,8 @@ body {
 /* ================= REQUEST BUTTONS ================= */
 .view-request,
 .approve-request,
-.reject-request {
+.reject-request,
+.view-policy-file {
     background: var(--gold);
     border: none;
     padding: 4px 8px;
@@ -299,7 +300,8 @@ body {
 
 .view-request:hover,
 .approve-request:hover,
-.reject-request:hover {
+.reject-request:hover,
+.view-policy-file  {
     filter: brightness(0.9);
 }
 

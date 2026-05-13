@@ -30,17 +30,29 @@ setTheme(savedTheme);
 
 function showView(view) {
 
-    const requestsView = document.getElementById("requestsView");
-    const dashboard = document.getElementById("dashboardContainer");
+    const requestsView =
+        document.getElementById("requestsView");
+
+    const dashboard =
+        document.getElementById("dashboardContainer");
+
+    const policies =
+        document.getElementById("policiesContainer");
+
+    requestsView.classList.add("hidden");
+    dashboard.classList.add("hidden");
+    policies.classList.add("hidden");
 
     if (view === "requests") {
         requestsView.classList.remove("hidden");
-        dashboard.classList.add("hidden");
     }
 
     if (view === "dashboard") {
-        requestsView.classList.add("hidden");
         dashboard.classList.remove("hidden");
+    }
+
+    if (view === "policies") {
+        policies.classList.remove("hidden");
     }
 }
 
@@ -59,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeModalBtn = document.getElementById("closeModalBtn");
 
     const themeBtn = document.getElementById("themeToggleBtn");
+    const policiesContainer = document.getElementById("policiesContainer");
 
     // ================= THEME =================
     themeBtn.addEventListener("click", () => {
@@ -107,6 +120,23 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             input.type = "password";
             target.textContent = "👁";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+
+        if (
+            e.target.classList.contains(
+                "view-policy-file"
+            )
+        ) {
+
+            const url =
+                e.target.dataset.url;
+
+            if (url) {
+                window.open(url, "_blank");
+            }
         }
     });
 
@@ -304,6 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <th>Request No</th>
                         <th>Total (SAR)</th>
                         <th>Status</th>
+                        <th>Approves / Rejected by</th>
                         <th>Budget Controle Comment</th>
                         <th>Direct Manager Comment</th>
                         <th>BI Comment</th>
@@ -311,7 +342,10 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         if (!isAdminRole) {
-            html += `<th>Current Role</th>`;
+
+
+
+
         }
 
         html += `
@@ -336,17 +370,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 <tr data-id="${r._id}">
                     <td>${r.requestNo || ""}</td>
                     <td>${formatNumber(r.totalAmountSAR)}</td>
-                    <td>${r.status || ""}</td>
-                    <td>${r.budget_control_comment || ""}</td>
-                    <td>${r.direct_manager_comment || ""}</td>
-                    <td>${r.bi_comment || ""}</td>
-                    <td>${r.vp_finance_comment || ""}</td>
+                    <td>${r.status || ""} - ${r.currentRole || ""}</td>
+                    <td>${r.approved_rejected_by || ""}</td>
+                    <td>${r.budget_control_comment === "no_comment" ? "-" : (r.budget_control_comment || "")}</td>
+                    <td>${r.direct_manager_comment === "no_comment" ? "-" : (r.direct_manager_comment || "")}</td>
+                    <td>${r.bi_comment === "no_comment" ? "-" : (r.bi_comment || "")}</td>
+                    <td>${r.vp_finance_comment === "no_comment" ? "-" : (r.vp_finance_comment || "")}</td>
             `;
 
             if (!isAdminRole) {
-                html += `
-                    <td>${r.currentRole || ""}</td>
-                `;
+
+
+
+
             }
 
             html += `
@@ -859,6 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dashboardBtn = document.querySelector('[data-tab="dashboard"]');
     const requestsBtn = document.querySelector('[data-tab="requests"]');
+    const policiesBtn = document.querySelector('[data-tab="policies"]');
 
     dashboardBtn.addEventListener("click", async () => {
 
@@ -888,6 +925,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // fallback (normal user)
         renderRestrictedDashboard();
+    });
+
+    policiesBtn.addEventListener("click", async () => {
+
+        showView("policies");
+
+        await loadPolicies();
     });
 
     requestsBtn.addEventListener("click", async () => {
@@ -1036,6 +1080,99 @@ document.addEventListener("DOMContentLoaded", () => {
         await loadUser();
 
         await loadRequestsByRole();
+    }
+
+    async function loadPolicies() {
+
+        try {
+
+            const res = await fetch(
+                "/api/policies/all",
+                {
+                    credentials: "include"
+                }
+            );
+
+            const json = await res.json();
+
+            const data = json.data || [];
+
+            renderPolicies(data);
+
+        } catch (err) {
+
+            console.error(err);
+
+            policiesContainer.innerHTML =
+                "<p>Error loading policies</p>";
+        }
+    }
+
+    function renderPolicies(data) {
+
+        let html = `
+
+        <h2>Policies</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Policy Name</th>
+                    <th>Effective Date</th>
+                    <th>Attachment</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+        data.forEach(policy => {
+
+            const file =
+                policy.attachments?.[0];
+
+            html += `
+
+            <tr>
+
+                <td>
+                    ${policy.policyName || ""}
+                </td>
+
+                <td>
+                    ${new Date(
+                policy.effectiveDate
+            ).toLocaleDateString()}
+                </td>
+
+                <td>
+
+                    ${file
+                    ? `
+                            <button
+                                class="view-policy-file"
+                                data-url="${file.url}">
+                                View Policy
+                            </button>
+                        `
+                    : "-"
+                }
+
+                </td>
+
+            </tr>
+        `;
+        });
+
+        html += `
+            </tbody>
+        </table>
+    `;
+
+        policiesContainer.innerHTML = html;
     }
 
     init();
