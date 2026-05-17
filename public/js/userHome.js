@@ -6,6 +6,9 @@ import { formatNumber } from "./utils/format.js";
 let userRole;
 let allRequests = [];
 let allRequestItems = [];
+let currentRequestView = "assigned";
+let isAllRequestsView = false;
+
 
 function setTheme(mode) {
 
@@ -72,6 +75,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const themeBtn = document.getElementById("themeToggleBtn");
     const policiesContainer = document.getElementById("policiesContainer");
+
+    const assignedRequestsBtn =
+        document.getElementById("assignedRequestsBtn");
+
+    const allRequestsBtn =
+        document.getElementById("allRequestsBtn");
+
+
+    if (assignedRequestsBtn && allRequestsBtn) {
+
+        assignedRequestsBtn.addEventListener("click", async () => {
+
+            isAllRequestsView = false;
+
+            assignedRequestsBtn.classList.add("active-view-btn");
+            allRequestsBtn.classList.remove("active-view-btn");
+
+            await loadRequestsByRole(false);
+        });
+
+        allRequestsBtn.addEventListener("click", async () => {
+
+            isAllRequestsView = true;
+
+            allRequestsBtn.classList.add("active-view-btn");
+            assignedRequestsBtn.classList.remove("active-view-btn");
+
+            await loadRequestsByRole(true);
+        });
+    }
 
     // ================= THEME =================
     themeBtn.addEventListener("click", () => {
@@ -185,6 +218,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 userRole = (data.user.roles || []).join(", ");
 
+                const requestModeContainer =
+                    document.getElementById("requestModeContainer");
+
+                if (
+                    userRole === "budget_control" ||
+                    userRole === "direct_manager" ||
+                    userRole === "bi" ||
+                    userRole === "vp_finance"
+                ) {
+                    requestModeContainer.classList.remove("hidden");
+                }
+
                 userNameEl.innerText = data.user.userName;
 
                 ExportModule.setRole(
@@ -258,10 +303,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const roleSelect =
             document.getElementById("filterRole");
 
+        const requesterSelect =
+            document.getElementById("filterRequester");
+
+        const areaSelect =
+            document.getElementById("filterArea");
+
         if (
             !yearSelect ||
             !statusSelect ||
-            !roleSelect
+            !roleSelect ||
+            !requesterSelect ||
+            !areaSelect
         ) {
             return;
         }
@@ -296,6 +349,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 `<option value="${s}">${s}</option>`
             ).join("");
 
+        // REQUESTER
+        const requesters = [
+            ...new Set(
+                allRequests.map(r => r.userName)
+            )
+        ].filter(Boolean).sort();
+
+        requesterSelect.innerHTML =
+            `<option value="">All Requesters</option>` +
+            requesters.map(r =>
+                `<option value="${r}">${r}</option>`
+            ).join("");
+
+        // AREAS
+        const areas = [
+            ...new Set(
+                allRequests.flatMap(r =>
+                    Array.isArray(r.userArea)
+                        ? r.userArea
+                        : [r.userArea]
+                )
+            )
+        ].filter(Boolean).sort();
+
+        areaSelect.innerHTML =
+            `<option value="">All Areas</option>` +
+            areas.map(a =>
+                `<option value="${a}">${a}</option>`
+            ).join("");
+
         // ROLES
         const roles = [
             ...new Set(
@@ -311,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================= RENDER REQUESTS =================
-    function renderRequests(data) {
+    function renderRequests(data, showActions = true) {
 
         if (!Array.isArray(data)) {
 
@@ -332,6 +415,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <thead>
                     <tr>
                         <th>Request No</th>
+                        <th>Requester</th>
+                        <th>Area</th>
                         <th>Total (SAR)</th>
                         <th>Status</th>
                         <th>Approves / Rejected by</th>
@@ -353,7 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <th>Details</th>
         `;
 
-        if (isAdminRole) {
+        if (isAdminRole && showActions) {
             html += `<th>Approval</th>`;
         }
 
@@ -369,6 +454,11 @@ document.addEventListener("DOMContentLoaded", () => {
             html += `
                 <tr data-id="${r._id}">
                     <td>${r.requestNo || ""}</td>
+                    <td>${r.userName || ""}</td>
+                    <td>${Array.isArray(r.userArea)
+                    ? r.userArea.join(", ")
+                    : (r.userArea || "")}
+                    </td>
                     <td>${formatNumber(r.totalAmountSAR)}</td>
                     <td>${r.status || ""} - ${r.currentRole || ""}</td>
                     <td>${r.approved_rejected_by || ""}</td>
@@ -401,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </td>
             `;
 
-            if (isAdminRole) {
+            if (isAdminRole && showActions) {
 
                 html += `
                     <td>
@@ -441,6 +531,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let filtered = [...allRequests];
 
+        const requester =
+            document.getElementById("filterRequester")?.value || "";
+
+        const area =
+            document.getElementById("filterArea")?.value || "";
+
         // STATUS
         if (status) {
 
@@ -455,6 +551,27 @@ document.addEventListener("DOMContentLoaded", () => {
             filtered = filtered.filter(r =>
                 r.currentRole === role
             );
+        }
+
+        // REQUESTER
+        if (requester) {
+
+            filtered = filtered.filter(r =>
+                r.userName === requester
+            );
+        }
+
+        // AREA
+        if (area) {
+
+            filtered = filtered.filter(r => {
+
+                if (Array.isArray(r.userArea)) {
+                    return r.userArea.includes(area);
+                }
+
+                return r.userArea === area;
+            });
         }
 
         // YEAR
@@ -479,7 +596,10 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
-        renderRequests(filtered);
+        renderRequests(
+            filtered,
+            !isAllRequestsView
+        );
     }
 
     // ================= SEARCH BUTTON =================
@@ -494,23 +614,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================= LOAD REQUESTS =================
-    async function loadRequestsByRole() {
+    async function loadRequestsByRole(loadAll = false) {
 
         try {
 
             let endpoint =
                 "/api/request/my-detailed";
 
-            if (userRole === "budget_control") {
+            if (loadAll) {
+
+                if (userRole === "direct_manager") {
+
+                    endpoint = "/admin/directMangaer/all";
+
+                } else {
+
+                    endpoint = "/admin/allRequests";
+                }
+
+            }
+            else if (userRole === "budget_control") {
+
                 endpoint = "/admin/budgetControl";
+
             }
             else if (userRole === "direct_manager") {
+
                 endpoint = "/admin/directMangaer";
+
             }
             else if (
                 userRole === "bi" ||
                 userRole === "vp_finance"
             ) {
+
                 endpoint = "/admin/biVpfinance";
             }
 
@@ -528,7 +665,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             populateFilters();
 
-            renderRequests(data);
+            renderRequests(
+                data,
+                !loadAll
+            );
 
         } catch (err) {
 

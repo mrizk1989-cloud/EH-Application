@@ -38,15 +38,41 @@
         <h2>Your Requests</h2>
         <!-- REQUESTS VIEW -->
         <div id="requestsView">
+            <div id="requestModeContainer" class="request-mode-buttons hidden">
+
+                <button id="assignedRequestsBtn" class="active-view-btn">
+                    Assigned Requests
+                </button>
+
+                <button id="allRequestsBtn">
+                    All Requests
+                </button>
+
+            </div>
             <div class="request-filters">
+
                 <!-- YEAR -->
                 <select id="filterYear"></select>
+
                 <!-- STATUS -->
                 <select id="filterStatus"></select>
+
                 <!-- CURRENT ROLE -->
                 <select id="filterRole"></select>
+
+                <!-- REQUESTER -->
+                <select id="filterRequester">
+                    <option value="">All Requesters</option>
+                </select>
+
+                <!-- AREA -->
+                <select id="filterArea">
+                    <option value="">All Areas</option>
+                </select>
+
                 <!-- SEARCH BUTTON -->
                 <button id="searchRequestsBtn">Search</button>
+
             </div>
             <div id="requestsWrapper">
                 <!-- Requests will load here -->

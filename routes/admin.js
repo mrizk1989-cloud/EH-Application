@@ -1071,6 +1071,80 @@ router.post('/budgetControl/:id/reject', verifyToken, requireBudgetcontrole, asy
     }
 });
 
+router.get(
+    '/allRequests',
+    verifyToken,
+    async (req, res) => {
+
+        const roles = req.user.roles || [];
+
+        const allowed =
+            roles.includes("budget_control") ||
+            roles.includes("bi") ||
+            roles.includes("vp_finance");
+
+        if (!allowed) {
+            return res.status(403).json({
+                success: false
+            });
+        }
+
+        try {
+
+            const requests = await MasterRequest
+                .find()
+                .sort({ createdAt: -1 });
+
+            res.json({
+                success: true,
+                data: requests
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            res.status(500).json({
+                success: false
+            });
+        }
+    }
+);
+
+//--------------DIRECT MANAGER ALL REQUESTS----------------------
+router.get(
+    '/directMangaer/all',
+    verifyToken,
+    requireDirectmanager,
+    async (req, res) => {
+
+        try {
+
+            const userAreas =
+                req.session.user.userArea || [];
+
+            const requests = await MasterRequest
+                .find({
+                    userArea: { $in: userAreas }
+                })
+                .sort({ createdAt: -1 });
+
+            res.json({
+                success: true,
+                data: requests
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            res.status(500).json({
+                success: false
+            });
+        }
+    }
+);
+
 
 
 
