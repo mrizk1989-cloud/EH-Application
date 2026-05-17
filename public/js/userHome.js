@@ -309,12 +309,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const areaSelect =
             document.getElementById("filterArea");
 
+        const countrySelect =
+            document.getElementById("filterCountry");
+
         if (
             !yearSelect ||
             !statusSelect ||
             !roleSelect ||
             !requesterSelect ||
-            !areaSelect
+            !areaSelect ||
+            !countrySelect
         ) {
             return;
         }
@@ -377,6 +381,19 @@ document.addEventListener("DOMContentLoaded", () => {
             `<option value="">All Areas</option>` +
             areas.map(a =>
                 `<option value="${a}">${a}</option>`
+            ).join("");
+
+        // COUNTRIES
+        const countries = [
+            ...new Set(
+                allRequestItems.map(i => i.salesCountry)
+            )
+        ].filter(Boolean).sort();
+
+        countrySelect.innerHTML =
+            `<option value="">All Countries</option>` +
+            countries.map(c =>
+                `<option value="${c}">${c}</option>`
             ).join("");
 
         // ROLES
@@ -529,6 +546,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const role =
             document.getElementById("filterRole")?.value || "";
 
+        const country =
+            document.getElementById("filterCountry")?.value || "";
+
         let filtered = [...allRequests];
 
         const requester =
@@ -572,6 +592,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 return r.userArea === area;
             });
+        }
+
+        // COUNTRY
+        if (country) {
+
+            const matchingRequestIds = [
+                ...new Set(
+                    allRequestItems
+                        .filter(i => i.salesCountry === country)
+                        .map(i => String(i.requestId))
+                )
+            ];
+
+            filtered = filtered.filter(r =>
+                matchingRequestIds.includes(String(r._id))
+            );
         }
 
         // YEAR
@@ -753,7 +789,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         subRow.innerHTML = `
-            <td colspan="12">
+            <td colspan="14">
 
                 <table class="sub-table">
 
@@ -761,6 +797,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <tr>
                             <th>Sub No</th>
                             <th>Customer ID</th>
+                            <th>Area</th>
+                            <th>Country</th>
                             <th>Amount</th>
                             <th>Currency</th>
                             <th>Expense</th>
@@ -780,6 +818,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             <tr>
                                 <td>${item.subRequestNo}</td>
                                 <td>${item.customerId}</td>
+                                <td>${item.salesTerritory || "-"}</td>
+                                <td>${item.salesCountry || "-"}</td>
                                 <td>${formatNumber(item.amount)}</td>
                                 <td>${item.currency}</td>
                                 <td>${item.expenseType}</td>
