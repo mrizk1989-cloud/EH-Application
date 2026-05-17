@@ -79,7 +79,7 @@ router.post(
 
         try {
             const sessionUser = req.session?.user;
-            
+
 
             if (!sessionUser?.id) {
                 return res.status(401).json({
@@ -211,6 +211,7 @@ router.post(
                 customerId: i.customerId,
                 customerName: i.customerName,
                 salesTerritory: i.salesTerritory,
+                salesCountry: i.salesCountry,
 
                 amount: i.amount,
                 currency: i.currency,
@@ -274,9 +275,9 @@ router.post(
                 requestNo,
                 totalAmountSAR: total,   // ✅ ADD THIS
                 emails: {
-                    to: directManager?.user_email || "" ,
+                    to: directManager?.user_email || "",
                     cc: submitter?.user_email || ""
-                    
+
                 },
 
             });
@@ -406,7 +407,7 @@ router.get('/customers', verifyToken, async (req, res) => {
         const customers = await Customers.find({
             area: { $in: userAreas }
         })
-            .select("customer_number cutomer_name territory area")
+            .select("customer_number cutomer_name territory area country")
             .sort({ cutomer_name: 1 });
 
         res.json({

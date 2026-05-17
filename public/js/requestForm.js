@@ -175,6 +175,12 @@ function addRow() {
                     name="salesTerritory[]"
                     readonly>
             </td>
+            <td>
+            <input 
+                type="text"
+                name="salesCountry[]"
+                readonly>
+            </td>
             <td><input type="number" name="amount[]" step="0.01" min="0" required></td>
 
             <td>${buildCurrencySelect()}</td>
@@ -279,6 +285,7 @@ requestForm?.addEventListener("submit", async (e) => {
             customerId: row.querySelector("[name='customerId[]']").value,
             customerName: row.querySelector("[name='customerName[]']").value,
             salesTerritory: row.querySelector("[name='salesTerritory[]']").value,
+            salesCountry: row.querySelector("[name='salesCountry[]']").value,
             amount: Number(row.querySelector("[name='amount[]']").value),
             currency: row.querySelector("[name='currency[]']").value,
             expenseType: row.querySelector("[name='expenseType[]']").value,
@@ -307,7 +314,7 @@ requestForm?.addEventListener("submit", async (e) => {
 
     alert(data.message);
 
-   
+
 
     if (data.success) {
 
@@ -353,6 +360,9 @@ document.addEventListener("input", (e) => {
 
     row.querySelector("[name='salesTerritory[]']").value =
         customer?.area || "";
+
+    row.querySelector("[name='salesCountry[]']").value =
+        customer?.country || "";
 });
 
 

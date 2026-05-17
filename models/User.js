@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
     
     country: {
         type: String,
-        enum: ['KSA', 'UAE', 'QTR', 'OMN', 'BHR', 'JOR', 'LBN', 'KWT', 'EGY'],
+        enum: ['KSA', 'UAE', 'QTR', 'OMN', 'BHR', 'JOR', 'LBN', 'KWT', 'EGY', 'SYR', 'IRQ'],
         
     },
 

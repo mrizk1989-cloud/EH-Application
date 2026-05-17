@@ -13,6 +13,7 @@ const RequestItemSchema = new mongoose.Schema({
     customerId: String,
     customerName: String,
     salesTerritory: String,
+    salesCountry: String,
 
     amount: {
         type: Number,

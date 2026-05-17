@@ -5,7 +5,8 @@ const customersSchema = new mongoose.Schema(
         customer_number: String,
         cutomer_name: String,
         territory: String,
-        area: String
+        area: String,
+        country: String
     },
 
 );
