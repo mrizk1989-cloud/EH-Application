@@ -261,7 +261,7 @@ body {
 
 /* file buttons */
 .file-item button,
-.request-mode-buttons button  {
+.request-mode-buttons button {
     background: var(--gold);
     border: none;
     padding: 4px 8px;
@@ -303,7 +303,7 @@ body {
 .view-request:hover,
 .approve-request:hover,
 .reject-request:hover,
-.view-policy-file  {
+.view-policy-file {
     filter: brightness(0.9);
 }
 
@@ -402,6 +402,7 @@ body {
 
 
 .request-filters select,
+
 .request-filters button {
     padding: 4px 8px;
 
@@ -417,7 +418,7 @@ body {
 }
 
 #restrictedDashboardYear,
-#loadRestrictedDashboardBtn{
+#loadRestrictedDashboardBtn {
     padding: 4px 8px;
 
     border: 1px solid var(--gold);
@@ -444,3 +445,14 @@ body {
     font-weight: bold;
     outline: 2px solid #007bff;
 } */
+
+
+.ehp-form select {
+    padding: 4px 8px;
+
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--gold);
+
+    border-radius: 4px;
+}

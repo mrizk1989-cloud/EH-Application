@@ -90,11 +90,17 @@ async function buildDashboardData(year) {
             policies.map(p => p.year)
         )].sort((a, b) => a - b);
 
-    // AREAS
-    const areas = [
-        ...new Set(
-            policies.map(p => p.territory)
-        )
+    // AREA + COUNTRY COMBINATIONS
+    const areaCountryPairs = [
+        ...new Map(
+            policies.map(p => [
+                `${p.territory}_${p.country}`,
+                {
+                    area: p.territory,
+                    country: p.country
+                }
+            ])
+        ).values()
     ];
 
     const result = {};
@@ -103,7 +109,10 @@ async function buildDashboardData(year) {
 
         result[y] = [];
 
-        for (const area of areas) {
+        for (const pair of areaCountryPairs) {
+
+            const area = pair.area;
+            const country = pair.country;
 
             // POLICY
             const policy = policies.find(p =>
@@ -112,6 +121,11 @@ async function buildDashboardData(year) {
 
                 p.territory?.trim().toLowerCase() ===
                 area?.trim().toLowerCase()
+
+                &&
+
+                p.country?.trim().toLowerCase() ===
+                country?.trim().toLowerCase()
             );
 
             const budget =
@@ -160,7 +174,19 @@ async function buildDashboardData(year) {
                         String(area)
                             .trim()
                             .toLowerCase()
+
                         &&
+
+                        String(r.salesCountry)
+                            .trim()
+                            .toLowerCase()
+                        ===
+                        String(country)
+                            .trim()
+                            .toLowerCase()
+
+                        &&
+
                         requestYear === y
                     );
                 });
@@ -237,6 +263,7 @@ async function buildDashboardData(year) {
             result[y].push({
 
                 area,
+                country,
 
                 budget,
 

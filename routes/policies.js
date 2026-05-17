@@ -220,7 +220,7 @@ router.delete(
 
     async (req, res) => {
 
-        try {
+        try { 
 
             await Policy.findByIdAndDelete(req.params.id);
 

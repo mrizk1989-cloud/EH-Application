@@ -233,7 +233,7 @@ const PolicyModule = (() => {
             editingId = e.target.dataset.id;
 
             document.getElementById("policyName").value =
-                row.children[0].innerText;
+                row.children[0].innerText; 
 
             const rawDate =
                 row.children[1].innerText;

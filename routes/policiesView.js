@@ -12,7 +12,7 @@ router.get(
     "/all",
     verifyToken,
 
-    async (req, res) => {
+    async (req, res) => { 
 
         try {
 

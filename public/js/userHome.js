@@ -1135,15 +1135,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     <h3>Dashboard</h3>
 
                     <div class="ehp-form">
+
                         <input
                             id="restrictedDashboardYear"
                             type="number"
                             placeholder="Year"
                         >
 
+                        <select id="restrictedDashboardCountry">
+                            <option value="">All Countries</option>
+                        </select>
+
+                        <select id="restrictedDashboardArea">
+                            <option value="">All Areas</option>
+                        </select>
+
                         <button id="loadRestrictedDashboardBtn">
                             Load
                         </button>
+
                     </div>
 
                     <div id="restrictedDashboardResult"></div>
@@ -1167,6 +1177,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     "restrictedDashboardYear"
                 ).value;
 
+            const selectedCountry =
+                document.getElementById(
+                    "restrictedDashboardCountry"
+                ).value;
+
+            const selectedArea =
+                document.getElementById(
+                    "restrictedDashboardArea"
+                ).value;
+
             let url =
                 "/api/eh/dashboard/restricted";
 
@@ -1180,13 +1200,86 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const json = await res.json();
 
-            const data = json.data || {};
+            let data = json.data || {};
+
+            // ================= FILTER COUNTRY + AREA =================
+
+            Object.keys(data).forEach(yearKey => {
+
+                data[yearKey] = data[yearKey].filter(row => {
+
+                    const countryMatch =
+                        !selectedCountry ||
+                        row.country === selectedCountry;
+
+                    const areaMatch =
+                        !selectedArea ||
+                        row.area === selectedArea;
+
+                    return countryMatch && areaMatch;
+                });
+            });
+
+            populateRestrictedDashboardFilters(data);
 
             renderRestrictedDashboardTable(data);
         });
 
         // AUTO LOAD
         loadBtn.click();
+    }
+
+    function populateRestrictedDashboardFilters(data) {
+
+        const countrySelect =
+            document.getElementById(
+                "restrictedDashboardCountry"
+            );
+
+        const areaSelect =
+            document.getElementById(
+                "restrictedDashboardArea"
+            );
+
+        if (!countrySelect || !areaSelect) return;
+
+        const countries = [
+            ...new Set(
+                Object.values(data)
+                    .flat()
+                    .map(r => r.country)
+            )
+        ]
+            .filter(Boolean)
+            .sort();
+
+        const areas = [
+            ...new Set(
+                Object.values(data)
+                    .flat()
+                    .map(r => r.area)
+            )
+        ]
+            .filter(Boolean)
+            .sort();
+
+        const currentCountry = countrySelect.value;
+        const currentArea = areaSelect.value;
+
+        countrySelect.innerHTML =
+            `<option value="">All Countries</option>` +
+            countries.map(c =>
+                `<option value="${c}">${c}</option>`
+            ).join("");
+
+        areaSelect.innerHTML =
+            `<option value="">All Areas</option>` +
+            areas.map(a =>
+                `<option value="${a}">${a}</option>`
+            ).join("");
+
+        countrySelect.value = currentCountry;
+        areaSelect.value = currentArea;
     }
 
     // ================= RENDER RESTRICTED TABLE =================
@@ -1214,6 +1307,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     <thead>
                         <tr>
+                            <th>Country</th>
                             <th>Area</th>
                             <th>Budget</th>
                             <th>Performance %</th>
@@ -1233,6 +1327,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 html += `
 
                     <tr>
+                        <td>${row.country || "-"}</td>
                         <td>${row.area}</td>
                         <td>${formatNumber(row.budget)}</td>
                         <td>${row.performancePercent}%</td>

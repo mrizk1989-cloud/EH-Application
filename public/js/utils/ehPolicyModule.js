@@ -58,8 +58,25 @@ const EhPolicyModule = (() => {
                 <h3>Dashboard</h3>
 
                 <div class="ehp-form">
-                    <input id="dYear" type="number" placeholder="Year">
-                    <button id="loadDashboardBtn">Load</button>
+
+                    <input
+                        id="dYear"
+                        type="number"
+                        placeholder="Year"
+                    >
+
+                    <select id="dArea">
+                        <option value="">All Areas</option>
+                    </select>
+
+                    <select id="dCountry">
+                        <option value="">All Countries</option>
+                    </select>
+
+                    <button id="loadDashboardBtn">
+                        Load
+                    </button>
+
                 </div>
 
                 <div id="dashboardResult"></div>
@@ -339,6 +356,8 @@ const EhPolicyModule = (() => {
             loadDashboardBtn.addEventListener("click", async () => {
 
                 const selectedYear = $("dYear").value;
+                const selectedArea = $("dArea").value;
+                const selectedCountry = $("dCountry").value;
 
                 const url = selectedYear
                     ? `/api/eh/dashboard?year=${selectedYear}`
@@ -351,6 +370,32 @@ const EhPolicyModule = (() => {
                 const json = await res.json();
                 const data = json.data;
 
+                const allRows = Object.values(data).flat();
+
+                const areas = [
+                    ...new Set(
+                        allRows.map(r => r.area)
+                    )
+                ].filter(Boolean).sort();
+
+                const countries = [
+                    ...new Set(
+                        allRows.map(r => r.country)
+                    )
+                ].filter(Boolean).sort();
+
+                $("dArea").innerHTML =
+                    `<option value="">All Areas</option>` +
+                    areas.map(a =>
+                        `<option value="${a}">${a}</option>`
+                    ).join("");
+
+                $("dCountry").innerHTML =
+                    `<option value="">All Countries</option>` +
+                    countries.map(c =>
+                        `<option value="${c}">${c}</option>`
+                    ).join("");
+
                 let html = "";
 
                 Object.keys(data).forEach(yearKey => {
@@ -361,7 +406,8 @@ const EhPolicyModule = (() => {
     <table class="sap-table">
         <thead>
             <tr>
-                 <th>Area</th>
+                <th>Area</th>
+                <th>Country</th>
                 <th>Budget</th>
                 <th>Performance %</th>
                 <th>Available Budget</th>
@@ -373,12 +419,28 @@ const EhPolicyModule = (() => {
         </thead>
         <tbody>
     `;
+                    let filteredRows = data[yearKey];
 
-                    data[yearKey].forEach(row => {
+                    if (selectedArea) {
+
+                        filteredRows = filteredRows.filter(r =>
+                            r.area === selectedArea
+                        );
+                    }
+
+                    if (selectedCountry) {
+
+                        filteredRows = filteredRows.filter(r =>
+                            r.country === selectedCountry
+                        );
+                    }
+
+                    filteredRows.forEach(row => {
 
                         html += `
         <tr>
             <td>${row.area}</td>
+            <td>${row.country || ""}</td>
             <td>${formatNumber(row.budget)}</td>
             <td>${formatNumber(row.performancePercent)}%</td>
             <td>${formatNumber(row.availableBudget)}</td>
@@ -392,7 +454,7 @@ const EhPolicyModule = (() => {
                     });
 
                     html += `
-        </tbody>
+        </tbody> 
     </table>
     `;
                 });

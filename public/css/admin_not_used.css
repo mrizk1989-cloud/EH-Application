@@ -1,301 +1,111 @@
-/* ================= RESET ================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
+/* ================= ADMIN LAYOUT ================= */
 
-/* ================= ROOT THEME ================= */
-:root {
-    --bg: #0f141a;
-    --panel: #151c24;
-    --gold: #d4af37;
-    --text: #e6e6e6;
-    --border: rgba(255,255,255,0.08);
-}
-
-/* ================= BODY ================= */
-body {
-    background: var(--bg);
-    color: var(--text);
-}
-
-/* ================= NAVBAR ================= */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     background: var(--panel);
     padding: 14px 20px;
-
     border-bottom: 1px solid var(--border);
+}
+
+.navbar h2 {
+    color: var(--text);
 }
 
 .nav-links {
     display: flex;
     gap: 10px;
-    align-items: center;
 }
 
-/* NAV BUTTONS */
-.nav-links button {
-    padding: 7px 14px;
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-    cursor: pointer;
-    border-radius: 4px;
-    transition: 0.2s;
-}
-
-.nav-links button:hover {
-    background: var(--gold);
-    color: #111;
-}
-
-/* ================= DROPDOWN ================= */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-btn {
-    padding: 7px 14px;
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 40px;
-    left: 0;
-
-    background: var(--panel);
-    border: 1px solid var(--border);
-    min-width: 180px;
-
-    display: none;
-    flex-direction: column;
-
-    z-index: 9999;
-}
-
-.dropdown.open .dropdown-menu {
-    display: flex;
-}
-
-.dropdown-item {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.dropdown-item:hover {
-    background: rgba(212,175,55,0.2);
-}
-
-/* ================= MAIN ================= */
-main {
-    padding: 20px;
-}
-
+/* ================= SECTIONS ================= */
 .section {
     display: none;
+    padding: 20px;
+    background: var(--panel);
+    border-radius: 10px;
 }
 
 .section.active {
     display: block;
 }
 
-/* ================= TABLE SYSTEM ================= */
-table {
-    width: 100%;
-    margin-top: 15px;
-
-    border-collapse: collapse;
-    table-layout: auto;
-}
-
-/* HEADERS */
-th {
-    text-align: center;
-    padding: 12px;
-
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-}
-
-/* CELLS */
-td {
-    text-align: center;
-    padding: 10px;
-
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-}
-
-/* ALLOW WRAPPING ONLY FOR LONG TEXT */
-td.name,
-td.email {
-    white-space: normal;
-    word-break: break-word;
-}
-
-/* ================= TABLE INPUTS ================= */
-table input {
-    width: 100%;
-    padding: 6px;
-
-    background: #0f141a;
-    border: 1px solid var(--border);
-    color: var(--text);
-
-    border-radius: 4px;
-    text-align: center;
-}
-
-/* ================= TABLE BUTTONS ================= */
-table button {
-    padding: 6px 10px;
-
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-
-    border-radius: 4px;
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-table button:hover {
-    background: var(--gold);
-    color: #111;
-}
-
-/* ACTION CELL ALIGNMENT */
-td:last-child {
+/* ================= SAP IMPORT ================= */
+.sap-header {
     display: flex;
-    justify-content: center;
-    gap: 6px;
     flex-wrap: wrap;
-}
-
-/* ================= HEADINGS ================= */
-h3 {
-    margin-bottom: 10px;
-}
-
-/* ================= SUB TABLE ================= */
-.sub-table-row td {
-    background: #0c1116;
-    padding: 15px;
-}
-
-.sub-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sub-table th,
-.sub-table td {
-    padding: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    text-align: center;
-}
-
-.sub-table tr:hover {
-    background: rgba(212,175,55,0.08);
-}
-
-/* ================= FILE SYSTEM (MATCH YOUR UI) ================= */
-.file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 8px;
-    margin-bottom: 5px;
-
-    padding: 6px 10px;
-
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-
-    font-size: 13px;
-}
-
-/* file name */
-.file-item span {
-    flex: 1;
-    text-align: left;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* file buttons */
-.file-item button {
-    padding: 4px 8px;
-
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-
-    border-radius: 4px;
-    cursor: pointer;
-
-    font-size: 12px;
-}
-
-.file-item button:hover {
-    background: var(--gold);
-    color: #111;
-}
-
-/* icons spacing */
-.file-preview,
-.file-download {
-    min-width: 30px;
-}
-
-.exportBtn {
-    padding: 4px 8px;
-
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-
-    border-radius: 4px;
-    cursor: pointer;
-
-    font-size: 12px;
-}
-
-.export-box {
-    display: flex;
     gap: 10px;
     align-items: center;
 }
 
-.export-box select {
-    padding: 4px 8px;
-    border: 1px solid var(--gold);
-    background: transparent;
-    color: var(--gold);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    outline: none;
+.sap-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
 }
 
-/* optional: style dropdown arrow consistency */
-.export-box select option {
-    color: #000;
+.sap-panel,
+.sap-footer {
+    background: var(--panel-2);
+    padding: 10px;
+    border-radius: 8px;
 }
 
+/* ================= FILE ITEMS ================= */
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+/* ================= PROGRESS ================= */
+.progress-container {
+    width: 100%;
+    height: 18px;
+    background: #2c3238;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f5b21b, #ffcc55);
+}
+
+/* ================= EHP MODULE ================= */
+.ehp-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ehp-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.ehp-section {
+    display: none;
+    padding: 15px;
+    background: var(--panel);
+    border-radius: 10px;
+}
+
+.ehp-section.active {
+    display: block;
+}
+
+.ehp-card {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/* ================= TABLE ROW STATES ================= */
+tr[data-editing] {
+    background: #fff3cda6;
+}
