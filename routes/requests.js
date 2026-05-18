@@ -97,10 +97,13 @@ router.post(
                 });
             }
 
-            const directManager = await User.findOne({
-                roles: "direct_manager",
-                area_section: { $in: submitter.area_section }
+            const budgetControllers = await User.find({
+                roles: "budget_control"
             });
+
+            const budgetControlEmails = budgetControllers
+                .map(u => u.user_email)
+                .filter(Boolean);
 
             if (!sessionUser?.id) {
                 return res.status(401).json({
@@ -275,7 +278,7 @@ router.post(
                 requestNo,
                 totalAmountSAR: total,   // ✅ ADD THIS
                 emails: {
-                    to: directManager?.user_email || "",
+                    to: budgetControlEmails.join(";"),
                     cc: submitter?.user_email || ""
 
                 },

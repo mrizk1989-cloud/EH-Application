@@ -9,6 +9,28 @@ let allRequestItems = [];
 let currentRequestView = "assigned";
 let isAllRequestsView = false;
 
+function openMailClient(mail) {
+
+    if (!mail) return;
+
+    const to =
+        encodeURIComponent((mail.to || []).join(";"));
+
+    const cc =
+        encodeURIComponent((mail.cc || []).join(";"));
+
+    const subject =
+        encodeURIComponent(mail.subject || "");
+
+    const body =
+        encodeURIComponent(mail.body || "");
+
+    const mailtoLink =
+        `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+
+    window.location.href = mailtoLink;
+}
+
 
 function setTheme(mode) {
 
@@ -962,33 +984,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             alert("Updated successfully");
 
-            const request = data.data;
+            openMailClient(data.mail);
 
-            const subject = encodeURIComponent(
-                `Request ${request.requestNo} - Status Updated`
-            );
 
-            const body = encodeURIComponent(
-                `Request No: ${request.requestNo}
-                        Status: ${request.status}
-                        Total: ${formatNumber(request.totalAmountSAR)} SAR
-
-                        Comment: ${comment || "N/A"}
-
-                        This is an automated notification from the approval system.`
-            );
-
-            const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-
-            // 🔥 MUST be executed immediately
-            const a = document.createElement("a");
-            a.href = mailtoLink;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            // THEN refresh UI
-            init();
+            setTimeout(async () => {
+                await loadRequestsByRole(isAllRequestsView);
+            }, 500);
 
 
 

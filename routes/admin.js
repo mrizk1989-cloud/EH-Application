@@ -15,6 +15,8 @@ const ExchangeRate = require('../models/ExchangeRate');
 const ExpenseType = require('../models/ExpenseType');
 const RequestItem = require('../models/RequestItem');
 const { convertToSAR } = require('../services/exchangeService');
+const { buildApprovalMail } = require('../services/mailBuilder');
+
 
 // ================= ADMIN PAGE =================
 router.get('/', verifyToken, requireAdmin, (req, res) => {
@@ -881,7 +883,18 @@ router.post('/directMangaer/:id/approve', verifyToken, requireDirectmanager, asy
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "direct_manager",
+            action: "approve",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -907,7 +920,18 @@ router.post('/directMangaer/:id/reject', verifyToken, requireDirectmanager, asyn
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "direct_manager",
+            action: "reject",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -933,7 +957,18 @@ router.post('/bi/:id/approve', verifyToken, requireBiorVpfinance, async (req, re
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "bi",
+            action: "approve",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -959,7 +994,19 @@ router.post('/bi/:id/reject', verifyToken, requireBiorVpfinance, async (req, res
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "bi",
+            action: "reject",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -985,7 +1032,19 @@ router.post('/vpFinance/:id/approve', verifyToken, requireBiorVpfinance, async (
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "vp_finance",
+            action: "approve",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -1011,7 +1070,17 @@ router.post('/vpFinance/:id/reject', verifyToken, requireBiorVpfinance, async (r
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "vp_finance",
+            action: "reject",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -1037,7 +1106,17 @@ router.post('/budgetControl/:id/approve', verifyToken, requireBudgetcontrole, as
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "budget_control",
+            action: "approve",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);
@@ -1063,7 +1142,17 @@ router.post('/budgetControl/:id/reject', verifyToken, requireBudgetcontrole, asy
             comment
         });
 
-        res.json({ success: true, data: updated });
+        const mail = await buildApprovalMail({
+            request: updated,
+            role: "budget_control",
+            action: "reject",
+            comment
+        });
+
+        console.log("MAIL:");
+        console.log(mail);
+
+        res.json({ success: true, data: updated, mail });
 
     } catch (err) {
         console.error(err);

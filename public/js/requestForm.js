@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addRowBtn = document.getElementById("addRowBtn");
     const deleteRowsBtn = document.getElementById("deleteRowsBtn");
     const requestForm = document.getElementById("requestForm");
-    const User = require('../models/User');
+    // const User = require('../models/User');
     const backBtn = document.getElementById("backBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
