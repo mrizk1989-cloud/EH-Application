@@ -883,6 +883,8 @@ async function loadRequests() {
                     .join("")}
                 </td>
 
+                <td>${formatNumber(r.remainingBudgetSAR)}</td>
+
                 <td class="action-cell">
                     <button class="view-request">
                         View

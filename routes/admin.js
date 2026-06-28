@@ -8,6 +8,10 @@ const { requireDirectmanager } = require('../middleware/requireDirectmanager');
 const { requireBiorVpfinance } = require('../middleware/requireBiorVpfinance');
 const bcrypt = require('bcrypt');
 
+const {
+    attachRemainingBudgetToRequests
+} = require("../services/budgetRemainingService");
+
 const User = require('../models/User');
 const MasterRequest = require('../models/MasterRequest');
 const Currency = require('../models/Currency');
@@ -202,9 +206,11 @@ router.get('/requests', verifyToken, requireAdmin, async (req, res) => {
             );
         }
 
+        const data = await attachRemainingBudgetToRequests(requests);
+
         res.json({
             success: true,
-            data: requests
+            data
         });
 
     } catch (err) {
@@ -644,9 +650,11 @@ router.get('/budgetControl', verifyToken, requireBudgetcontrole, async (req, res
             .find({ currentRole: "budget_control" })
             .sort({ createdAt: -1 });
 
+        const data = await attachRemainingBudgetToRequests(requests);
+
         res.json({
             success: true,
-            data: requests
+            data
         });
 
     } catch (err) {
@@ -688,9 +696,11 @@ router.get('/directMangaer', verifyToken, requireDirectmanager, async (req, res)
             })
             .sort({ createdAt: -1 });
 
+        const data = await attachRemainingBudgetToRequests(requests);
+
         res.json({
             success: true,
-            data: requests
+            data
         });
 
     } catch (err) {
@@ -730,9 +740,11 @@ router.get('/biVpfinance', verifyToken, requireBiorVpfinance, async (req, res) =
             })
             .sort({ createdAt: -1 });
 
+        const data = await attachRemainingBudgetToRequests(requests);
+
         res.json({
             success: true,
-            data: requests
+            data
         });
 
     } catch (err) {
@@ -1184,9 +1196,11 @@ router.get(
                 .find()
                 .sort({ createdAt: -1 });
 
+            const data = await attachRemainingBudgetToRequests(requests);
+
             res.json({
                 success: true,
-                data: requests
+                data
             });
 
         } catch (err) {
@@ -1218,9 +1232,11 @@ router.get(
                 })
                 .sort({ createdAt: -1 });
 
+            const data = await attachRemainingBudgetToRequests(requests);
+
             res.json({
                 success: true,
-                data: requests
+                data
             });
 
         } catch (err) {

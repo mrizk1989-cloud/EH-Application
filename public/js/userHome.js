@@ -474,6 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         html += `
                         <th>Attachments</th>
+                        <th>Remaining Budget</th>
                         <th>Details</th>
         `;
 
@@ -522,6 +523,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     )
                     .join(""))}
                     </td>
+
+                    <td>${formatNumber(r.remainingBudgetSAR)}</td>
 
                     <td>
                         <button class="view-request">

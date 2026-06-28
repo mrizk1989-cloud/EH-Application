@@ -5,6 +5,10 @@ const { fileTypeFromBuffer } = require('file-type');
 const path = require("path");
 
 const {
+    attachRemainingBudgetToRequests
+} = require("../services/budgetRemainingService");
+
+const {
     validateFileUpload,
     detectSuspiciousFile,
     logUpload
@@ -359,9 +363,11 @@ router.get('/my-detailed', verifyToken, async (req, res) => {
             });
         }
 
+        const data = await attachRemainingBudgetToRequests(result);
+
         res.json({
             success: true,
-            data: result
+            data
         });
 
     } catch (err) {
