@@ -3,9 +3,9 @@ const User = require("../models/User");
 // ================= GET USERS BY ROLE =================
 async function getUsersByRole(role, areas = []) {
 
-    console.log("\n=== getUsersByRole START ===");
-    console.log("Role:", role);
-    console.log("Incoming Areas:", areas);
+    // console.log("\n=== getUsersByRole START ===");
+    // console.log("Role:", role);
+    // console.log("Incoming Areas:", areas);
 
     const filter = {
         roles: { $in: [role] },
@@ -24,21 +24,21 @@ async function getUsersByRole(role, areas = []) {
         };
     }
 
-    console.log("Final Filter:");
-    console.log(JSON.stringify(filter, null, 2));
+    // console.log("Final Filter:");
+    // console.log(JSON.stringify(filter, null, 2));
 
     const users = await User.find(filter);
 
-    console.log(
-        "Matched Users:",
-        users.map(u => ({
-            user: u.userName,
-            email: u.user_email,
-            areas: u.area_section
-        }))
-    );
+    // console.log(
+    //     "Matched Users:",
+    //     users.map(u => ({
+    //         user: u.userName,
+    //         email: u.user_email,
+    //         areas: u.area_section
+    //     }))
+    // );
 
-    console.log("=== getUsersByRole END ===\n");
+    // console.log("=== getUsersByRole END ===\n");
 
     return users
         .map(u => u.user_email)
@@ -53,11 +53,11 @@ async function buildApprovalMail({
     comment
 }) {
 
-    console.log("\n==============================");
-    console.log("BUILD MAIL START");
-    console.log("ROLE:", role);
-    console.log("ACTION:", action);
-    console.log("==============================\n");
+    // console.log("\n==============================");
+    // console.log("BUILD MAIL START");
+    // console.log("ROLE:", role);
+    // console.log("ACTION:", action);
+    // console.log("==============================\n");
 
     let to = [];
     let cc = [];
@@ -91,7 +91,7 @@ async function buildApprovalMail({
                     ? [request.userArea]
                     : [];
 
-        console.log("Normalized Areas:", areas);
+        // console.log("Normalized Areas:", areas);
 
         // ================= DIRECT MANAGERS =================
         to = await getUsersByRole(
@@ -410,10 +410,10 @@ This is an automated notification.
         body
     };
 
-    console.log("\n==============================");
-    console.log("FINAL MAIL OBJECT:");
-    console.log(JSON.stringify(mail, null, 2));
-    console.log("==============================\n");
+    // console.log("\n==============================");
+    // console.log("FINAL MAIL OBJECT:");
+    // console.log(JSON.stringify(mail, null, 2));
+    // console.log("==============================\n");
 
     return mail;
 }

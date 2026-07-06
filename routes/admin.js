@@ -338,12 +338,12 @@ router.put('/requests/:id/cancel', verifyToken, requireAdmin, async (req, res) =
             });
         }
 
-        // ✅ 1. Cancel master
+        //  1. Cancel master
         request.status = "canceled";
 
         await request.save();
 
-        // ✅ 2. Cancel ALL items under it
+        //  2. Cancel ALL items under it
         await RequestItem.updateMany(
             { requestId: request._id },
             { $set: { status: "canceled" } }
@@ -418,7 +418,7 @@ router.put('/requests/items/:id', verifyToken, requireAdmin, async (req, res) =>
             }
         });
 
-        // ✅ IMPORTANT: if amount OR currency changed → recalc SAR
+        //  IMPORTANT: if amount OR currency changed → recalc SAR
         if (
             updateData.amount !== undefined ||
             updateData.currency !== undefined
@@ -438,7 +438,7 @@ router.put('/requests/items/:id', verifyToken, requireAdmin, async (req, res) =>
             { new: true, runValidators: true }
         );
 
-        // ✅ Recalculate master (your logic is good)
+        //  Recalculate master (your logic is good)
 
         await recalcMasterState(updated.requestId);
 
@@ -459,22 +459,22 @@ async function recalcMasterState(requestId) {
 
     if (!items.length) return;
 
-    // ✅ 1. Separate active vs canceled
+    //  1. Separate active vs canceled
     const activeItems = items.filter(i => i.status !== "canceled");
 
-    // ✅ 2. Recalculate total ONLY for active items
+    //  2. Recalculate total ONLY for active items
     const total = activeItems.reduce((sum, i) => {
         return sum + (i.amountSAR || 0);
     }, 0);
 
-    // ✅ 3. Decide master status
+    //  3. Decide master status
     let newStatus = "pending";
 
     if (activeItems.length === 0) {
         newStatus = "canceled";
     }
 
-    // ✅ 4. Update master
+    //  4. Update master
     await MasterRequest.findByIdAndUpdate(requestId, {
         totalAmountSAR: total,
         status: newStatus
@@ -902,8 +902,8 @@ router.post('/directMangaer/:id/approve', verifyToken, requireDirectmanager, asy
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
 
         res.json({ success: true, data: updated, mail });
@@ -939,8 +939,8 @@ router.post('/directMangaer/:id/reject', verifyToken, requireDirectmanager, asyn
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
 
         res.json({ success: true, data: updated, mail });
@@ -976,8 +976,8 @@ router.post('/bi/:id/approve', verifyToken, requireBiorVpfinance, async (req, re
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
 
         res.json({ success: true, data: updated, mail });
@@ -1013,8 +1013,8 @@ router.post('/bi/:id/reject', verifyToken, requireBiorVpfinance, async (req, res
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
 
 
@@ -1051,8 +1051,8 @@ router.post('/vpFinance/:id/approve', verifyToken, requireBiorVpfinance, async (
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
 
 
@@ -1089,8 +1089,8 @@ router.post('/vpFinance/:id/reject', verifyToken, requireBiorVpfinance, async (r
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
         res.json({ success: true, data: updated, mail });
 
@@ -1125,8 +1125,8 @@ router.post('/budgetControl/:id/approve', verifyToken, requireBudgetcontrole, as
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
         res.json({ success: true, data: updated, mail });
 
@@ -1161,8 +1161,8 @@ router.post('/budgetControl/:id/reject', verifyToken, requireBudgetcontrole, asy
             comment
         });
 
-        console.log("MAIL:");
-        console.log(mail);
+        // console.log("MAIL:");
+        // console.log(mail);
 
         res.json({ success: true, data: updated, mail });
 

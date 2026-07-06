@@ -5,8 +5,8 @@ const attachmentSchema = new mongoose.Schema({
     public_id: String,
     type: String,
     originalName: String,
-    extension: String,   // ✅ NEW (".pdf", ".jpeg")
-    mimeType: String     // ✅ NEW ("application/pdf", "image/jpeg")
+    extension: String,   //  (".pdf", ".jpeg")
+    mimeType: String     // ("application/pdf", "image/jpeg")
 }, { _id: false });
 
 const masterRequestSchema = new mongoose.Schema({
@@ -83,7 +83,7 @@ const masterRequestSchema = new mongoose.Schema({
         default: ''
     },
 
-    // ✅ FIXED (EXPLICIT)
+    
     attachments: [attachmentSchema]
 
 }, { timestamps: true });

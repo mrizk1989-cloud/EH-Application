@@ -30,7 +30,7 @@ function uploadToCloudinary(fileBuffer, originalName, mimeType) {
                 public_id: `${Date.now()}_${name}`,
                 use_filename: true,
                 unique_filename: true,
-                // ✅ FORCE EXTENSION PRESERVATION
+                //  FORCE EXTENSION PRESERVATION
                 format: ext.replace(".", "")
             },
             (error, result) => {

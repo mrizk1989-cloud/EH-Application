@@ -85,7 +85,7 @@ async function loadCustomers() {
 
     customers = data.success ? data.data : [];
 
-    console.log("CUSTOMERS:", customers);
+    // console.log("CUSTOMERS:", customers);
 }
 
 // ================= LOAD CURRENCIES =================

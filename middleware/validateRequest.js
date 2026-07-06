@@ -25,10 +25,10 @@ const validateRequest = [
         .withMessage('Currency required')
         .custom(async (value) => {
 
-            // ✅ Allow SAR directly
+            //  Allow SAR directly
             if (value === "SAR") return true;
 
-            // ✅ Check if exchange rate exists to SAR
+            //  Check if exchange rate exists to SAR
             const exists = await ExchangeRate.findOne({
                 fromCurrency: value,
                 toCurrency: "SAR"

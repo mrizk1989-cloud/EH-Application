@@ -30,7 +30,7 @@ async function validateFileUpload(req, res, next) {
 
         for (const file of files) {
 
-            // ❌ 1. filename safety
+            //  1. filename safety
             if (blockedNames.some(b => file.originalname.includes(b))) {
                 return res.status(400).json({
                     success: false,
@@ -38,7 +38,7 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 2. extension check
+            //  2. extension check
             const ext = path.extname(file.originalname).toLowerCase();
 
             if (!allowedExtensions.includes(ext)) {
@@ -48,7 +48,7 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 3. empty file
+            //  3. empty file
             if (!file.buffer || file.buffer.length === 0) {
                 return res.status(400).json({
                     success: false,
@@ -56,7 +56,7 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 4. fake PDF detection
+            //  4. fake PDF detection
             if (ext === ".pdf" && !isValidPDF(file.buffer)) {
                 return res.status(400).json({
                     success: false,
@@ -64,7 +64,7 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 5. executable detection (renamed malware)
+            //  5. executable detection (renamed malware)
             if (isWindowsExecutable(file.buffer)) {
                 return res.status(400).json({
                     success: false,
@@ -72,7 +72,7 @@ async function validateFileUpload(req, res, next) {
                 });
             }
 
-            // ❌ 6. real MIME verification
+            //  6. real MIME verification
             const type = await fileTypeFromBuffer(file.buffer);
 
             if (!type) {
@@ -116,7 +116,7 @@ function detectSuspiciousFile(req, res, next) {
 
             const name = file.originalname.toLowerCase();
 
-            // ❌ double extension (invoice.pdf.exe)
+            //  double extension (invoice.pdf.exe)
             if (name.split(".").length > 2) {
                 return res.status(400).json({
                     success: false,
@@ -124,7 +124,7 @@ function detectSuspiciousFile(req, res, next) {
                 });
             }
 
-            // ❌ dangerous extensions
+            //  dangerous extensions
             const suspiciousPatterns = [
                 ".exe", ".bat", ".cmd", ".js", ".vbs", ".ps1", ".sh"
             ];

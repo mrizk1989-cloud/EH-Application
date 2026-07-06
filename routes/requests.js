@@ -411,7 +411,7 @@ router.get('/customers', verifyToken, async (req, res) => {
 
         const userAreas = req.session.user.userArea || [];
 
-        console.log("USER AREAS:", userAreas);
+        // console.log("USER AREAS:", userAreas);
 
         const customers = await Customers.find({
             area: { $in: userAreas }

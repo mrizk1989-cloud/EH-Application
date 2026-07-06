@@ -6,7 +6,7 @@ const FileHandler = {
         const type = file.mimeType || "";
         const ext = file.extension || "";
 
-        console.log("Preview:", { url, type, ext });
+        // console.log("Preview:", { url, type, ext });
 
         if (!url) return;
 
@@ -15,7 +15,7 @@ const FileHandler = {
             type.startsWith("image/") ||
             ext.match(/\.(jpg|jpeg|png|webp|gif)$/i)
         ) {
-            console.log("Opening image:", url);
+            // console.log("Opening image:", url);
             const optimized = url.replace("/upload/", "/upload/f_auto,q_auto/");
             window.open(optimized, "_blank");
             return;
@@ -26,7 +26,7 @@ const FileHandler = {
             type === "application/pdf" ||
             ext === ".pdf"
         ) {
-            console.log("Opening PDF:", url);
+            // console.log("Opening PDF:", url);
             // const pdfUrl = url.replace("/upload/", "/upload/fl_inline/");
             // window.open(pdfUrl, "_blank");
 
@@ -61,7 +61,7 @@ const FileHandler = {
 
                 if (!win || win.closed) {
 
-                    console.warn("Viewer failed → fixing filename download");
+                    // console.warn("Viewer failed → fixing filename download");
 
                     const baseName = fileName
                         ? fileName.replace(/\.[^/.]+$/, "")
@@ -75,7 +75,7 @@ const FileHandler = {
                         `/upload/fl_attachment:${encodeURIComponent(finalName)}/`
                     );
 
-                    console.log("DOWNLOAD URL:", downloadUrl); // DEBUG
+                    // console.log("DOWNLOAD URL:", downloadUrl); // DEBUG
 
                     const a = document.createElement("a");
                     a.href = downloadUrl;
@@ -89,7 +89,7 @@ const FileHandler = {
             }, 2000);
         }
         // ================= DEFAULT =================
-        console.log("Fallback open:", url);
+        // console.log("Fallback open:", url);
         window.open(url, "_blank");
     },
 
@@ -151,25 +151,25 @@ const FileHandler = {
 
     // ================= INIT GLOBAL LISTENER =================
     init() {
-        console.log("FileHandler initialized"); // ✅ should print ONCE
+        // console.log("FileHandler initialized"); 
 
         document.addEventListener("click", (e) => {
-            console.log("Click detected:", e.target); // ✅ should spam on clicks
+            // console.log("Click detected:", e.target); 
 
             const container = e.target.closest(".file-item");
             if (!container) return;
 
-            console.log("File item clicked"); // ✅ MUST appear
+            // console.log("File item clicked"); 
 
             const file = JSON.parse(container.dataset.file);
 
             if (e.target.classList.contains("file-preview")) {
-                console.log("Preview button clicked"); // ✅ MUST appear
+                // console.log("Preview button clicked"); 
                 FileHandler.preview(file);
             }
 
             if (e.target.classList.contains("file-download")) {
-                console.log("Download button clicked");
+                // console.log("Download button clicked");
                 FileHandler.download(file);
             }
         });

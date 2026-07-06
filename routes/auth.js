@@ -24,7 +24,7 @@ router.post('/register', registerLimiter, async (req, res) => {
             });
         }
 
-        // ✅ PASSWORD VALIDATION
+        //  PASSWORD VALIDATION
         if (!isStrongPassword(password)) {
             return res.json({
                 success: false,
@@ -34,7 +34,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 
         const emailNormalized = email.toLowerCase().trim();
 
-        // ✅ CHECK IF USER EXISTS (important)
+        //  CHECK IF USER EXISTS (important)
         const existingUser = await User.findOne({ user_email: emailNormalized });
         if (existingUser) {
             return res.json({
@@ -94,7 +94,7 @@ router.post('/login', loginLimiter, async (req, res) => {
             });
         }
 
-        // ✅ CRITICAL: REGENERATE SESSION (prevents session fixation)
+        //  CRITICAL: REGENERATE SESSION (prevents session fixation)
         req.session.regenerate((err) => {
             if (err) {
                 console.error("SESSION REGENERATE ERROR:", err);
@@ -111,7 +111,7 @@ router.post('/login', loginLimiter, async (req, res) => {
                 country: user.country,
             };
 
-            // ✅ SAVE AFTER REGENERATE
+            //  SAVE AFTER REGENERATE
             req.session.save((err) => {
                 if (err) {
                     console.error("SESSION SAVE ERROR:", err);
@@ -202,7 +202,7 @@ router.post('/change-password', async (req, res) => {
             });
         }
 
-        // ✅ validate new password
+        //  validate new password
         if (!isStrongPassword(newPassword)) {
             return res.json({
                 success: false,
@@ -223,7 +223,7 @@ router.post('/change-password', async (req, res) => {
 
         user.user_password = await bcrypt.hash(newPassword, 10);
 
-        // ✅ remove forced reset flag
+        //  remove forced reset flag
         user.mustChangePassword = false;
 
         await user.save();

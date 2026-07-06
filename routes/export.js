@@ -59,7 +59,7 @@ router.get("/:collection", async (req, res) => {
 
         if (!isAdmin && collection === "requestItems") {
 
-            // ✅ FIX: support BOTH naming styles
+            //  FIX: support BOTH naming styles
             const areas = (user.area_section || user.userArea || [])
                 .map(a => String(a).trim())
                 .filter(Boolean);
@@ -69,7 +69,7 @@ router.get("/:collection", async (req, res) => {
 
             } else if (isManager || isSales) {
 
-                // 🔥 IMPORTANT SAFETY CHECK
+                //  IMPORTANT SAFETY CHECK
                 if (areas.length === 0) {
                     return res.status(400).json({
                         success: false,

@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const data = await res.json();
 
-        console.log("USER INFO:", data);
+        // console.log("USER INFO:", data);
 
         const user = data.user || data;
 
@@ -90,11 +90,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             ? user.roles
             : (user.roles ? [user.roles] : []);
 
-        console.log("ROLES:", roles);
+        // console.log("ROLES:", roles);
 
         const isAdmin = roles.includes("admin");
 
-        console.log("IS ADMIN:", isAdmin);
+        // console.log("IS ADMIN:", isAdmin);
 
         ExportModule.setRole(isAdmin ? "admin" : "user");
     }
